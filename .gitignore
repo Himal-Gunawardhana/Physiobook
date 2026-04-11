@@ -1,0 +1,26 @@
+# Node
+node_modules/
+my-demo-app/node_modules/
+
+# Build outputs
+dist/
+build/
+my-demo-app/dist/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Editor
+.DS_Store
+.vscode/
+*.swp
+
+# Logs
+*.log
+npm-debug.log*
+
+# Vite cache
+.vite/
+my-demo-app/.vite/
