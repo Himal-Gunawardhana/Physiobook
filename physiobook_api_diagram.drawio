@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxGraphModel dx="1600" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1680" pageHeight="950" math="0" shadow="1">
+  <root>
+    <mxCell id="0" />
+    <mxCell id="1" parent="0" />
+
+    <!-- ═══ TITLE ═══ -->
+    <mxCell id="title" value="Physiobook — REST API Architecture  (v1)" style="text;html=1;fontStyle=1;fontSize=18;fillColor=none;strokeColor=none;align=center;fontColor=#0f172a;" vertex="1" parent="1">
+      <mxGeometry x="340" y="8" width="920" height="32" as="geometry"/>
+    </mxCell>
+
+    <!-- ══════════════════════════════════════════════════════════════ -->
+    <!--  TIER BAND BACKGROUNDS                                        -->
+    <!-- ══════════════════════════════════════════════════════════════ -->
+
+    <!-- CLIENT TIER -->
+    <mxCell id="bg_client" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;opacity=40;" vertex="1" parent="1">
+      <mxGeometry x="10" y="48" width="1650" height="100" as="geometry"/>
+    </mxCell>
+    <mxCell id="lbl_client" value="CLIENT TIER" style="text;html=1;fontStyle=1;fontSize=11;fillColor=none;strokeColor=none;fontColor=#1e40af;align=left;" vertex="1" parent="1">
+      <mxGeometry x="18" y="52" width="130" height="20" as="geometry"/>
+    </mxCell>
+
+    <!-- GATEWAY TIER -->
+    <mxCell id="bg_gateway" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;opacity=40;" vertex="1" parent="1">
+      <mxGeometry x="10" y="195" width="1650" height="165" as="geometry"/>
+    </mxCell>
+    <mxCell id="lbl_gateway" value="API GATEWAY &amp; SECURITY" style="text;html=1;fontStyle=1;fontSize=11;fillColor=none;strokeColor=none;fontColor=#92400e;align=left;" vertex="1" parent="1">
+      <mxGeometry x="18" y="199" width="230" height="20" as="geometry"/>
+    </mxCell>
+
+    <!-- SERVICE TIER -->
+    <mxCell id="bg_services" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;opacity=40;" vertex="1" parent="1">
+      <mxGeometry x="10" y="407" width="1650" height="230" as="geometry"/>
+    </mxCell>
+    <mxCell id="lbl_services" value="API SERVICE LAYER  ·  /api/v1" style="text;html=1;fontStyle=1;fontSize=11;fillColor=none;strokeColor=none;fontColor=#166534;align=left;" vertex="1" parent="1">
+      <mxGeometry x="18" y="411" width="230" height="20" as="geometry"/>
+    </mxCell>
+
+    <!-- DATA TIER -->
+    <mxCell id="bg_data" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;opacity=40;" vertex="1" parent="1">
+      <mxGeometry x="10" y="685" width="1010" height="140" as="geometry"/>
+    </mxCell>
+    <mxCell id="lbl_data" value="DATA &amp; INFRASTRUCTURE" style="text;html=1;fontStyle=1;fontSize=11;fillColor=none;strokeColor=none;fontColor=#374151;align=left;" vertex="1" parent="1">
+      <mxGeometry x="18" y="689" width="220" height="20" as="geometry"/>
+    </mxCell>
+
+    <!-- EXTERNAL TIER -->
+    <mxCell id="bg_external" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;opacity=40;" vertex="1" parent="1">
+      <mxGeometry x="1030" y="685" width="630" height="140" as="geometry"/>
+    </mxCell>
+    <mxCell id="lbl_external" value="EXTERNAL SERVICES" style="text;html=1;fontStyle=1;fontSize=11;fillColor=none;strokeColor=none;fontColor=#5b21b6;align=left;" vertex="1" parent="1">
+      <mxGeometry x="1040" y="689" width="200" height="20" as="geometry"/>
+    </mxCell>
+
+    <!-- ══════════════════════════════════════════════════════════════ -->
+    <!--  CLIENT NODES                                                  -->
+    <!-- ══════════════════════════════════════════════════════════════ -->
+
+    <mxCell id="web_client" value="🌐 Web Browser&#xa;React SPA (Vite)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=11;" vertex="1" parent="1">
+      <mxGeometry x="220" y="68" width="190" height="60" as="geometry"/>
+    </mxCell>
+
+    <mxCell id="mobile_client" value="📱 Mobile App&#xa;React Native (Roadmap)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=11;" vertex="1" parent="1">
+      <mxGeometry x="730" y="68" width="210" height="60" as="geometry"/>
+    </mxCell>
+
+    <mxCell id="admin_client" value="🖥️ Admin Dashboard&#xa;Clinic Owner / SuperAdmin" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=11;" vertex="1" parent="1">
+      <mxGeometry x="1240" y="68" width="210" height="60" as="geometry"/>
+    </mxCell>
+
+    <!-- ══════════════════════════════════════════════════════════════ -->
+    <!--  GATEWAY NODES                                                 -->
+    <!-- ══════════════════════════════════════════════════════════════ -->
+
+    <mxCell id="load_balancer" value="⚖️ Load Balancer / Reverse Proxy&#xa;Nginx  ·  SSL Termination  ·  HTTP/2" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontStyle=1;fontSize=11;" vertex="1" parent="1">
+      <mxGeometry x="620" y="213" width="370" height="55" as="geometry"/>
+    </mxCell>
+
+    <mxCell id="rate_limiter" value="🚦 Rate Limiter&#xa;100 req / min per IP&#xa;Redis sliding window" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontStyle=1;fontSize=10;" vertex="1" parent="1">
+      <mxGeometry x="60" y="290" width="175" height="62" as="geometry"/>
+    </mxCell>
+
+    <mxCell id="jwt_auth" value="🔐 JWT Middleware&#xa;RS256 · 15 min access token&#xa;7 day refresh token · HttpOnly" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontStyle=1;fontSize=10;" vertex="1" parent="1">
+      <mxGeometry x="265" y="290" width="185" height="62" as="geometry"/>
+    </mxCell>
+
+    <mxCell id="rbac" value="🛡️ RBAC Guard&#xa;patient | clinic_admin&#xa;therapist | super_admin" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontStyle=1;fontSize=10;" vertex="1" parent="1">
+      <mxGeometry x="480" y="290" width="185" height="62" as="geometry"/>
+    </mxCell>
+
+    <mxCell id="cors" value="🌐 CORS + Helmet&#xa;Strict security headers&#xa;Allowlist origins only" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontStyle=1;fontSize=10;" vertex="1" parent="1">
+      <mxGeometry x="695" y="290" width="175" height="62" as="geometry"/>
+    </mxCell>
+
+    <mxCell id="validator" value="✅ Request Validator&#xa;Zod schema validation&#xa;Sanitise + type coerce" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontStyle=1;fontSize=10;" vertex="1" parent="1">
+      <mxGeometry x="900" y="290" width="175" height="62" as="geometry"/>
+    </mxCell>
+
+    <mxCell id="logger" value="📝 Structured Logger&#xa;JSON logs (pino)&#xa;Request ID tracing" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontStyle=1;fontSize=10;" vertex="1" parent="1">
+      <mxGeometry x="1105" y="290" width="175" height="62" as="geometry"/>
+    </mxCell>
+
+    <mxCell id="error_handler" value="🚨 Global Error Handler&#xa;Standardised error schema&#xa;4xx / 5xx formatting" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontStyle=1;fontSize=10;" vertex="1" parent="1">
+      <mxGeometry x="1310" y="290" width="175" height="62" as="geometry"/>
+    </mxCell>
+
+    <!-- ══════════════════════════════════════════════════════════════ -->
+    <!--  SERVICE NODES                                                 -->
+    <!-- ══════════════════════════════════════════════════════════════ -->
+
+    <mxCell id="svc_auth" value="🔑 Auth Service&#xa;&#xa;POST /auth/register&#xa;POST /auth/login&#xa;POST /auth/refresh&#xa;POST /auth/logout&#xa;POST /auth/2fa/enable&#xa;POST /auth/2fa/verify" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;align=left;spacingLeft=8;fontSize=10;verticalAlign=top;fontStyle=1;" vertex="1" parent="1">
+      <mxGeometry x="18" y="430" width="180" height="195" as="geometry"/>
+    </mxCell>
+
+    <mxCell id="svc_user" value="👤 User Service&#xa;&#xa;GET    /users/me&#xa;PUT    /users/me&#xa;GET    /users/:id&#xa;PUT    /users/:id/notif-prefs&#xa;GET    /users/:id/notifications&#xa;DELETE /users/:id" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;align=left;spacingLeft=8;fontSize=10;verticalAlign=top;fontStyle=1;" vertex="1" parent="1">
+      <mxGeometry x="210" y="430" width="190" height="195" as="geometry"/>
+    </mxCell>
+
+    <mxCell id="svc_clinic" value="🏥 Clinic Service&#xa;&#xa;GET  /clinics&#xa;POST /clinics&#xa;GET  /clinics/:id&#xa;PUT  /clinics/:id&#xa;GET  /clinics/:id/portal-config&#xa;PUT  /clinics/:id/portal-config&#xa;GET  /clinics/:id/team&#xa;POST /clinics/:id/team&#xa;PUT  /clinics/:id/team/:uid" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;align=left;spacingLeft=8;fontSize=10;verticalAlign=top;fontStyle=1;" vertex="1" parent="1">
+      <mxGeometry x="412" y="430" width="192" height="215" as="geometry"/>
+    </mxCell>
+
+    <mxCell id="svc_staff" value="👨‍⚕️ Staff &amp; Resource Service&#xa;&#xa;GET  /clinics/:id/staff&#xa;POST /clinics/:id/staff&#xa;PUT  /clinics/:id/staff/:sid&#xa;DEL  /clinics/:id/staff/:sid&#xa;GET  /staff/:id/availability&#xa;PUT  /staff/:id/availability&#xa;GET  /clinics/:id/equipment&#xa;POST /clinics/:id/equipment&#xa;PUT  /clinics/:id/equip/:eid&#xa;DEL  /clinics/:id/equip/:eid" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;align=left;spacingLeft=8;fontSize=10;verticalAlign=top;fontStyle=1;" vertex="1" parent="1">
+      <mxGeometry x="616" y="430" width="200" height="225" as="geometry"/>
+    </mxCell>
+
+    <mxCell id="svc_booking" value="📅 Booking Service&#xa;&#xa;GET  /bookings&#xa;POST /bookings&#xa;GET  /bookings/:id&#xa;PUT  /bookings/:id/status&#xa;DEL  /bookings/:id&#xa;POST /bookings/auto-assign&#xa;GET  /availability/slots&#xa;GET  /clinics/:id/services&#xa;POST /clinics/:id/services&#xa;GET  /clinics/:id/packages&#xa;POST /clinics/:id/packages&#xa;PUT  /clinics/:id/packages/:pid" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;align=left;spacingLeft=8;fontSize=10;verticalAlign=top;fontStyle=1;" vertex="1" parent="1">
+      <mxGeometry x="828" y="430" width="200" height="225" as="geometry"/>
+    </mxCell>
+
+    <mxCell id="svc_payment" value="💳 Payment Service&#xa;&#xa;GET  /payments&#xa;POST /payments&#xa;GET  /payments/:id&#xa;PUT  /payments/:id/mark-paid&#xa;POST /payments/:id/refund&#xa;POST /payments/webhook&#xa;GET  /payments/export" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;align=left;spacingLeft=8;fontSize=10;verticalAlign=top;fontStyle=1;" vertex="1" parent="1">
+      <mxGeometry x="1040" y="430" width="185" height="195" as="geometry"/>
+    </mxCell>
+
+    <mxCell id="svc_chat" value="💬 Chat &amp; Notification Service&#xa;&#xa;GET  /conversations/:bid/messages&#xa;POST /conversations/:bid/messages&#xa;PUT  /messages/:id/read&#xa;WS   ws://api/v1/chat&#xa;GET  /clinical-notes/:pid&#xa;POST /clinical-notes/:pid&#xa;POST /notifications/send&#xa;GET  /notifications" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;align=left;spacingLeft=8;fontSize=10;verticalAlign=top;fontStyle=1;" vertex="1" parent="1">
+      <mxGeometry x="1237" y="430" width="210" height="215" as="geometry"/>
+    </mxCell>
+
+    <mxCell id="svc_admin" value="⚙️ Admin Service&#xa;&#xa;GET  /admin/stats&#xa;GET  /admin/clinics&#xa;POST /admin/clinics&#xa;PUT  /admin/clinics/:id&#xa;PUT  /admin/clinics/:id/plan&#xa;DEL  /admin/clinics/:id&#xa;GET  /admin/alerts" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;align=left;spacingLeft=8;fontSize=10;verticalAlign=top;fontStyle=1;" vertex="1" parent="1">
+      <mxGeometry x="1459" y="430" width="185" height="195" as="geometry"/>
+    </mxCell>
+
+    <!-- ══════════════════════════════════════════════════════════════ -->
+    <!--  DATA LAYER NODES                                              -->
+    <!-- ══════════════════════════════════════════════════════════════ -->
+
+    <mxCell id="db_postgres" value="🗄️ PostgreSQL 16&#xa;Primary relational database&#xa;UUID PKs · Row-level security&#xa;Indexed on FK columns" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#555555;fontStyle=1;fontSize=11;" vertex="1" parent="1">
+      <mxGeometry x="30" y="710" width="220" height="80" as="geometry"/>
+    </mxCell>
+
+    <mxCell id="db_redis" value="⚡ Redis 7&#xa;Session &amp; JWT blocklist cache&#xa;Rate limit counters&#xa;Real-time presence tracking" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#555555;fontStyle=1;fontSize=11;" vertex="1" parent="1">
+      <mxGeometry x="270" y="710" width="220" height="80" as="geometry"/>
+    </mxCell>
+
+    <mxCell id="db_s3" value="📦 Object Storage (S3)&#xa;Clinic logos &amp; assets&#xa;Clinical note attachments&#xa;Booking receipt PDFs" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#555555;fontStyle=1;fontSize=11;" vertex="1" parent="1">
+      <mxGeometry x="510" y="710" width="220" height="80" as="geometry"/>
+    </mxCell>
+
+    <mxCell id="db_search" value="🔍 Full-Text Search&#xa;PostgreSQL tsvector&#xa;GIN index on names, services&#xa;Patient &amp; staff search" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#555555;fontStyle=1;fontSize=11;" vertex="1" parent="1">
+      <mxGeometry x="750" y="710" width="220" height="80" as="geometry"/>
+    </mxCell>
+
+    <!-- ══════════════════════════════════════════════════════════════ -->
+    <!--  EXTERNAL SERVICE NODES                                        -->
+    <!-- ══════════════════════════════════════════════════════════════ -->
+
+    <mxCell id="ext_stripe" value="💳 Stripe&#xa;Payment processing&#xa;Refunds &amp; webhooks&#xa;Saved payment methods" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1;fontSize=11;" vertex="1" parent="1">
+      <mxGeometry x="1050" y="710" width="175" height="80" as="geometry"/>
+    </mxCell>
+
+    <mxCell id="ext_sendgrid" value="📧 SendGrid&#xa;Booking confirmations&#xa;Invitation emails&#xa;Refund receipts" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1;fontSize=11;" vertex="1" parent="1">
+      <mxGeometry x="1245" y="710" width="175" height="80" as="geometry"/>
+    </mxCell>
+
+    <mxCell id="ext_twilio" value="📱 Twilio&#xa;SMS appointment reminders&#xa;2FA OTP delivery&#xa;Cancellation alerts" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1;fontSize=11;" vertex="1" parent="1">
+      <mxGeometry x="1440" y="710" width="175" height="80" as="geometry"/>
+    </mxCell>
+
+    <!-- ══════════════════════════════════════════════════════════════ -->
+    <!--  ARROWS                                                        -->
+    <!-- ══════════════════════════════════════════════════════════════ -->
+
+    <!-- Clients → Load Balancer -->
+    <mxCell id="e1" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#6c8ebf;strokeWidth=2;" edge="1" source="web_client" target="load_balancer" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell id="e2" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#6c8ebf;strokeWidth=2;" edge="1" source="mobile_client" target="load_balancer" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell id="e3" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#6c8ebf;strokeWidth=2;" edge="1" source="admin_client" target="load_balancer" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+    <!-- Load Balancer → Middleware -->
+    <mxCell id="e4" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#d6b656;" edge="1" source="load_balancer" target="rate_limiter" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell id="e5" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#d6b656;" edge="1" source="load_balancer" target="jwt_auth" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell id="e6" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#d6b656;" edge="1" source="load_balancer" target="rbac" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell id="e7" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#d6b656;" edge="1" source="load_balancer" target="cors" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell id="e8" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#d6b656;" edge="1" source="load_balancer" target="validator" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell id="e8b" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#d6b656;" edge="1" source="load_balancer" target="logger" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell id="e8c" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#d6b656;" edge="1" source="load_balancer" target="error_handler" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+    <!-- Middleware → Services (single representative arrow per service) -->
+    <mxCell id="e9v" value="routes to" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#82b366;strokeWidth=2;fontColor=#166534;fontSize=9;fontStyle=2;" edge="1" source="rbac" target="svc_auth" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell id="e9a" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#82b366;strokeWidth=2;" edge="1" source="rbac" target="svc_user" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell id="e9b" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#82b366;strokeWidth=2;" edge="1" source="rbac" target="svc_clinic" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell id="e9c" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#82b366;strokeWidth=2;" edge="1" source="rbac" target="svc_staff" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell id="e9d" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#82b366;strokeWidth=2;" edge="1" source="rbac" target="svc_booking" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell id="e9e" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#82b366;strokeWidth=2;" edge="1" source="rbac" target="svc_payment" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell id="e9f" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#82b366;strokeWidth=2;" edge="1" source="rbac" target="svc_chat" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell id="e9g" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#82b366;strokeWidth=2;" edge="1" source="rbac" target="svc_admin" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+    <!-- Services → PostgreSQL -->
+    <mxCell id="e10a" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#555555;" edge="1" source="svc_auth" target="db_postgres" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell id="e10b" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#555555;" edge="1" source="svc_clinic" target="db_postgres" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell id="e10c" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#555555;" edge="1" source="svc_booking" target="db_postgres" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell id="e10d" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#555555;" edge="1" source="svc_payment" target="db_postgres" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell id="e10e" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#555555;" edge="1" source="svc_chat" target="db_postgres" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell id="e10f" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#555555;" edge="1" source="svc_admin" target="db_postgres" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+    <!-- Auth → Redis (JWT blocklist) -->
+    <mxCell id="e11" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#555555;dashed=1;" edge="1" source="svc_auth" target="db_redis" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell id="e11b" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#555555;dashed=1;" edge="1" source="rate_limiter" target="db_redis" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell id="e11c" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#555555;dashed=1;" edge="1" source="svc_chat" target="db_redis" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+    <!-- Clinic → S3 -->
+    <mxCell id="e12" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#555555;dashed=1;" edge="1" source="svc_clinic" target="db_s3" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell id="e12b" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#555555;dashed=1;" edge="1" source="svc_chat" target="db_s3" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+    <!-- Booking → Full-text search -->
+    <mxCell id="e13" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#555555;dashed=1;" edge="1" source="svc_booking" target="db_search" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+    <!-- Payment → Stripe -->
+    <mxCell id="e14" value="Stripe API" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#9673a6;strokeWidth=2;dashed=1;fontColor=#9673a6;fontSize=9;" edge="1" source="svc_payment" target="ext_stripe" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+    <!-- Notification → SendGrid / Twilio -->
+    <mxCell id="e15" value="SMTP" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#9673a6;strokeWidth=2;dashed=1;fontColor=#9673a6;fontSize=9;" edge="1" source="svc_chat" target="ext_sendgrid" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell id="e16" value="SMS" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#9673a6;strokeWidth=2;dashed=1;fontColor=#9673a6;fontSize=9;" edge="1" source="svc_chat" target="ext_twilio" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+    <!-- Auth → SendGrid (invitations) -->
+    <mxCell id="e17" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#9673a6;dashed=1;" edge="1" source="svc_auth" target="ext_sendgrid" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <!-- Auth → Twilio (2FA OTP) -->
+    <mxCell id="e18" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#9673a6;dashed=1;" edge="1" source="svc_auth" target="ext_twilio" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+  </root>
+</mxGraphModel>

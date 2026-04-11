@@ -1,0 +1,361 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxGraphModel dx="2000" dy="1500" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1700" pageHeight="2100" math="0" shadow="0">
+  <root>
+    <mxCell id="0" />
+    <mxCell id="1" parent="0" />
+
+    <!-- TITLE -->
+    <mxCell id="title" value="Physiobook — Physical Data Model  (PostgreSQL 16)" style="text;html=1;fontStyle=1;fontSize=18;fillColor=none;strokeColor=none;align=center;fontColor=#0f172a;" vertex="1" parent="1">
+      <mxGeometry x="200" y="8" width="1280" height="32" as="geometry"/>
+    </mxCell>
+
+    <!-- LEGEND -->
+    <mxCell id="leg_pk" value="🔑 Primary Key" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fef9c3;strokeColor=#ca8a04;fontStyle=1;fontSize=10;align=left;spacingLeft=6;" vertex="1" parent="1">
+      <mxGeometry x="30" y="45" width="150" height="24" as="geometry"/>
+    </mxCell>
+    <mxCell id="leg_fk" value="🔗 Foreign Key" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dbeafe;strokeColor=#3b82f6;fontStyle=1;fontSize=10;align=left;spacingLeft=6;" vertex="1" parent="1">
+      <mxGeometry x="190" y="45" width="150" height="24" as="geometry"/>
+    </mxCell>
+    <mxCell id="leg_col" value="  Regular Column" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#e5e7eb;fontSize=10;align=left;spacingLeft=6;" vertex="1" parent="1">
+      <mxGeometry x="350" y="45" width="150" height="24" as="geometry"/>
+    </mxCell>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!-- ROW 0: users + notification_preferences                        -->
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+
+    <!-- TABLE: users -->
+    <mxCell id="tbl_users" value="users" style="swimlane;fontStyle=1;align=center;startSize=30;container=1;collapsible=0;expand=0;fillColor=#1e3a8a;fontColor=#ffffff;strokeColor=#1e3a8a;rounded=0;fontSize=13;" vertex="1" parent="1">
+      <mxGeometry x="30" y="85" width="360" height="316" as="geometry"/>
+    </mxCell>
+    <mxCell id="r_us_id"      value="🔑  id : UUID  NOT NULL" style="text;strokeColor=#ca8a04;fillColor=#fef9c3;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;fontStyle=1;" vertex="1" parent="tbl_users"><mxGeometry y="30" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_us_email"   value="     email : VARCHAR(255)  UNIQUE NOT NULL" style="text;strokeColor=#e5e7eb;fillColor=#ffffff;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_users"><mxGeometry y="52" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_us_pw"      value="     password_hash : VARCHAR(255)  NOT NULL" style="text;strokeColor=#e5e7eb;fillColor=#ffffff;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_users"><mxGeometry y="74" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_us_role"    value="     role : ENUM(patient, clinic_admin, therapist, super_admin)" style="text;strokeColor=#e5e7eb;fillColor=#ffffff;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_users"><mxGeometry y="96" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_us_fname"   value="     first_name : VARCHAR(100)" style="text;strokeColor=#e5e7eb;fillColor=#ffffff;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_users"><mxGeometry y="118" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_us_lname"   value="     last_name : VARCHAR(100)" style="text;strokeColor=#e5e7eb;fillColor=#ffffff;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_users"><mxGeometry y="140" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_us_phone"   value="     phone : VARCHAR(20)" style="text;strokeColor=#e5e7eb;fillColor=#ffffff;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_users"><mxGeometry y="162" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_us_active"  value="     is_active : BOOLEAN  DEFAULT true" style="text;strokeColor=#e5e7eb;fillColor=#ffffff;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_users"><mxGeometry y="184" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_us_2fa"     value="     two_fa_enabled : BOOLEAN  DEFAULT false" style="text;strokeColor=#e5e7eb;fillColor=#ffffff;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_users"><mxGeometry y="206" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_us_2fasec"  value="     two_fa_secret : VARCHAR(255)  NULL" style="text;strokeColor=#e5e7eb;fillColor=#ffffff;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_users"><mxGeometry y="228" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_us_avatar"  value="     avatar_url : TEXT  NULL" style="text;strokeColor=#e5e7eb;fillColor=#ffffff;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_users"><mxGeometry y="250" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_us_created" value="     created_at : TIMESTAMPTZ  NOT NULL  DEFAULT now()" style="text;strokeColor=#e5e7eb;fillColor=#f8fafc;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_users"><mxGeometry y="272" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_us_updated" value="     updated_at : TIMESTAMPTZ  NOT NULL  DEFAULT now()" style="text;strokeColor=#e5e7eb;fillColor=#f8fafc;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_users"><mxGeometry y="294" width="360" height="22" as="geometry"/></mxCell>
+
+    <!-- TABLE: notification_preferences -->
+    <mxCell id="tbl_notifpref" value="notification_preferences" style="swimlane;fontStyle=1;align=center;startSize=30;container=1;collapsible=0;expand=0;fillColor=#1e3a8a;fontColor=#ffffff;strokeColor=#1e3a8a;rounded=0;fontSize=13;" vertex="1" parent="1">
+      <mxGeometry x="430" y="85" width="360" height="206" as="geometry"/>
+    </mxCell>
+    <mxCell id="r_np_id"      value="🔑  id : UUID  NOT NULL" style="text;strokeColor=#ca8a04;fillColor=#fef9c3;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;fontStyle=1;" vertex="1" parent="tbl_notifpref"><mxGeometry y="30" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_np_uid"     value="🔗  user_id : UUID  NOT NULL  FK → users.id" style="text;strokeColor=#3b82f6;fillColor=#dbeafe;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_notifpref"><mxGeometry y="52" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_np_nb"      value="     new_booking_email : BOOLEAN  DEFAULT true" style="text;strokeColor=#e5e7eb;fillColor=#ffffff;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_notifpref"><mxGeometry y="74" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_np_cancel"  value="     cancellation_email : BOOLEAN  DEFAULT true" style="text;strokeColor=#e5e7eb;fillColor=#ffffff;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_notifpref"><mxGeometry y="96" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_np_daily"   value="     daily_summary : BOOLEAN  DEFAULT false" style="text;strokeColor=#e5e7eb;fillColor=#ffffff;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_notifpref"><mxGeometry y="118" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_np_staff"   value="     staff_changes : BOOLEAN  DEFAULT true" style="text;strokeColor=#e5e7eb;fillColor=#ffffff;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_notifpref"><mxGeometry y="140" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_np_equip"   value="     equipment_maintenance : BOOLEAN  DEFAULT true" style="text;strokeColor=#e5e7eb;fillColor=#ffffff;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_notifpref"><mxGeometry y="162" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_np_refund"  value="     refund_alerts : BOOLEAN  DEFAULT true" style="text;strokeColor=#e5e7eb;fillColor=#ffffff;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_notifpref"><mxGeometry y="184" width="360" height="22" as="geometry"/></mxCell>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!-- ROW 1: clinics + clinic_portal_config + clinic_team_members    -->
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+
+    <!-- TABLE: clinics -->
+    <mxCell id="tbl_clinics" value="clinics" style="swimlane;fontStyle=1;align=center;startSize=30;container=1;collapsible=0;expand=0;fillColor=#065f46;fontColor=#ffffff;strokeColor=#065f46;rounded=0;fontSize=13;" vertex="1" parent="1">
+      <mxGeometry x="30" y="440" width="360" height="360" as="geometry"/>
+    </mxCell>
+    <mxCell id="r_cl_id"      value="🔑  id : UUID  NOT NULL" style="text;strokeColor=#ca8a04;fillColor=#fef9c3;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;fontStyle=1;" vertex="1" parent="tbl_clinics"><mxGeometry y="30" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_cl_oid"     value="🔗  owner_id : UUID  NOT NULL  FK → users.id" style="text;strokeColor=#3b82f6;fillColor=#dbeafe;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_clinics"><mxGeometry y="52" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_cl_parent"  value="🔗  parent_clinic_id : UUID  NULL  FK → clinics.id" style="text;strokeColor=#3b82f6;fillColor=#dbeafe;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_clinics"><mxGeometry y="74" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_cl_name"    value="     name : VARCHAR(255)  NOT NULL" style="text;strokeColor=#e5e7eb;fillColor=#ffffff;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_clinics"><mxGeometry y="96" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_cl_sub"     value="     subdomain : VARCHAR(100)  UNIQUE NOT NULL" style="text;strokeColor=#e5e7eb;fillColor=#ffffff;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_clinics"><mxGeometry y="118" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_cl_addr"    value="     address : TEXT" style="text;strokeColor=#e5e7eb;fillColor=#ffffff;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_clinics"><mxGeometry y="140" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_cl_phone"   value="     phone : VARCHAR(20)" style="text;strokeColor=#e5e7eb;fillColor=#ffffff;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_clinics"><mxGeometry y="162" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_cl_logo"    value="     logo_url : TEXT  NULL" style="text;strokeColor=#e5e7eb;fillColor=#ffffff;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_clinics"><mxGeometry y="184" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_cl_color"   value="     primary_color : CHAR(7)  DEFAULT '#2563eb'" style="text;strokeColor=#e5e7eb;fillColor=#ffffff;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_clinics"><mxGeometry y="206" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_cl_plan"    value="     subscription_plan : ENUM(starter, professional, enterprise)" style="text;strokeColor=#e5e7eb;fillColor=#ffffff;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_clinics"><mxGeometry y="228" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_cl_expiry"  value="     subscription_expires_at : TIMESTAMPTZ  NULL" style="text;strokeColor=#e5e7eb;fillColor=#ffffff;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_clinics"><mxGeometry y="250" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_cl_active"  value="     is_active : BOOLEAN  DEFAULT true" style="text;strokeColor=#e5e7eb;fillColor=#ffffff;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_clinics"><mxGeometry y="272" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_cl_created" value="     created_at : TIMESTAMPTZ  NOT NULL  DEFAULT now()" style="text;strokeColor=#e5e7eb;fillColor=#f8fafc;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_clinics"><mxGeometry y="294" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_cl_updated" value="     updated_at : TIMESTAMPTZ  NOT NULL  DEFAULT now()" style="text;strokeColor=#e5e7eb;fillColor=#f8fafc;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_clinics"><mxGeometry y="316" width="360" height="22" as="geometry"/></mxCell>
+
+    <!-- TABLE: clinic_portal_config -->
+    <mxCell id="tbl_portal" value="clinic_portal_config" style="swimlane;fontStyle=1;align=center;startSize=30;container=1;collapsible=0;expand=0;fillColor=#065f46;fontColor=#ffffff;strokeColor=#065f46;rounded=0;fontSize=13;" vertex="1" parent="1">
+      <mxGeometry x="430" y="440" width="360" height="272" as="geometry"/>
+    </mxCell>
+    <mxCell id="r_pc_id"      value="🔑  id : UUID  NOT NULL" style="text;strokeColor=#ca8a04;fillColor=#fef9c3;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;fontStyle=1;" vertex="1" parent="tbl_portal"><mxGeometry y="30" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_pc_cid"     value="🔗  clinic_id : UUID  NOT NULL  UNIQUE  FK → clinics.id" style="text;strokeColor=#3b82f6;fillColor=#dbeafe;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_portal"><mxGeometry y="52" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_pc_hero"    value="     hero_heading : VARCHAR(255)" style="text;strokeColor=#e5e7eb;fillColor=#ffffff;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_portal"><mxGeometry y="74" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_pc_tag"     value="     tagline : TEXT" style="text;strokeColor=#e5e7eb;fillColor=#ffffff;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_portal"><mxGeometry y="96" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_pc_prices"  value="     show_prices : BOOLEAN  DEFAULT true" style="text;strokeColor=#e5e7eb;fillColor=#ffffff;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_portal"><mxGeometry y="118" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_pc_rating"  value="     show_ratings : BOOLEAN  DEFAULT true" style="text;strokeColor=#e5e7eb;fillColor=#ffffff;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_portal"><mxGeometry y="140" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_pc_home"    value="     allow_home_visit : BOOLEAN  DEFAULT true" style="text;strokeColor=#e5e7eb;fillColor=#ffffff;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_portal"><mxGeometry y="162" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_pc_online"  value="     allow_online : BOOLEAN  DEFAULT true" style="text;strokeColor=#e5e7eb;fillColor=#ffffff;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_portal"><mxGeometry y="184" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_pc_ft"      value="     show_fast_track : BOOLEAN  DEFAULT true" style="text;strokeColor=#e5e7eb;fillColor=#ffffff;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_portal"><mxGeometry y="206" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_pc_upd"     value="     updated_at : TIMESTAMPTZ  NOT NULL  DEFAULT now()" style="text;strokeColor=#e5e7eb;fillColor=#f8fafc;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_portal"><mxGeometry y="228" width="360" height="22" as="geometry"/></mxCell>
+
+    <!-- TABLE: clinic_team_members -->
+    <mxCell id="tbl_team" value="clinic_team_members" style="swimlane;fontStyle=1;align=center;startSize=30;container=1;collapsible=0;expand=0;fillColor=#065f46;fontColor=#ffffff;strokeColor=#065f46;rounded=0;fontSize=13;" vertex="1" parent="1">
+      <mxGeometry x="830" y="440" width="360" height="184" as="geometry"/>
+    </mxCell>
+    <mxCell id="r_tm_id"      value="🔑  id : UUID  NOT NULL" style="text;strokeColor=#ca8a04;fillColor=#fef9c3;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;fontStyle=1;" vertex="1" parent="tbl_team"><mxGeometry y="30" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_tm_cid"     value="🔗  clinic_id : UUID  NOT NULL  FK → clinics.id" style="text;strokeColor=#3b82f6;fillColor=#dbeafe;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_team"><mxGeometry y="52" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_tm_uid"     value="🔗  user_id : UUID  NOT NULL  FK → users.id" style="text;strokeColor=#3b82f6;fillColor=#dbeafe;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_team"><mxGeometry y="74" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_tm_role"    value="     role : ENUM(manager, receptionist, view_only)" style="text;strokeColor=#e5e7eb;fillColor=#ffffff;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_team"><mxGeometry y="96" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_tm_active"  value="     is_active : BOOLEAN  DEFAULT true" style="text;strokeColor=#e5e7eb;fillColor=#ffffff;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_team"><mxGeometry y="118" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_tm_created" value="     created_at : TIMESTAMPTZ  NOT NULL  DEFAULT now()" style="text;strokeColor=#e5e7eb;fillColor=#f8fafc;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_team"><mxGeometry y="140" width="360" height="22" as="geometry"/></mxCell>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!-- ROW 2: staff_profiles + staff_availability + equipment + equip_avail -->
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+
+    <!-- TABLE: staff_profiles -->
+    <mxCell id="tbl_staff" value="staff_profiles" style="swimlane;fontStyle=1;align=center;startSize=30;container=1;collapsible=0;expand=0;fillColor=#581c87;fontColor=#ffffff;strokeColor=#581c87;rounded=0;fontSize=13;" vertex="1" parent="1">
+      <mxGeometry x="30" y="850" width="360" height="294" as="geometry"/>
+    </mxCell>
+    <mxCell id="r_sp_id"      value="🔑  id : UUID  NOT NULL" style="text;strokeColor=#ca8a04;fillColor=#fef9c3;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;fontStyle=1;" vertex="1" parent="tbl_staff"><mxGeometry y="30" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_sp_uid"     value="🔗  user_id : UUID  NOT NULL  FK → users.id" style="text;strokeColor=#3b82f6;fillColor=#dbeafe;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_staff"><mxGeometry y="52" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_sp_cid"     value="🔗  clinic_id : UUID  NOT NULL  FK → clinics.id" style="text;strokeColor=#3b82f6;fillColor=#dbeafe;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_staff"><mxGeometry y="74" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_sp_desig"   value="     designation : ENUM(doctor, physiotherapist)" style="text;strokeColor=#e5e7eb;fillColor=#ffffff;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_staff"><mxGeometry y="96" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_sp_spec"    value="     specialization : VARCHAR(255)" style="text;strokeColor=#e5e7eb;fillColor=#ffffff;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_staff"><mxGeometry y="118" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_sp_exp"     value="     years_experience : SMALLINT  DEFAULT 0" style="text;strokeColor=#e5e7eb;fillColor=#ffffff;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_staff"><mxGeometry y="140" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_sp_rating"  value="     patient_rating : DECIMAL(3,2)  DEFAULT 5.0" style="text;strokeColor=#e5e7eb;fillColor=#ffffff;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_staff"><mxGeometry y="162" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_sp_rank"    value="     rank_label : VARCHAR(50)  NULL" style="text;strokeColor=#e5e7eb;fillColor=#ffffff;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_staff"><mxGeometry y="184" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_sp_avail"   value="     is_available : BOOLEAN  DEFAULT true" style="text;strokeColor=#e5e7eb;fillColor=#ffffff;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_staff"><mxGeometry y="206" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_sp_created" value="     created_at : TIMESTAMPTZ  NOT NULL  DEFAULT now()" style="text;strokeColor=#e5e7eb;fillColor=#f8fafc;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_staff"><mxGeometry y="228" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_sp_updated" value="     updated_at : TIMESTAMPTZ  NOT NULL  DEFAULT now()" style="text;strokeColor=#e5e7eb;fillColor=#f8fafc;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_staff"><mxGeometry y="250" width="360" height="22" as="geometry"/></mxCell>
+
+    <!-- TABLE: staff_availability -->
+    <mxCell id="tbl_stavail" value="staff_availability" style="swimlane;fontStyle=1;align=center;startSize=30;container=1;collapsible=0;expand=0;fillColor=#581c87;fontColor=#ffffff;strokeColor=#581c87;rounded=0;fontSize=13;" vertex="1" parent="1">
+      <mxGeometry x="430" y="850" width="360" height="184" as="geometry"/>
+    </mxCell>
+    <mxCell id="r_sa_id"      value="🔑  id : UUID  NOT NULL" style="text;strokeColor=#ca8a04;fillColor=#fef9c3;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;fontStyle=1;" vertex="1" parent="tbl_stavail"><mxGeometry y="30" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_sa_sid"     value="🔗  staff_id : UUID  NOT NULL  FK → staff_profiles.id" style="text;strokeColor=#3b82f6;fillColor=#dbeafe;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_stavail"><mxGeometry y="52" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_sa_day"     value="     day_of_week : ENUM(mon, tue, wed, thu, fri, sat, sun)" style="text;strokeColor=#e5e7eb;fillColor=#ffffff;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_stavail"><mxGeometry y="74" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_sa_start"   value="     start_time : TIME  NOT NULL" style="text;strokeColor=#e5e7eb;fillColor=#ffffff;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_stavail"><mxGeometry y="96" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_sa_end"     value="     end_time : TIME  NOT NULL" style="text;strokeColor=#e5e7eb;fillColor=#ffffff;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_stavail"><mxGeometry y="118" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_sa_working" value="     is_working : BOOLEAN  DEFAULT true" style="text;strokeColor=#e5e7eb;fillColor=#ffffff;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_stavail"><mxGeometry y="140" width="360" height="22" as="geometry"/></mxCell>
+
+    <!-- TABLE: equipment -->
+    <mxCell id="tbl_equip" value="equipment" style="swimlane;fontStyle=1;align=center;startSize=30;container=1;collapsible=0;expand=0;fillColor=#7c2d12;fontColor=#ffffff;strokeColor=#7c2d12;rounded=0;fontSize=13;" vertex="1" parent="1">
+      <mxGeometry x="830" y="850" width="360" height="228" as="geometry"/>
+    </mxCell>
+    <mxCell id="r_eq_id"      value="🔑  id : UUID  NOT NULL" style="text;strokeColor=#ca8a04;fillColor=#fef9c3;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;fontStyle=1;" vertex="1" parent="tbl_equip"><mxGeometry y="30" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_eq_cid"     value="🔗  clinic_id : UUID  NOT NULL  FK → clinics.id" style="text;strokeColor=#3b82f6;fillColor=#dbeafe;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_equip"><mxGeometry y="52" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_eq_name"    value="     name : VARCHAR(255)  NOT NULL" style="text;strokeColor=#e5e7eb;fillColor=#ffffff;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_equip"><mxGeometry y="74" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_eq_qty"     value="     quantity : SMALLINT  DEFAULT 1" style="text;strokeColor=#e5e7eb;fillColor=#ffffff;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_equip"><mxGeometry y="96" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_eq_port"    value="     is_portable : BOOLEAN  DEFAULT false" style="text;strokeColor=#e5e7eb;fillColor=#ffffff;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_equip"><mxGeometry y="118" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_eq_status"  value="     status : ENUM(available, in_use, maintenance)" style="text;strokeColor=#e5e7eb;fillColor=#ffffff;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_equip"><mxGeometry y="140" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_eq_created" value="     created_at : TIMESTAMPTZ  NOT NULL  DEFAULT now()" style="text;strokeColor=#e5e7eb;fillColor=#f8fafc;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_equip"><mxGeometry y="162" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_eq_updated" value="     updated_at : TIMESTAMPTZ  NOT NULL  DEFAULT now()" style="text;strokeColor=#e5e7eb;fillColor=#f8fafc;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_equip"><mxGeometry y="184" width="360" height="22" as="geometry"/></mxCell>
+
+    <!-- TABLE: equipment_availability -->
+    <mxCell id="tbl_eavail" value="equipment_availability" style="swimlane;fontStyle=1;align=center;startSize=30;container=1;collapsible=0;expand=0;fillColor=#7c2d12;fontColor=#ffffff;strokeColor=#7c2d12;rounded=0;fontSize=13;" vertex="1" parent="1">
+      <mxGeometry x="1230" y="850" width="360" height="162" as="geometry"/>
+    </mxCell>
+    <mxCell id="r_ea_id"      value="🔑  id : UUID  NOT NULL" style="text;strokeColor=#ca8a04;fillColor=#fef9c3;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;fontStyle=1;" vertex="1" parent="tbl_eavail"><mxGeometry y="30" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_ea_eid"     value="🔗  equipment_id : UUID  NOT NULL  FK → equipment.id" style="text;strokeColor=#3b82f6;fillColor=#dbeafe;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_eavail"><mxGeometry y="52" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_ea_day"     value="     day_of_week : ENUM(mon, tue, wed, thu, fri, sat, sun)" style="text;strokeColor=#e5e7eb;fillColor=#ffffff;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_eavail"><mxGeometry y="74" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_ea_start"   value="     start_time : TIME  NOT NULL" style="text;strokeColor=#e5e7eb;fillColor=#ffffff;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_eavail"><mxGeometry y="96" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_ea_end"     value="     end_time : TIME  NOT NULL" style="text;strokeColor=#e5e7eb;fillColor=#ffffff;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_eavail"><mxGeometry y="118" width="360" height="22" as="geometry"/></mxCell>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!-- ROW 3: services + packages + bookings                          -->
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+
+    <!-- TABLE: services -->
+    <mxCell id="tbl_svc" value="services" style="swimlane;fontStyle=1;align=center;startSize=30;container=1;collapsible=0;expand=0;fillColor=#1e3a8a;fontColor=#ffffff;strokeColor=#1e3a8a;rounded=0;fontSize=13;" vertex="1" parent="1">
+      <mxGeometry x="30" y="1195" width="360" height="294" as="geometry"/>
+    </mxCell>
+    <mxCell id="r_sv_id"      value="🔑  id : UUID  NOT NULL" style="text;strokeColor=#ca8a04;fillColor=#fef9c3;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;fontStyle=1;" vertex="1" parent="tbl_svc"><mxGeometry y="30" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_sv_cid"     value="🔗  clinic_id : UUID  NOT NULL  FK → clinics.id" style="text;strokeColor=#3b82f6;fillColor=#dbeafe;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_svc"><mxGeometry y="52" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_sv_eid"     value="🔗  required_equipment_id : UUID  NULL  FK → equipment.id" style="text;strokeColor=#3b82f6;fillColor=#dbeafe;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_svc"><mxGeometry y="74" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_sv_name"    value="     name : VARCHAR(255)  NOT NULL" style="text;strokeColor=#e5e7eb;fillColor=#ffffff;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_svc"><mxGeometry y="96" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_sv_desc"    value="     description : TEXT" style="text;strokeColor=#e5e7eb;fillColor=#ffffff;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_svc"><mxGeometry y="118" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_sv_dur"     value="     duration_minutes : SMALLINT  NOT NULL" style="text;strokeColor=#e5e7eb;fillColor=#ffffff;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_svc"><mxGeometry y="140" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_sv_price"   value="     price : DECIMAL(10,2)  NOT NULL" style="text;strokeColor=#e5e7eb;fillColor=#ffffff;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_svc"><mxGeometry y="162" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_sv_stype"   value="     required_staff_role : ENUM(doctor, physiotherapist, any)" style="text;strokeColor=#e5e7eb;fillColor=#ffffff;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_svc"><mxGeometry y="184" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_sv_active"  value="     is_active : BOOLEAN  DEFAULT true" style="text;strokeColor=#e5e7eb;fillColor=#ffffff;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_svc"><mxGeometry y="206" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_sv_created" value="     created_at : TIMESTAMPTZ  NOT NULL  DEFAULT now()" style="text;strokeColor=#e5e7eb;fillColor=#f8fafc;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_svc"><mxGeometry y="228" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_sv_updated" value="     updated_at : TIMESTAMPTZ  NOT NULL  DEFAULT now()" style="text;strokeColor=#e5e7eb;fillColor=#f8fafc;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_svc"><mxGeometry y="250" width="360" height="22" as="geometry"/></mxCell>
+
+    <!-- TABLE: packages -->
+    <mxCell id="tbl_pkg" value="packages" style="swimlane;fontStyle=1;align=center;startSize=30;container=1;collapsible=0;expand=0;fillColor=#1e3a8a;fontColor=#ffffff;strokeColor=#1e3a8a;rounded=0;fontSize=13;" vertex="1" parent="1">
+      <mxGeometry x="430" y="1195" width="360" height="316" as="geometry"/>
+    </mxCell>
+    <mxCell id="r_pk_id"      value="🔑  id : UUID  NOT NULL" style="text;strokeColor=#ca8a04;fillColor=#fef9c3;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;fontStyle=1;" vertex="1" parent="tbl_pkg"><mxGeometry y="30" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_pk_cid"     value="🔗  clinic_id : UUID  NOT NULL  FK → clinics.id" style="text;strokeColor=#3b82f6;fillColor=#dbeafe;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_pkg"><mxGeometry y="52" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_pk_name"    value="     name : VARCHAR(255)  NOT NULL" style="text;strokeColor=#e5e7eb;fillColor=#ffffff;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_pkg"><mxGeometry y="74" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_pk_desc"    value="     description : TEXT" style="text;strokeColor=#e5e7eb;fillColor=#ffffff;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_pkg"><mxGeometry y="96" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_pk_base"    value="     base_price : DECIMAL(10,2)  NOT NULL" style="text;strokeColor=#e5e7eb;fillColor=#ffffff;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_pkg"><mxGeometry y="118" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_pk_disc"    value="     discount_percent : DECIMAL(5,2)  DEFAULT 0" style="text;strokeColor=#e5e7eb;fillColor=#ffffff;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_pkg"><mxGeometry y="140" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_pk_final"   value="     final_price : DECIMAL(10,2)  GENERATED ALWAYS AS ..." style="text;strokeColor=#e5e7eb;fillColor=#ffffff;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_pkg"><mxGeometry y="162" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_pk_sess"    value="     session_count : SMALLINT  DEFAULT 1" style="text;strokeColor=#e5e7eb;fillColor=#ffffff;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_pkg"><mxGeometry y="184" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_pk_ft"      value="     is_fast_track : BOOLEAN  DEFAULT false" style="text;strokeColor=#e5e7eb;fillColor=#ffffff;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_pkg"><mxGeometry y="206" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_pk_active"  value="     is_active : BOOLEAN  DEFAULT true" style="text;strokeColor=#e5e7eb;fillColor=#ffffff;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_pkg"><mxGeometry y="228" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_pk_created" value="     created_at : TIMESTAMPTZ  NOT NULL  DEFAULT now()" style="text;strokeColor=#e5e7eb;fillColor=#f8fafc;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_pkg"><mxGeometry y="250" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_pk_updated" value="     updated_at : TIMESTAMPTZ  NOT NULL  DEFAULT now()" style="text;strokeColor=#e5e7eb;fillColor=#f8fafc;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_pkg"><mxGeometry y="272" width="360" height="22" as="geometry"/></mxCell>
+
+    <!-- TABLE: bookings -->
+    <mxCell id="tbl_bk" value="bookings" style="swimlane;fontStyle=1;align=center;startSize=30;container=1;collapsible=0;expand=0;fillColor=#7f1d1d;fontColor=#ffffff;strokeColor=#7f1d1d;rounded=0;fontSize=13;" vertex="1" parent="1">
+      <mxGeometry x="830" y="1195" width="360" height="382" as="geometry"/>
+    </mxCell>
+    <mxCell id="r_bk_id"      value="🔑  id : UUID  NOT NULL" style="text;strokeColor=#ca8a04;fillColor=#fef9c3;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;fontStyle=1;" vertex="1" parent="tbl_bk"><mxGeometry y="30" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_bk_pid"     value="🔗  patient_id : UUID  NOT NULL  FK → users.id" style="text;strokeColor=#3b82f6;fillColor=#dbeafe;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_bk"><mxGeometry y="52" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_bk_cid"     value="🔗  clinic_id : UUID  NOT NULL  FK → clinics.id" style="text;strokeColor=#3b82f6;fillColor=#dbeafe;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_bk"><mxGeometry y="74" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_bk_svid"    value="🔗  service_id : UUID  NULL  FK → services.id" style="text;strokeColor=#3b82f6;fillColor=#dbeafe;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_bk"><mxGeometry y="96" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_bk_pkid"    value="🔗  package_id : UUID  NULL  FK → packages.id" style="text;strokeColor=#3b82f6;fillColor=#dbeafe;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_bk"><mxGeometry y="118" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_bk_stid"    value="🔗  staff_id : UUID  NOT NULL  FK → staff_profiles.id" style="text;strokeColor=#3b82f6;fillColor=#dbeafe;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_bk"><mxGeometry y="140" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_bk_eid"     value="🔗  equipment_id : UUID  NULL  FK → equipment.id" style="text;strokeColor=#3b82f6;fillColor=#dbeafe;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_bk"><mxGeometry y="162" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_bk_mode"    value="     visit_mode : ENUM(clinic, home, online)  NOT NULL" style="text;strokeColor=#e5e7eb;fillColor=#ffffff;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_bk"><mxGeometry y="184" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_bk_sched"   value="     scheduled_at : TIMESTAMPTZ  NOT NULL" style="text;strokeColor=#e5e7eb;fillColor=#ffffff;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_bk"><mxGeometry y="206" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_bk_dur"     value="     duration_minutes : SMALLINT  NOT NULL" style="text;strokeColor=#e5e7eb;fillColor=#ffffff;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_bk"><mxGeometry y="228" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_bk_status"  value="     status : ENUM(pending, confirmed, in_session, completed, cancelled)" style="text;strokeColor=#e5e7eb;fillColor=#ffffff;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_bk"><mxGeometry y="250" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_bk_equconf" value="     patient_equipment_confirmed : BOOLEAN  DEFAULT false" style="text;strokeColor=#e5e7eb;fillColor=#ffffff;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_bk"><mxGeometry y="272" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_bk_notes"   value="     notes : TEXT  NULL" style="text;strokeColor=#e5e7eb;fillColor=#ffffff;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_bk"><mxGeometry y="294" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_bk_created" value="     created_at : TIMESTAMPTZ  NOT NULL  DEFAULT now()" style="text;strokeColor=#e5e7eb;fillColor=#f8fafc;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_bk"><mxGeometry y="316" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_bk_updated" value="     updated_at : TIMESTAMPTZ  NOT NULL  DEFAULT now()" style="text;strokeColor=#e5e7eb;fillColor=#f8fafc;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_bk"><mxGeometry y="338" width="360" height="22" as="geometry"/></mxCell>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!-- ROW 4: payments + clinical_notes + messages + notifications    -->
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+
+    <!-- TABLE: payments -->
+    <mxCell id="tbl_pay" value="payments" style="swimlane;fontStyle=1;align=center;startSize=30;container=1;collapsible=0;expand=0;fillColor=#7f1d1d;fontColor=#ffffff;strokeColor=#7f1d1d;rounded=0;fontSize=13;" vertex="1" parent="1">
+      <mxGeometry x="30" y="1640" width="360" height="360" as="geometry"/>
+    </mxCell>
+    <mxCell id="r_py_id"      value="🔑  id : UUID  NOT NULL" style="text;strokeColor=#ca8a04;fillColor=#fef9c3;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;fontStyle=1;" vertex="1" parent="tbl_pay"><mxGeometry y="30" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_py_bid"     value="🔗  booking_id : UUID  NOT NULL  FK → bookings.id" style="text;strokeColor=#3b82f6;fillColor=#dbeafe;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_pay"><mxGeometry y="52" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_py_pid"     value="🔗  patient_id : UUID  NOT NULL  FK → users.id" style="text;strokeColor=#3b82f6;fillColor=#dbeafe;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_pay"><mxGeometry y="74" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_py_cid"     value="🔗  clinic_id : UUID  NOT NULL  FK → clinics.id" style="text;strokeColor=#3b82f6;fillColor=#dbeafe;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_pay"><mxGeometry y="96" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_py_amount"  value="     amount : DECIMAL(10,2)  NOT NULL" style="text;strokeColor=#e5e7eb;fillColor=#ffffff;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_pay"><mxGeometry y="118" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_py_curr"    value="     currency : CHAR(3)  DEFAULT 'LKR'" style="text;strokeColor=#e5e7eb;fillColor=#ffffff;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_pay"><mxGeometry y="140" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_py_method"  value="     method : ENUM(card, cash, bank_transfer)" style="text;strokeColor=#e5e7eb;fillColor=#ffffff;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_pay"><mxGeometry y="162" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_py_status"  value="     status : ENUM(pending, paid, refunded, failed)" style="text;strokeColor=#e5e7eb;fillColor=#ffffff;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_pay"><mxGeometry y="184" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_py_stripe"  value="     stripe_payment_intent_id : VARCHAR(255)  NULL" style="text;strokeColor=#e5e7eb;fillColor=#ffffff;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_pay"><mxGeometry y="206" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_py_reason"  value="     refund_reason : TEXT  NULL" style="text;strokeColor=#e5e7eb;fillColor=#ffffff;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_pay"><mxGeometry y="228" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_py_refamt"  value="     refund_amount : DECIMAL(10,2)  NULL" style="text;strokeColor=#e5e7eb;fillColor=#ffffff;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_pay"><mxGeometry y="250" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_py_refat"   value="     refunded_at : TIMESTAMPTZ  NULL" style="text;strokeColor=#e5e7eb;fillColor=#f8fafc;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_pay"><mxGeometry y="272" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_py_paidat"  value="     paid_at : TIMESTAMPTZ  NULL" style="text;strokeColor=#e5e7eb;fillColor=#f8fafc;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_pay"><mxGeometry y="294" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_py_created" value="     created_at : TIMESTAMPTZ  NOT NULL  DEFAULT now()" style="text;strokeColor=#e5e7eb;fillColor=#f8fafc;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_pay"><mxGeometry y="316" width="360" height="22" as="geometry"/></mxCell>
+
+    <!-- TABLE: clinical_notes -->
+    <mxCell id="tbl_notes" value="clinical_notes" style="swimlane;fontStyle=1;align=center;startSize=30;container=1;collapsible=0;expand=0;fillColor=#1f2937;fontColor=#ffffff;strokeColor=#1f2937;rounded=0;fontSize=13;" vertex="1" parent="1">
+      <mxGeometry x="430" y="1640" width="360" height="228" as="geometry"/>
+    </mxCell>
+    <mxCell id="r_cn_id"      value="🔑  id : UUID  NOT NULL" style="text;strokeColor=#ca8a04;fillColor=#fef9c3;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;fontStyle=1;" vertex="1" parent="tbl_notes"><mxGeometry y="30" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_cn_bid"     value="🔗  booking_id : UUID  NOT NULL  FK → bookings.id" style="text;strokeColor=#3b82f6;fillColor=#dbeafe;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_notes"><mxGeometry y="52" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_cn_sid"     value="🔗  staff_id : UUID  NOT NULL  FK → staff_profiles.id" style="text;strokeColor=#3b82f6;fillColor=#dbeafe;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_notes"><mxGeometry y="74" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_cn_patid"   value="🔗  patient_id : UUID  NOT NULL  FK → users.id" style="text;strokeColor=#3b82f6;fillColor=#dbeafe;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_notes"><mxGeometry y="96" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_cn_title"   value="     title : VARCHAR(255)  NOT NULL" style="text;strokeColor=#e5e7eb;fillColor=#ffffff;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_notes"><mxGeometry y="118" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_cn_content" value="     content : TEXT  NOT NULL" style="text;strokeColor=#e5e7eb;fillColor=#ffffff;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_notes"><mxGeometry y="140" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_cn_created" value="     created_at : TIMESTAMPTZ  NOT NULL  DEFAULT now()" style="text;strokeColor=#e5e7eb;fillColor=#f8fafc;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_notes"><mxGeometry y="162" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_cn_updated" value="     updated_at : TIMESTAMPTZ  NOT NULL  DEFAULT now()" style="text;strokeColor=#e5e7eb;fillColor=#f8fafc;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_notes"><mxGeometry y="184" width="360" height="22" as="geometry"/></mxCell>
+
+    <!-- TABLE: messages -->
+    <mxCell id="tbl_msg" value="messages" style="swimlane;fontStyle=1;align=center;startSize=30;container=1;collapsible=0;expand=0;fillColor=#1f2937;fontColor=#ffffff;strokeColor=#1f2937;rounded=0;fontSize=13;" vertex="1" parent="1">
+      <mxGeometry x="830" y="1640" width="360" height="206" as="geometry"/>
+    </mxCell>
+    <mxCell id="r_ms_id"      value="🔑  id : UUID  NOT NULL" style="text;strokeColor=#ca8a04;fillColor=#fef9c3;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;fontStyle=1;" vertex="1" parent="tbl_msg"><mxGeometry y="30" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_ms_bid"     value="🔗  booking_id : UUID  NOT NULL  FK → bookings.id" style="text;strokeColor=#3b82f6;fillColor=#dbeafe;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_msg"><mxGeometry y="52" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_ms_sender"  value="🔗  sender_id : UUID  NOT NULL  FK → users.id" style="text;strokeColor=#3b82f6;fillColor=#dbeafe;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_msg"><mxGeometry y="74" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_ms_recip"   value="🔗  recipient_id : UUID  NOT NULL  FK → users.id" style="text;strokeColor=#3b82f6;fillColor=#dbeafe;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_msg"><mxGeometry y="96" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_ms_content" value="     content : TEXT  NOT NULL" style="text;strokeColor=#e5e7eb;fillColor=#ffffff;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_msg"><mxGeometry y="118" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_ms_read"    value="     is_read : BOOLEAN  DEFAULT false" style="text;strokeColor=#e5e7eb;fillColor=#ffffff;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_msg"><mxGeometry y="140" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_ms_created" value="     created_at : TIMESTAMPTZ  NOT NULL  DEFAULT now()" style="text;strokeColor=#e5e7eb;fillColor=#f8fafc;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_msg"><mxGeometry y="162" width="360" height="22" as="geometry"/></mxCell>
+
+    <!-- TABLE: notifications -->
+    <mxCell id="tbl_notif" value="notifications" style="swimlane;fontStyle=1;align=center;startSize=30;container=1;collapsible=0;expand=0;fillColor=#1f2937;fontColor=#ffffff;strokeColor=#1f2937;rounded=0;fontSize=13;" vertex="1" parent="1">
+      <mxGeometry x="1230" y="1640" width="360" height="206" as="geometry"/>
+    </mxCell>
+    <mxCell id="r_nf_id"      value="🔑  id : UUID  NOT NULL" style="text;strokeColor=#ca8a04;fillColor=#fef9c3;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;fontStyle=1;" vertex="1" parent="tbl_notif"><mxGeometry y="30" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_nf_uid"     value="🔗  user_id : UUID  NOT NULL  FK → users.id" style="text;strokeColor=#3b82f6;fillColor=#dbeafe;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_notif"><mxGeometry y="52" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_nf_type"    value="     type : VARCHAR(100)  NOT NULL" style="text;strokeColor=#e5e7eb;fillColor=#ffffff;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_notif"><mxGeometry y="74" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_nf_title"   value="     title : VARCHAR(255)  NOT NULL" style="text;strokeColor=#e5e7eb;fillColor=#ffffff;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_notif"><mxGeometry y="96" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_nf_body"    value="     body : TEXT" style="text;strokeColor=#e5e7eb;fillColor=#ffffff;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_notif"><mxGeometry y="118" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_nf_read"    value="     is_read : BOOLEAN  DEFAULT false" style="text;strokeColor=#e5e7eb;fillColor=#ffffff;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_notif"><mxGeometry y="140" width="360" height="22" as="geometry"/></mxCell>
+    <mxCell id="r_nf_created" value="     created_at : TIMESTAMPTZ  NOT NULL  DEFAULT now()" style="text;strokeColor=#e5e7eb;fillColor=#f8fafc;align=left;verticalAlign=middle;spacingLeft=6;overflow=hidden;fontSize=11;" vertex="1" parent="tbl_notif"><mxGeometry y="162" width="360" height="22" as="geometry"/></mxCell>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!-- FOREIGN KEY RELATIONSHIPS                                       -->
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+
+    <!-- users → notification_preferences (1:1) -->
+    <mxCell id="fk1" value="1" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=ERmandOne;startArrow=ERone;strokeColor=#3b82f6;strokeWidth=2;fontSize=9;fontColor=#3b82f6;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" source="r_us_id" target="r_np_uid" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+    <!-- users → clinics (owner) 1:many -->
+    <mxCell id="fk2" value="owns" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;strokeColor=#065f46;strokeWidth=2;fontSize=9;fontColor=#065f46;" edge="1" source="r_us_id" target="r_cl_oid" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+    <!-- clinics → clinic_portal_config (1:1) -->
+    <mxCell id="fk3" value="configures" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=ERmandOne;startArrow=ERone;strokeColor=#065f46;strokeWidth=2;fontSize=9;fontColor=#065f46;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" source="r_cl_id" target="r_pc_cid" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+    <!-- clinics → clinic_team_members (1:many) -->
+    <mxCell id="fk4" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;strokeColor=#065f46;strokeWidth=2;" edge="1" source="r_cl_id" target="r_tm_cid" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+    <!-- users → clinic_team_members (1:many) -->
+    <mxCell id="fk5" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;strokeColor=#3b82f6;strokeWidth=2;" edge="1" source="r_us_id" target="r_tm_uid" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+    <!-- users → staff_profiles (1:1) -->
+    <mxCell id="fk6" value="profile" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=ERmandOne;startArrow=ERone;strokeColor=#581c87;strokeWidth=2;fontSize=9;fontColor=#581c87;" edge="1" source="r_us_id" target="r_sp_uid" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+    <!-- clinics → staff_profiles (1:many) -->
+    <mxCell id="fk7" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;strokeColor=#581c87;strokeWidth=2;" edge="1" source="r_cl_id" target="r_sp_cid" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+    <!-- staff_profiles → staff_availability (1:many) -->
+    <mxCell id="fk8" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;strokeColor=#581c87;strokeWidth=2;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" source="r_sp_id" target="r_sa_sid" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+    <!-- clinics → equipment (1:many) -->
+    <mxCell id="fk9" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;strokeColor=#7c2d12;strokeWidth=2;" edge="1" source="r_cl_id" target="r_eq_cid" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+    <!-- equipment → equipment_availability (1:many) -->
+    <mxCell id="fk10" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;strokeColor=#7c2d12;strokeWidth=2;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" source="r_eq_id" target="r_ea_eid" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+    <!-- clinics → services (1:many) -->
+    <mxCell id="fk11" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;strokeColor=#1e3a8a;strokeWidth=2;" edge="1" source="r_cl_id" target="r_sv_cid" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+    <!-- equipment → services (1:many) -->
+    <mxCell id="fk12" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;strokeColor=#7c2d12;strokeWidth=2;" edge="1" source="r_eq_id" target="r_sv_eid" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+    <!-- clinics → packages (1:many) -->
+    <mxCell id="fk13" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;strokeColor=#1e3a8a;strokeWidth=2;" edge="1" source="r_cl_id" target="r_pk_cid" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+    <!-- users → bookings (patient) 1:many -->
+    <mxCell id="fk14" value="books" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;strokeColor=#7f1d1d;strokeWidth=2;fontSize=9;fontColor=#7f1d1d;" edge="1" source="r_us_id" target="r_bk_pid" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+    <!-- clinics → bookings (1:many) -->
+    <mxCell id="fk15" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;strokeColor=#7f1d1d;strokeWidth=2;" edge="1" source="r_cl_id" target="r_bk_cid" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+    <!-- services → bookings (1:many) -->
+    <mxCell id="fk16" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;strokeColor=#1e3a8a;strokeWidth=2;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" source="r_sv_id" target="r_bk_svid" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+    <!-- packages → bookings (1:many) -->
+    <mxCell id="fk17" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;strokeColor=#1e3a8a;strokeWidth=2;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" source="r_pk_id" target="r_bk_pkid" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+    <!-- staff_profiles → bookings (1:many) -->
+    <mxCell id="fk18" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;strokeColor=#581c87;strokeWidth=2;" edge="1" source="r_sp_id" target="r_bk_stid" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+    <!-- equipment → bookings (1:many) -->
+    <mxCell id="fk19" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;strokeColor=#7c2d12;strokeWidth=2;" edge="1" source="r_eq_id" target="r_bk_eid" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+    <!-- bookings → payments (1:1) -->
+    <mxCell id="fk20" value="payment" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=ERmandOne;startArrow=ERone;strokeColor=#7f1d1d;strokeWidth=2;fontSize=9;fontColor=#7f1d1d;" edge="1" source="r_bk_id" target="r_py_bid" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+    <!-- bookings → clinical_notes (1:many) -->
+    <mxCell id="fk21" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;strokeColor=#1f2937;strokeWidth=2;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" source="r_bk_id" target="r_cn_bid" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+    <!-- staff_profiles → clinical_notes (1:many) -->
+    <mxCell id="fk22" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;strokeColor=#581c87;strokeWidth=2;" edge="1" source="r_sp_id" target="r_cn_sid" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+    <!-- bookings → messages (1:many) -->
+    <mxCell id="fk23" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;strokeColor=#1f2937;strokeWidth=2;" edge="1" source="r_bk_id" target="r_ms_bid" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+    <!-- users → notifications (1:many) -->
+    <mxCell id="fk24" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;strokeColor=#1f2937;strokeWidth=2;" edge="1" source="r_us_id" target="r_nf_uid" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+    <!-- users → payments (patient) -->
+    <mxCell id="fk25" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;strokeColor=#7f1d1d;strokeWidth=2;dashed=1;" edge="1" source="r_us_id" target="r_py_pid" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+    <!-- clinics (self-ref for branches) -->
+    <mxCell id="fk26" value="branch of" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;strokeColor=#065f46;strokeWidth=2;fontSize=9;fontColor=#065f46;dashed=1;" edge="1" source="r_cl_id" target="r_cl_parent" parent="1"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="15" y="503"/><mxPoint x="15" y="525"/></Array></mxGeometry></mxCell>
+
+  </root>
+</mxGraphModel>
