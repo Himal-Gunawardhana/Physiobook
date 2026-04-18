@@ -3,7 +3,8 @@ import { NavLink } from 'react-router-dom';
 import {
   Building2, Users, Settings, Activity,
   Calendar, MessageSquare, PieChart, ShieldCheck,
-  Package, X, LogOut, CreditCard, Globe, UserCircle
+  Package, X, LogOut, CreditCard, Globe, UserCircle,
+  FileText, Ticket, CreditCard as SubIcon
 } from 'lucide-react';
 
 export default function Sidebar({ role, activeClinic, setActiveClinic, clinics, isSidebarOpen, setIsSidebarOpen }) {
@@ -19,7 +20,7 @@ export default function Sidebar({ role, activeClinic, setActiveClinic, clinics, 
       {
         label: 'Management',
         items: [
-          { name: 'Overview',             path: '/clinic',              icon: PieChart,   end: true },
+          { name: 'Overview',             path: '/clinic',              icon: PieChart,       end: true },
           { name: 'Staff Management',     path: '/clinic/staff',        icon: Users },
           { name: 'Services & Packages',  path: '/clinic/services',     icon: Package },
           { name: 'Payments & Refunds',   path: '/clinic/payments',     icon: CreditCard },
@@ -41,8 +42,9 @@ export default function Sidebar({ role, activeClinic, setActiveClinic, clinics, 
       {
         label: 'Navigation',
         items: [
-          { name: 'My Schedule',   path: '/therapist',      icon: Calendar,       end: true },
-          { name: 'Patient Chats', path: '/therapist/chat', icon: MessageSquare },
+          { name: 'My Schedule',    path: '/therapist',       icon: Calendar,       end: true },
+          { name: 'Session Notes',  path: '/therapist/notes', icon: FileText },
+          { name: 'Patient Chats',  path: '/therapist/chat',  icon: MessageSquare },
         ],
       },
     ];
@@ -51,9 +53,11 @@ export default function Sidebar({ role, activeClinic, setActiveClinic, clinics, 
     brandColor = '#f59e0b';
     navGroups = [
       {
-        label: 'Navigation',
+        label: 'Platform',
         items: [
-          { name: 'System Overview', path: '/superadmin', icon: PieChart, end: true },
+          { name: 'System Overview',  path: '/superadmin',               icon: PieChart,   end: true },
+          { name: 'Support Tickets',  path: '/superadmin/tickets',       icon: MessageSquare },
+          { name: 'Subscriptions',    path: '/superadmin/subscriptions', icon: CreditCard },
         ],
       },
     ];

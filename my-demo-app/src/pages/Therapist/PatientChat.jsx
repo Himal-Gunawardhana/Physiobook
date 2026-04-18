@@ -2,29 +2,40 @@ import React, { useState } from 'react';
 import { Send, Plus, FileText } from 'lucide-react';
 
 const PATIENTS = [
-  { id: 1, name: 'John Doe',    condition: 'Shoulder Impingement',   lastMsg: '2 hours ago', avatar: 'JD', unread: 1 },
-  { id: 2, name: 'Jane Roe',    condition: 'Post-ACL Reconstruction', lastMsg: 'Yesterday',   avatar: 'JR', unread: 0 },
+  { id: 1, name: 'John Doe',    condition: 'Shoulder Impingement',   lastMsg: '2 hours ago', avatar: 'JD', unread: 2 },
+  { id: 2, name: 'Jane Roe',    condition: 'Post-ACL Reconstruction', lastMsg: 'Yesterday',   avatar: 'JR', unread: 1 },
   { id: 3, name: 'Ali Hassan',  condition: 'Chest Physiotherapy',    lastMsg: '2 days ago',  avatar: 'AH', unread: 0 },
 ];
 
 const MESSAGES = {
   1: [
-    { id: 1, from: 'patient',   text: 'Hi Dr. Smith, my shoulder feels much better after this week\'s exercises.', time: '10:20/2026' },
-    { id: 2, from: 'therapist', text: 'Great progress! Keep doing the external rotation stretches twice daily.', time: '10:45/2026' },
-    { id: 3, from: 'patient',   text: 'Still a slight pinch when I raise my arm fully overhead though.', time: '11:02/2026' },
+    { id: 1, from: 'patient',   text: 'Hi Dr. Smith, my shoulder feels much better after this week\'s exercises.', time: '10:20 AM' },
+    { id: 2, from: 'therapist', text: 'Great progress! Keep doing the external rotation stretches twice daily.', time: '10:45 AM' },
+    { id: 3, from: 'patient',   text: 'Still a slight pinch when I raise my arm fully overhead though.', time: '11:02 AM' },
+    { id: 4, from: 'patient',   text: 'Should I book a follow-up sooner?', time: '11:04 AM' },
   ],
   2: [
-    { id: 1, from: 'patient', text: 'When can I start running again?', time: '09:30/2026' },
+    { id: 1, from: 'patient', text: 'When can I start running again?', time: '09:30 AM' },
   ],
   3: [],
 };
 
 export default function PatientChat() {
-  const [activeId, setActiveId] = useState(1);
-  const [input, setInput]       = useState('');
-  const [chats, setChats]       = useState(MESSAGES);
+  const [activeId, setActiveId]   = useState(1);
+  const [input, setInput]         = useState('');
+  const [chats, setChats]         = useState(MESSAGES);
+  const [unreadMap, setUnreadMap] = useState({ 1: 2, 2: 1, 3: 0 });
+
+  const selectPatient = (id) => {
+    setActiveId(id);
+    setUnreadMap(u => ({ ...u, [id]: 0 })); // mark as read
+  };
+
   const active = PATIENTS.find(p => p.id === activeId);
   const msgs   = chats[activeId] || [];
+  const totalUnread = Object.values(unreadMap).reduce((a, b) => a + b, 0);
+
+
 
   const send = () => {
     if (!input.trim()) return;
@@ -36,8 +47,11 @@ export default function PatientChat() {
     <div className="animate-in">
       <div className="page-header">
         <div>
-          <h1 className="page-title">Patient Chats & Records</h1>
-          <p className="page-subtitle">Communicate securely with your patients and add clinical notes.</p>
+          <h1 className="page-title" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            Patient Chats & Records
+            {totalUnread > 0 && <span style={{ background: '#ef4444', color: '#fff', borderRadius: '50%', width: 24, height: 24, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.72rem', fontWeight: 800 }}>{totalUnread}</span>}
+          </h1>
+          <p className="page-subtitle">Communicate securely with your patients. Unread messages are highlighted.</p>
         </div>
       </div>
 
@@ -51,7 +65,7 @@ export default function PatientChat() {
             {PATIENTS.map(p => (
               <div
                 key={p.id}
-                onClick={() => setActiveId(p.id)}
+                onClick={() => selectPatient(p.id)}
                 style={{
                   display: 'flex', gap: '0.75rem', padding: '0.875rem 1rem', cursor: 'pointer',
                   background: activeId === p.id ? '#eff6ff' : 'white',
@@ -64,7 +78,7 @@ export default function PatientChat() {
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <span style={{ fontWeight: 600, fontSize: '0.87rem' }}>{p.name}</span>
-                    {p.unread > 0 && <span style={{ background: '#2563eb', color: 'white', borderRadius: '50%', width: 16, height: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.65rem', fontWeight: 700 }}>{p.unread}</span>}
+                    {unreadMap[p.id] > 0 && <span style={{ background: '#ef4444', color: 'white', borderRadius: '50%', width: 18, height: 18, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.65rem', fontWeight: 800 }}>{unreadMap[p.id]}</span>}
                   </div>
                   <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '0.1rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.condition}</div>
                   <div style={{ fontSize: '0.7rem', color: '#94a3b8', marginTop: '0.15rem' }}>{p.lastMsg}</div>

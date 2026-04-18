@@ -1,6 +1,6 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { ArrowRight, Clock, MapPin, Wifi } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { ArrowRight, Clock, MapPin, Wifi, LogIn } from 'lucide-react';
 
 const services = [
   { id: 1, name: 'Initial Assessment',               desc: 'Comprehensive 45-min evaluation by a specialist.', price: 3500, dur: '45 min', equipment: 'None' },
@@ -24,10 +24,26 @@ const modeBadge = (icon, label) => (
 );
 
 export default function ClinicLanding() {
+  const navigate = useNavigate();
+  const isLoggedIn = !!sessionStorage.getItem('pb_patient');
+
   return (
     <div className="patient-page">
+      {/* Auth prompt banner */}
+      {!isLoggedIn && (
+        <div style={{ background: 'linear-gradient(135deg, #eff6ff, #dbeafe)', borderBottom: '1px solid #bfdbfe', padding: '0.9rem 1.25rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+            <LogIn size={18} color="#2563eb" />
+            <span style={{ color: '#1e40af', fontWeight: 600, fontSize: '0.88rem' }}>Register or Log in to Book — it only takes 30 seconds</span>
+          </div>
+          <button onClick={() => navigate('/book/register')} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', padding: '0.5rem 1rem', background: '#2563eb', color: '#fff', border: 'none', borderRadius: 8, fontWeight: 700, fontSize: '0.85rem', cursor: 'pointer' }}>
+            Sign In / Register <ArrowRight size={14} />
+          </button>
+        </div>
+      )}
       {/* Header */}
       <header className="patient-header">
+
         <Link to="/" className="patient-header-logo">Elite Physio Center</Link>
         <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', fontSize: '0.85rem', color: '#64748b' }}>
           <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}><MapPin size={13} /> Colombo 07</span>

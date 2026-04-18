@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { User, Calendar, Star, CheckCircle, Clock } from 'lucide-react';
+import { User, Calendar, Star, CheckCircle, Clock, Mail, X, FileText } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const APPOINTMENTS = [
   { id: 1, time: '10:00 AM', dur: '45 min', patient: 'John Doe',    service: 'Initial Assessment',        borderColor: '#2563eb' },
@@ -10,12 +11,41 @@ const APPOINTMENTS = [
 const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 const HOURS = { Monday: '09:00 – 17:00', Tuesday: '09:00 – 17:00', Wednesday: 'Off', Thursday: '10:00 – 18:00', Friday: '09:00 – 15:00', Saturday: '09:00 – 13:00' };
 
+const NEW_BOOKING = { patient: 'Rangi Perera', service: 'Lower Back Rehabilitation', date: 'Mon, 22 Apr 2024', time: '10:00 AM' };
+
 export default function TherapistSchedule() {
   const [scheduleEdited, setScheduleEdited] = useState(false);
+  const [emailBanner, setEmailBanner] = useState(true); // simulates new booking assigned email
+  const navigate = useNavigate();
 
   return (
     <div className="animate-in">
-      {/* Profile Banner */}
+
+      {/* Email / Booking Assigned Banner */}
+      {emailBanner && (
+        <div style={{ background: 'linear-gradient(135deg, #dcfce7, #d1fae5)', border: '1.5px solid #86efac', borderRadius: 14, padding: '1rem 1.25rem', marginBottom: '1.25rem', display: 'flex', alignItems: 'flex-start', gap: '0.75rem', position: 'relative' }}>
+          <Mail size={22} color="#16a34a" style={{ flexShrink: 0, marginTop: 2 }} />
+          <div style={{ flex: 1 }}>
+            <div style={{ fontWeight: 800, color: '#14532d', fontSize: '0.95rem', marginBottom: '0.2rem' }}>
+              📩 New Booking Assigned — Email Received
+            </div>
+            <div style={{ color: '#166534', fontSize: '0.85rem', lineHeight: 1.5 }}>
+              <strong>{NEW_BOOKING.patient}</strong> has been assigned to you for <strong>{NEW_BOOKING.service}</strong> on {NEW_BOOKING.date} at {NEW_BOOKING.time}.
+            </div>
+            <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.6rem' }}>
+              <button onClick={() => navigate('/therapist/notes')} style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', padding: '0.4rem 0.85rem', background: '#16a34a', color: '#fff', border: 'none', borderRadius: 8, fontWeight: 700, cursor: 'pointer', fontSize: '0.82rem' }}>
+                <FileText size={13} /> Open Session Notes
+              </button>
+              <button onClick={() => setEmailBanner(false)} style={{ padding: '0.4rem 0.85rem', background: 'rgba(255,255,255,0.6)', color: '#374151', border: 'none', borderRadius: 8, fontWeight: 600, cursor: 'pointer', fontSize: '0.82rem' }}>
+                Dismiss
+              </button>
+            </div>
+          </div>
+          <button onClick={() => setEmailBanner(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#86efac', padding: 0, flexShrink: 0 }}><X size={16} /></button>
+        </div>
+      )}
+
+
       <div className="card" style={{ marginBottom: '1.5rem', background: 'linear-gradient(to right, #eff6ff, #f8fafc)', border: '1px solid #bfdbfe', display: 'flex', gap: '1.25rem', alignItems: 'center', flexWrap: 'wrap' }}>
         <div style={{ width: 64, height: 64, borderRadius: '50%', background: '#bfdbfe', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
           <User size={28} color="#1e40af" />
