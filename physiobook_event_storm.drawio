@@ -1,350 +1,654 @@
-<mxGraphModel dx="2000" dy="1000" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2900" pageHeight="900" math="0" shadow="0">
-  <root>
-    <mxCell id="0" />
-    <mxCell id="1" parent="0" />
-
-    <!-- LEGEND -->
-    <mxCell id="leg0" value="LEGEND" style="text;html=1;fontStyle=1;fontSize=11;fillColor=none;strokeColor=none;" vertex="1" parent="1">
-      <mxGeometry x="10" y="860" width="80" height="20" as="geometry"/>
-    </mxCell>
-    <mxCell id="leg1" value="Command" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=9;" vertex="1" parent="1">
-      <mxGeometry x="100" y="857" width="90" height="30" as="geometry"/>
-    </mxCell>
-    <mxCell id="leg2" value="Domain Event" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontStyle=1;fontSize=9;" vertex="1" parent="1">
-      <mxGeometry x="200" y="857" width="100" height="30" as="geometry"/>
-    </mxCell>
-    <mxCell id="leg3" value="Policy / Rule" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1;fontSize=9;" vertex="1" parent="1">
-      <mxGeometry x="310" y="857" width="100" height="30" as="geometry"/>
-    </mxCell>
-    <mxCell id="leg4" value="Read Model" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;fontSize=9;" vertex="1" parent="1">
-      <mxGeometry x="420" y="857" width="90" height="30" as="geometry"/>
-    </mxCell>
-
-    <!-- SWIM LANE BACKGROUNDS -->
-    <mxCell id="lane_p" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFDE7;strokeColor=#F9A825;opacity=40;" vertex="1" parent="1">
-      <mxGeometry x="0" y="0" width="2850" height="200" as="geometry"/>
-    </mxCell>
-    <mxCell id="lane_p_lbl" value="PATIENT" style="text;html=1;fontStyle=1;fontSize=13;fillColor=none;strokeColor=none;align=center;rotation=-90;" vertex="1" parent="1">
-      <mxGeometry x="-15" y="80" width="90" height="30" as="geometry"/>
-    </mxCell>
-    <mxCell id="lane_c" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#1565C0;opacity=40;" vertex="1" parent="1">
-      <mxGeometry x="0" y="200" width="2850" height="230" as="geometry"/>
-    </mxCell>
-    <mxCell id="lane_c_lbl" value="CLINIC ADMIN" style="text;html=1;fontStyle=1;fontSize=13;fillColor=none;strokeColor=none;align=center;rotation=-90;" vertex="1" parent="1">
-      <mxGeometry x="-15" y="285" width="120" height="30" as="geometry"/>
-    </mxCell>
-    <mxCell id="lane_t" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#F3E5F5;strokeColor=#7B1FA2;opacity=40;" vertex="1" parent="1">
-      <mxGeometry x="0" y="430" width="2850" height="200" as="geometry"/>
-    </mxCell>
-    <mxCell id="lane_t_lbl" value="PHYSIOTHERAPIST" style="text;html=1;fontStyle=1;fontSize=13;fillColor=none;strokeColor=none;align=center;rotation=-90;" vertex="1" parent="1">
-      <mxGeometry x="-15" y="500" width="150" height="30" as="geometry"/>
-    </mxCell>
-    <mxCell id="lane_s" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#2E7D32;opacity=40;" vertex="1" parent="1">
-      <mxGeometry x="0" y="630" width="2850" height="200" as="geometry"/>
-    </mxCell>
-    <mxCell id="lane_s_lbl" value="SUPER ADMIN" style="text;html=1;fontStyle=1;fontSize=13;fillColor=none;strokeColor=none;align=center;rotation=-90;" vertex="1" parent="1">
-      <mxGeometry x="-15" y="700" width="110" height="30" as="geometry"/>
-    </mxCell>
-
-    <!-- SUPER ADMIN NODES -->
-    <mxCell id="S1" value="Login to Platform" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=9;" vertex="1" parent="1">
-      <mxGeometry x="80" y="670" width="120" height="50" as="geometry"/>
-    </mxCell>
-    <mxCell id="S2" value="Platform Overview Loaded" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontStyle=1;fontSize=9;" vertex="1" parent="1">
-      <mxGeometry x="220" y="670" width="130" height="50" as="geometry"/>
-    </mxCell>
-    <mxCell id="S3" value="Onboard New Clinic" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=9;" vertex="1" parent="1">
-      <mxGeometry x="370" y="670" width="120" height="50" as="geometry"/>
-    </mxCell>
-    <mxCell id="S4" value="Clinic Registered" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontStyle=1;fontSize=9;" vertex="1" parent="1">
-      <mxGeometry x="510" y="670" width="120" height="50" as="geometry"/>
-    </mxCell>
-    <mxCell id="S5" value="Clinic Admin Access Granted" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontStyle=1;fontSize=9;" vertex="1" parent="1">
-      <mxGeometry x="650" y="670" width="130" height="50" as="geometry"/>
-    </mxCell>
-    <mxCell id="S6" value="Monitor Revenue" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=9;" vertex="1" parent="1">
-      <mxGeometry x="1560" y="670" width="120" height="50" as="geometry"/>
-    </mxCell>
-    <mxCell id="S7" value="Revenue Dashboard Updated" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;fontSize=9;" vertex="1" parent="1">
-      <mxGeometry x="1700" y="670" width="130" height="50" as="geometry"/>
-    </mxCell>
-    <mxCell id="S8" value="Manage Clinic Subscription" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=9;" vertex="1" parent="1">
-      <mxGeometry x="2000" y="670" width="130" height="50" as="geometry"/>
-    </mxCell>
-    <mxCell id="S9" value="Subscription Plan Updated" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontStyle=1;fontSize=9;" vertex="1" parent="1">
-      <mxGeometry x="2150" y="670" width="130" height="50" as="geometry"/>
-    </mxCell>
-    <mxCell id="S10" value="System Alert Triggered" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontStyle=1;fontSize=9;" vertex="1" parent="1">
-      <mxGeometry x="2300" y="670" width="120" height="50" as="geometry"/>
-    </mxCell>
-    <mxCell id="S11" value="Resolve Alert" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=9;" vertex="1" parent="1">
-      <mxGeometry x="2440" y="670" width="120" height="50" as="geometry"/>
-    </mxCell>
-    <mxCell id="S12" value="Alert Resolved" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontStyle=1;fontSize=9;" vertex="1" parent="1">
-      <mxGeometry x="2580" y="670" width="120" height="50" as="geometry"/>
-    </mxCell>
-
-    <!-- Super Admin internal arrows -->
-    <mxCell id="sa1" style="edgeStyle=orthogonalEdgeStyle;html=1;" edge="1" source="S1" target="S2" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
-    <mxCell id="sa2" style="edgeStyle=orthogonalEdgeStyle;html=1;" edge="1" source="S2" target="S3" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
-    <mxCell id="sa3" style="edgeStyle=orthogonalEdgeStyle;html=1;" edge="1" source="S3" target="S4" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
-    <mxCell id="sa4" style="edgeStyle=orthogonalEdgeStyle;html=1;" edge="1" source="S4" target="S5" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
-    <mxCell id="sa5" style="edgeStyle=orthogonalEdgeStyle;html=1;" edge="1" source="S6" target="S7" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
-    <mxCell id="sa6" style="edgeStyle=orthogonalEdgeStyle;html=1;" edge="1" source="S8" target="S9" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
-    <mxCell id="sa7" style="edgeStyle=orthogonalEdgeStyle;html=1;" edge="1" source="S10" target="S11" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
-    <mxCell id="sa8" style="edgeStyle=orthogonalEdgeStyle;html=1;" edge="1" source="S11" target="S12" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
-
-    <!-- CLINIC ADMIN ROW 1 NODES -->
-    <mxCell id="C1" value="Login to Admin Panel" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=9;" vertex="1" parent="1">
-      <mxGeometry x="80" y="220" width="120" height="50" as="geometry"/>
-    </mxCell>
-    <mxCell id="C2" value="Dashboard Loaded" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontStyle=1;fontSize=9;" vertex="1" parent="1">
-      <mxGeometry x="220" y="220" width="120" height="50" as="geometry"/>
-    </mxCell>
-    <mxCell id="C3" value="Add Equipment" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=9;" vertex="1" parent="1">
-      <mxGeometry x="360" y="220" width="120" height="50" as="geometry"/>
-    </mxCell>
-    <mxCell id="C4" value="Equipment Added" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontStyle=1;fontSize=9;" vertex="1" parent="1">
-      <mxGeometry x="500" y="220" width="120" height="50" as="geometry"/>
-    </mxCell>
-    <mxCell id="C5" value="Set Equipment Portability" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=9;" vertex="1" parent="1">
-      <mxGeometry x="640" y="220" width="130" height="50" as="geometry"/>
-    </mxCell>
-    <mxCell id="C6" value="Portability Flag Set" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontStyle=1;fontSize=9;" vertex="1" parent="1">
-      <mxGeometry x="790" y="220" width="120" height="50" as="geometry"/>
-    </mxCell>
-    <mxCell id="C7" value="Create Service" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=9;" vertex="1" parent="1">
-      <mxGeometry x="930" y="220" width="120" height="50" as="geometry"/>
-    </mxCell>
-    <mxCell id="C8" value="Service Published to Portal" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontStyle=1;fontSize=9;" vertex="1" parent="1">
-      <mxGeometry x="1070" y="220" width="130" height="50" as="geometry"/>
-    </mxCell>
-    <mxCell id="C9" value="Add Staff Member" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=9;" vertex="1" parent="1">
-      <mxGeometry x="1220" y="220" width="120" height="50" as="geometry"/>
-    </mxCell>
-    <mxCell id="C10" value="Staff Profile Created" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontStyle=1;fontSize=9;" vertex="1" parent="1">
-      <mxGeometry x="1360" y="220" width="120" height="50" as="geometry"/>
-    </mxCell>
-    <mxCell id="C11" value="Set Staff Availability" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=9;" vertex="1" parent="1">
-      <mxGeometry x="1500" y="220" width="120" height="50" as="geometry"/>
-    </mxCell>
-    <mxCell id="C12" value="Availability Schedule Set" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontStyle=1;fontSize=9;" vertex="1" parent="1">
-      <mxGeometry x="1640" y="220" width="130" height="50" as="geometry"/>
-    </mxCell>
-    <mxCell id="C13" value="Create Package (Fast-Track)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=9;" vertex="1" parent="1">
-      <mxGeometry x="1790" y="220" width="130" height="50" as="geometry"/>
-    </mxCell>
-    <mxCell id="C14" value="Package Published to Portal" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontStyle=1;fontSize=9;" vertex="1" parent="1">
-      <mxGeometry x="1940" y="220" width="130" height="50" as="geometry"/>
-    </mxCell>
-
-    <!-- CLINIC ADMIN ROW 2 NODES -->
-    <mxCell id="C15" value="Booking Received from Patient" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontStyle=1;fontSize=9;" vertex="1" parent="1">
-      <mxGeometry x="1640" y="350" width="130" height="50" as="geometry"/>
-    </mxCell>
-    <mxCell id="C16" value="Mark Payment as Paid" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=9;" vertex="1" parent="1">
-      <mxGeometry x="1790" y="350" width="120" height="50" as="geometry"/>
-    </mxCell>
-    <mxCell id="C17" value="Payment Collected" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontStyle=1;fontSize=9;" vertex="1" parent="1">
-      <mxGeometry x="1930" y="350" width="120" height="50" as="geometry"/>
-    </mxCell>
-    <mxCell id="C18" value="Process Refund" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=9;" vertex="1" parent="1">
-      <mxGeometry x="2070" y="350" width="110" height="50" as="geometry"/>
-    </mxCell>
-    <mxCell id="C19" value="Refund Issued" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontStyle=1;fontSize=9;" vertex="1" parent="1">
-      <mxGeometry x="2200" y="350" width="120" height="50" as="geometry"/>
-    </mxCell>
-    <mxCell id="C20" value="Design Booking Page" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=9;" vertex="1" parent="1">
-      <mxGeometry x="360" y="350" width="130" height="50" as="geometry"/>
-    </mxCell>
-    <mxCell id="C21" value="Booking Page Published" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontStyle=1;fontSize=9;" vertex="1" parent="1">
-      <mxGeometry x="510" y="350" width="130" height="50" as="geometry"/>
-    </mxCell>
-    <mxCell id="C22" value="Invite Team Member" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=9;" vertex="1" parent="1">
-      <mxGeometry x="660" y="350" width="120" height="50" as="geometry"/>
-    </mxCell>
-    <mxCell id="C23" value="Team Member Added" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontStyle=1;fontSize=9;" vertex="1" parent="1">
-      <mxGeometry x="800" y="350" width="120" height="50" as="geometry"/>
-    </mxCell>
-    <mxCell id="C24" value="Switch Clinic Branch" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=9;" vertex="1" parent="1">
-      <mxGeometry x="940" y="350" width="120" height="50" as="geometry"/>
-    </mxCell>
-    <mxCell id="C25" value="Clinic Context Updated" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontStyle=1;fontSize=9;" vertex="1" parent="1">
-      <mxGeometry x="1080" y="350" width="130" height="50" as="geometry"/>
-    </mxCell>
-
-    <!-- Clinic Admin internal arrows -->
-    <mxCell id="ca1" style="edgeStyle=orthogonalEdgeStyle;html=1;" edge="1" source="C1" target="C2" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
-    <mxCell id="ca2" style="edgeStyle=orthogonalEdgeStyle;html=1;" edge="1" source="C2" target="C3" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
-    <mxCell id="ca3" style="edgeStyle=orthogonalEdgeStyle;html=1;" edge="1" source="C3" target="C4" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
-    <mxCell id="ca4" style="edgeStyle=orthogonalEdgeStyle;html=1;" edge="1" source="C4" target="C5" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
-    <mxCell id="ca5" style="edgeStyle=orthogonalEdgeStyle;html=1;" edge="1" source="C5" target="C6" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
-    <mxCell id="ca6" style="edgeStyle=orthogonalEdgeStyle;html=1;" edge="1" source="C7" target="C8" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
-    <mxCell id="ca7" style="edgeStyle=orthogonalEdgeStyle;html=1;" edge="1" source="C9" target="C10" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
-    <mxCell id="ca8" style="edgeStyle=orthogonalEdgeStyle;html=1;" edge="1" source="C10" target="C11" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
-    <mxCell id="ca9" style="edgeStyle=orthogonalEdgeStyle;html=1;" edge="1" source="C11" target="C12" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
-    <mxCell id="ca10" style="edgeStyle=orthogonalEdgeStyle;html=1;" edge="1" source="C13" target="C14" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
-    <mxCell id="ca11" style="edgeStyle=orthogonalEdgeStyle;html=1;" edge="1" source="C15" target="C16" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
-    <mxCell id="ca12" style="edgeStyle=orthogonalEdgeStyle;html=1;" edge="1" source="C16" target="C17" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
-    <mxCell id="ca13" style="edgeStyle=orthogonalEdgeStyle;html=1;" edge="1" source="C17" target="C18" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
-    <mxCell id="ca14" style="edgeStyle=orthogonalEdgeStyle;html=1;" edge="1" source="C18" target="C19" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
-    <mxCell id="ca15" style="edgeStyle=orthogonalEdgeStyle;html=1;" edge="1" source="C20" target="C21" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
-    <mxCell id="ca16" style="edgeStyle=orthogonalEdgeStyle;html=1;" edge="1" source="C22" target="C23" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
-    <mxCell id="ca17" style="edgeStyle=orthogonalEdgeStyle;html=1;" edge="1" source="C24" target="C25" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
-
-    <!-- THERAPIST NODES -->
-    <mxCell id="T1" value="Login to Therapist Hub" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=9;" vertex="1" parent="1">
-      <mxGeometry x="80" y="460" width="130" height="50" as="geometry"/>
-    </mxCell>
-    <mxCell id="T2" value="Schedule Loaded" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontStyle=1;fontSize=9;" vertex="1" parent="1">
-      <mxGeometry x="230" y="460" width="120" height="50" as="geometry"/>
-    </mxCell>
-    <mxCell id="T3" value="Update Availability" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=9;" vertex="1" parent="1">
-      <mxGeometry x="370" y="460" width="120" height="50" as="geometry"/>
-    </mxCell>
-    <mxCell id="T4" value="Availability Updated" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontStyle=1;fontSize=9;" vertex="1" parent="1">
-      <mxGeometry x="510" y="460" width="120" height="50" as="geometry"/>
-    </mxCell>
-    <mxCell id="T5" value="Booking Assigned" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontStyle=1;fontSize=9;" vertex="1" parent="1">
-      <mxGeometry x="800" y="460" width="120" height="50" as="geometry"/>
-    </mxCell>
-    <mxCell id="T6" value="Begin Session" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=9;" vertex="1" parent="1">
-      <mxGeometry x="940" y="460" width="120" height="50" as="geometry"/>
-    </mxCell>
-    <mxCell id="T7" value="Session Started" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontStyle=1;fontSize=9;" vertex="1" parent="1">
-      <mxGeometry x="1080" y="460" width="120" height="50" as="geometry"/>
-    </mxCell>
-    <mxCell id="T8" value="Add Clinical Note" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=9;" vertex="1" parent="1">
-      <mxGeometry x="1220" y="460" width="120" height="50" as="geometry"/>
-    </mxCell>
-    <mxCell id="T9" value="Clinical Note Saved" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontStyle=1;fontSize=9;" vertex="1" parent="1">
-      <mxGeometry x="1360" y="460" width="120" height="50" as="geometry"/>
-    </mxCell>
-    <mxCell id="T13" value="Session Completed" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontStyle=1;fontSize=9;" vertex="1" parent="1">
-      <mxGeometry x="1510" y="460" width="120" height="50" as="geometry"/>
-    </mxCell>
-    <mxCell id="T10" value="Send Message to Patient" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=9;" vertex="1" parent="1">
-      <mxGeometry x="1800" y="460" width="130" height="50" as="geometry"/>
-    </mxCell>
-    <mxCell id="T11" value="Message Sent" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontStyle=1;fontSize=9;" vertex="1" parent="1">
-      <mxGeometry x="1950" y="460" width="120" height="50" as="geometry"/>
-    </mxCell>
-    <mxCell id="T12" value="Patient Message Received" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontStyle=1;fontSize=9;" vertex="1" parent="1">
-      <mxGeometry x="2280" y="460" width="130" height="50" as="geometry"/>
-    </mxCell>
-
-    <!-- Therapist internal arrows -->
-    <mxCell id="ta1" style="edgeStyle=orthogonalEdgeStyle;html=1;" edge="1" source="T1" target="T2" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
-    <mxCell id="ta2" style="edgeStyle=orthogonalEdgeStyle;html=1;" edge="1" source="T2" target="T3" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
-    <mxCell id="ta3" style="edgeStyle=orthogonalEdgeStyle;html=1;" edge="1" source="T3" target="T4" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
-    <mxCell id="ta4" style="edgeStyle=orthogonalEdgeStyle;html=1;" edge="1" source="T5" target="T6" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
-    <mxCell id="ta5" style="edgeStyle=orthogonalEdgeStyle;html=1;" edge="1" source="T6" target="T7" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
-    <mxCell id="ta6" style="edgeStyle=orthogonalEdgeStyle;html=1;" edge="1" source="T7" target="T8" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
-    <mxCell id="ta7" style="edgeStyle=orthogonalEdgeStyle;html=1;" edge="1" source="T8" target="T9" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
-    <mxCell id="ta8" style="edgeStyle=orthogonalEdgeStyle;html=1;" edge="1" source="T9" target="T13" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
-    <mxCell id="ta9" style="edgeStyle=orthogonalEdgeStyle;html=1;" edge="1" source="T10" target="T11" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
-
-    <!-- PATIENT NODES -->
-    <mxCell id="P1" value="Register / Login" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=9;" vertex="1" parent="1">
-      <mxGeometry x="80" y="75" width="120" height="50" as="geometry"/>
-    </mxCell>
-    <mxCell id="P2" value="Account Created" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontStyle=1;fontSize=9;" vertex="1" parent="1">
-      <mxGeometry x="220" y="75" width="120" height="50" as="geometry"/>
-    </mxCell>
-    <mxCell id="P3" value="Browse Clinic Booking Page" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=9;" vertex="1" parent="1">
-      <mxGeometry x="360" y="75" width="130" height="50" as="geometry"/>
-    </mxCell>
-    <mxCell id="P4" value="Clinic Page Viewed" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontStyle=1;fontSize=9;" vertex="1" parent="1">
-      <mxGeometry x="510" y="75" width="120" height="50" as="geometry"/>
-    </mxCell>
-    <mxCell id="P5" value="Select Service or Package" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=9;" vertex="1" parent="1">
-      <mxGeometry x="650" y="75" width="120" height="50" as="geometry"/>
-    </mxCell>
-    <mxCell id="P6" value="Service Selected" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontStyle=1;fontSize=9;" vertex="1" parent="1">
-      <mxGeometry x="790" y="75" width="120" height="50" as="geometry"/>
-    </mxCell>
-    <mxCell id="P7" value="Choose Visit Mode" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=9;" vertex="1" parent="1">
-      <mxGeometry x="930" y="75" width="120" height="50" as="geometry"/>
-    </mxCell>
-    <mxCell id="POL1" value="Home Visit + Equipment Required?" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1;fontSize=8;" vertex="1" parent="1">
-      <mxGeometry x="930" y="140" width="140" height="50" as="geometry"/>
-    </mxCell>
-    <mxCell id="P7b" value="Confirm Equipment Owned" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=9;" vertex="1" parent="1">
-      <mxGeometry x="1090" y="140" width="130" height="50" as="geometry"/>
-    </mxCell>
-    <mxCell id="P8" value="Visit Mode Set" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontStyle=1;fontSize=9;" vertex="1" parent="1">
-      <mxGeometry x="1080" y="75" width="120" height="50" as="geometry"/>
-    </mxCell>
-    <mxCell id="P9" value="Select Therapist / Auto-Assign" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=9;" vertex="1" parent="1">
-      <mxGeometry x="1230" y="75" width="130" height="50" as="geometry"/>
-    </mxCell>
-    <mxCell id="P10" value="Therapist Assigned" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontStyle=1;fontSize=9;" vertex="1" parent="1">
-      <mxGeometry x="1380" y="75" width="120" height="50" as="geometry"/>
-    </mxCell>
-    <mxCell id="P11" value="Pick Time Slot" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=9;" vertex="1" parent="1">
-      <mxGeometry x="1520" y="75" width="120" height="50" as="geometry"/>
-    </mxCell>
-    <mxCell id="P12" value="Time Slot Reserved" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontStyle=1;fontSize=9;" vertex="1" parent="1">
-      <mxGeometry x="1660" y="75" width="120" height="50" as="geometry"/>
-    </mxCell>
-    <mxCell id="P13" value="Submit Payment" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=9;" vertex="1" parent="1">
-      <mxGeometry x="1800" y="75" width="120" height="50" as="geometry"/>
-    </mxCell>
-    <mxCell id="P14" value="Payment Processed" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontStyle=1;fontSize=9;" vertex="1" parent="1">
-      <mxGeometry x="1940" y="75" width="120" height="50" as="geometry"/>
-    </mxCell>
-    <mxCell id="P15" value="Booking Confirmed" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontStyle=1;fontSize=9;strokeWidth=2;" vertex="1" parent="1">
-      <mxGeometry x="2080" y="75" width="130" height="50" as="geometry"/>
-    </mxCell>
-    <mxCell id="P16" value="Confirmation Email Sent" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;fontSize=9;" vertex="1" parent="1">
-      <mxGeometry x="2230" y="75" width="130" height="50" as="geometry"/>
-    </mxCell>
-    <mxCell id="P17" value="Send Message to Therapist" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=9;" vertex="1" parent="1">
-      <mxGeometry x="2380" y="75" width="130" height="50" as="geometry"/>
-    </mxCell>
-    <mxCell id="P18" value="Message Sent" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontStyle=1;fontSize=9;" vertex="1" parent="1">
-      <mxGeometry x="2530" y="75" width="120" height="50" as="geometry"/>
-    </mxCell>
-    <mxCell id="P19" value="Therapist Reply Received" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontStyle=1;fontSize=9;" vertex="1" parent="1">
-      <mxGeometry x="2670" y="75" width="130" height="50" as="geometry"/>
-    </mxCell>
-
-    <!-- Patient internal arrows -->
-    <mxCell id="pa1" style="edgeStyle=orthogonalEdgeStyle;html=1;" edge="1" source="P1" target="P2" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
-    <mxCell id="pa2" style="edgeStyle=orthogonalEdgeStyle;html=1;" edge="1" source="P2" target="P3" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
-    <mxCell id="pa3" style="edgeStyle=orthogonalEdgeStyle;html=1;" edge="1" source="P3" target="P4" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
-    <mxCell id="pa4" style="edgeStyle=orthogonalEdgeStyle;html=1;" edge="1" source="P4" target="P5" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
-    <mxCell id="pa5" style="edgeStyle=orthogonalEdgeStyle;html=1;" edge="1" source="P5" target="P6" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
-    <mxCell id="pa6" style="edgeStyle=orthogonalEdgeStyle;html=1;" edge="1" source="P6" target="P7" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
-    <mxCell id="pa6b" style="edgeStyle=orthogonalEdgeStyle;html=1;" edge="1" source="P7" target="POL1" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
-    <mxCell id="pa6c" style="edgeStyle=orthogonalEdgeStyle;html=1;" edge="1" source="POL1" target="P7b" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
-    <mxCell id="pa7" style="edgeStyle=orthogonalEdgeStyle;html=1;" edge="1" source="P7" target="P8" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
-    <mxCell id="pa8" style="edgeStyle=orthogonalEdgeStyle;html=1;" edge="1" source="P8" target="P9" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
-    <mxCell id="pa9" style="edgeStyle=orthogonalEdgeStyle;html=1;" edge="1" source="P9" target="P10" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
-    <mxCell id="pa10" style="edgeStyle=orthogonalEdgeStyle;html=1;" edge="1" source="P10" target="P11" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
-    <mxCell id="pa11" style="edgeStyle=orthogonalEdgeStyle;html=1;" edge="1" source="P11" target="P12" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
-    <mxCell id="pa12" style="edgeStyle=orthogonalEdgeStyle;html=1;" edge="1" source="P12" target="P13" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
-    <mxCell id="pa13" style="edgeStyle=orthogonalEdgeStyle;html=1;" edge="1" source="P13" target="P14" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
-    <mxCell id="pa14" style="edgeStyle=orthogonalEdgeStyle;html=1;" edge="1" source="P14" target="P15" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
-    <mxCell id="pa15" style="edgeStyle=orthogonalEdgeStyle;html=1;" edge="1" source="P15" target="P16" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
-    <mxCell id="pa16" style="edgeStyle=orthogonalEdgeStyle;html=1;" edge="1" source="P17" target="P18" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
-
-    <!-- CROSS-ROLE CONNECTIONS (dashed coloured arrows) -->
-    <mxCell id="X1" value="Grants Access" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#CC0000;dashed=1;strokeWidth=2;fontColor=#CC0000;fontSize=8;" edge="1" source="S5" target="C1" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
-    <mxCell id="X2" value="Service Visible on Portal" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#CC0000;dashed=1;strokeWidth=2;fontColor=#CC0000;fontSize=8;" edge="1" source="C8" target="P5" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
-    <mxCell id="X3" value="Package Visible on Portal" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#CC0000;dashed=1;strokeWidth=2;fontColor=#CC0000;fontSize=8;" edge="1" source="C14" target="P5" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
-    <mxCell id="X4" value="Home Visit Gate" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#9673a6;dashed=1;strokeWidth=2;fontColor=#9673a6;fontSize=8;" edge="1" source="C6" target="POL1" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
-    <mxCell id="X5" value="Staff Pool for Auto-Assign" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#CC0000;dashed=1;strokeWidth=2;fontColor=#CC0000;fontSize=8;" edge="1" source="C12" target="P9" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
-    <mxCell id="X6" value="Therapist Slots Available" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#CC0000;dashed=1;strokeWidth=2;fontColor=#CC0000;fontSize=8;" edge="1" source="T4" target="P9" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
-    <mxCell id="X7" value="Assignment Pushed" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#CC0000;dashed=1;strokeWidth=2;fontColor=#CC0000;fontSize=8;" edge="1" source="P15" target="T5" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
-    <mxCell id="X8" value="Booking in Dashboard" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#CC0000;dashed=1;strokeWidth=2;fontColor=#CC0000;fontSize=8;" edge="1" source="P15" target="C15" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
-    <mxCell id="X9" value="Revenue Aggregated" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#CC0000;dashed=1;strokeWidth=2;fontColor=#CC0000;fontSize=8;" edge="1" source="P14" target="S6" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
-    <mxCell id="X10" value="Transaction Reported" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#CC0000;dashed=1;strokeWidth=2;fontColor=#CC0000;fontSize=8;" edge="1" source="C17" target="S7" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
-    <mxCell id="X11" value="Updated Portal Visible" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#CC0000;dashed=1;strokeWidth=2;fontColor=#CC0000;fontSize=8;" edge="1" source="C21" target="P3" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
-    <mxCell id="X12" value="Message Delivered" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#7B1FA2;dashed=1;strokeWidth=2;fontColor=#7B1FA2;fontSize=8;" edge="1" source="T11" target="P19" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
-    <mxCell id="X13" value="Unread Badge Triggered" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#7B1FA2;dashed=1;strokeWidth=2;fontColor=#7B1FA2;fontSize=8;" edge="1" source="P18" target="T12" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
-    <mxCell id="X14" value="Reflects in Staff Table" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#CC0000;dashed=1;strokeWidth=2;fontColor=#CC0000;fontSize=8;" edge="1" source="T4" target="C11" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
-    <mxCell id="X15" value="Feature Gating" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#2E7D32;dashed=1;strokeWidth=2;fontColor=#2E7D32;fontSize=8;" edge="1" source="S9" target="C2" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
-
-  </root>
-</mxGraphModel>
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net">
+  <diagram name="Page-1" id="uMMiAtudpwxtaCuq-ol7">
+    <mxGraphModel dx="3680" dy="2384" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-6" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFDE7;strokeColor=#F9A825;opacity=40;" value="" vertex="1">
+          <mxGeometry height="200" width="2850" y="270" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-7" parent="1" style="text;html=1;fontStyle=1;fontSize=13;fillColor=none;strokeColor=none;align=center;rotation=-90;" value="PATIENT" vertex="1">
+          <mxGeometry height="30" width="90" x="-15" y="350" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-8" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#1565C0;opacity=40;" value="" vertex="1">
+          <mxGeometry height="230" width="2850" y="470" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-9" parent="1" style="text;html=1;fontStyle=1;fontSize=13;fillColor=none;strokeColor=none;align=center;rotation=-90;" value="CLINIC ADMIN" vertex="1">
+          <mxGeometry height="30" width="120" x="-15" y="555" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-10" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#F3E5F5;strokeColor=#7B1FA2;opacity=40;" value="" vertex="1">
+          <mxGeometry height="200" width="2850" y="700" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-11" parent="1" style="text;html=1;fontStyle=1;fontSize=13;fillColor=none;strokeColor=none;align=center;rotation=-90;" value="PHYSIOTHERAPIST" vertex="1">
+          <mxGeometry height="30" width="150" x="-35" y="770" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-12" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#2E7D32;opacity=40;" value="" vertex="1">
+          <mxGeometry height="200" width="2850" y="900" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-13" parent="1" style="text;html=1;fontStyle=1;fontSize=13;fillColor=none;strokeColor=none;align=center;rotation=-90;" value="SUPER ADMIN" vertex="1">
+          <mxGeometry height="30" width="110" x="-15" y="970" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-14" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=9;" value="Login to Platform" vertex="1">
+          <mxGeometry height="50" width="120" x="80" y="940" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-15" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontStyle=1;fontSize=9;" value="Platform Overview Loaded" vertex="1">
+          <mxGeometry height="50" width="130" x="220" y="940" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-16" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=9;" value="Onboard New Clinic" vertex="1">
+          <mxGeometry height="50" width="120" x="370" y="940" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-17" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontStyle=1;fontSize=9;" value="Clinic Registered" vertex="1">
+          <mxGeometry height="50" width="120" x="510" y="940" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-224" edge="1" parent="1" source="x2_PHyXJOnVtRUqWVSSn-18" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" target="x2_PHyXJOnVtRUqWVSSn-221">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-18" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontStyle=1;fontSize=9;" value="Clinic Admin Access Granted" vertex="1">
+          <mxGeometry height="50" width="130" x="650" y="940" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-19" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=9;" value="Monitor Revenue" vertex="1">
+          <mxGeometry height="50" width="120" x="1990" y="940" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-20" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;fontSize=9;" value="Revenue Dashboard Updated" vertex="1">
+          <mxGeometry height="50" width="130" x="1985" y="1020" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-21" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=9;" value="Manage Clinic Subscription" vertex="1">
+          <mxGeometry height="50" width="130" x="1160" y="940" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-22" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontStyle=1;fontSize=9;" value="Subscription Plan Updated" vertex="1">
+          <mxGeometry height="50" width="130" x="1310" y="940" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-23" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontStyle=1;fontSize=9;" value="System Alert Triggered" vertex="1">
+          <mxGeometry height="50" width="120" x="2300" y="940" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-24" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=9;" value="Resolve Alert" vertex="1">
+          <mxGeometry height="50" width="120" x="2440" y="940" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-25" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontStyle=1;fontSize=9;" value="Alert Resolved" vertex="1">
+          <mxGeometry height="50" width="120" x="2580" y="940" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-26" edge="1" parent="1" source="x2_PHyXJOnVtRUqWVSSn-14" style="edgeStyle=orthogonalEdgeStyle;html=1;" target="x2_PHyXJOnVtRUqWVSSn-15">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-27" edge="1" parent="1" source="x2_PHyXJOnVtRUqWVSSn-15" style="edgeStyle=orthogonalEdgeStyle;html=1;" target="x2_PHyXJOnVtRUqWVSSn-16">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-28" edge="1" parent="1" source="x2_PHyXJOnVtRUqWVSSn-16" style="edgeStyle=orthogonalEdgeStyle;html=1;" target="x2_PHyXJOnVtRUqWVSSn-17">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-29" edge="1" parent="1" source="x2_PHyXJOnVtRUqWVSSn-17" style="edgeStyle=orthogonalEdgeStyle;html=1;" target="x2_PHyXJOnVtRUqWVSSn-18">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-30" edge="1" parent="1" source="x2_PHyXJOnVtRUqWVSSn-19" style="edgeStyle=orthogonalEdgeStyle;html=1;" target="x2_PHyXJOnVtRUqWVSSn-20">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-31" edge="1" parent="1" source="x2_PHyXJOnVtRUqWVSSn-21" style="edgeStyle=orthogonalEdgeStyle;html=1;" target="x2_PHyXJOnVtRUqWVSSn-22">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-32" edge="1" parent="1" source="x2_PHyXJOnVtRUqWVSSn-23" style="edgeStyle=orthogonalEdgeStyle;html=1;" target="x2_PHyXJOnVtRUqWVSSn-24">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-33" edge="1" parent="1" source="x2_PHyXJOnVtRUqWVSSn-24" style="edgeStyle=orthogonalEdgeStyle;html=1;" target="x2_PHyXJOnVtRUqWVSSn-25">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-34" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=9;" value="Register &amp;amp; Login to Admin Panel" vertex="1">
+          <mxGeometry height="50" width="120" x="80" y="560" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-187" edge="1" parent="1" source="x2_PHyXJOnVtRUqWVSSn-35" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="x2_PHyXJOnVtRUqWVSSn-179">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-35" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontStyle=1;fontSize=9;" value="Dashboard Loaded" vertex="1">
+          <mxGeometry height="50" width="120" x="220" y="560" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-36" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=9;" value="Add Equipment &amp;amp; set equipment features" vertex="1">
+          <mxGeometry height="50" width="120" x="690" y="560" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-37" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontStyle=1;fontSize=9;" value="Equipment Added&lt;div&gt;Features Set&lt;/div&gt;" vertex="1">
+          <mxGeometry height="50" width="120" x="830" y="560" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-40" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=9;" value="Create Service or&amp;nbsp;&lt;div&gt;packages and&lt;/div&gt;&lt;div&gt;customize book page&lt;/div&gt;" vertex="1">
+          <mxGeometry height="50" width="120" x="640" y="490" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-41" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontStyle=1;fontSize=9;" value="Published to Portal or Booking Page" vertex="1">
+          <mxGeometry height="50" width="130" x="780" y="490" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-42" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=9;" value="Add Staff Member&lt;div&gt;by id or invite by id&lt;/div&gt;&lt;div&gt;&amp;nbsp;and import&lt;/div&gt;&lt;div&gt;the Availability&lt;/div&gt;" vertex="1">
+          <mxGeometry height="50" width="120" x="960" y="490" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-45" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontStyle=1;fontSize=9;" value="Availability Schedule Set &amp;amp; Member Added" vertex="1">
+          <mxGeometry height="50" width="130" x="1110" y="490" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-48" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontStyle=1;fontSize=9;" value="Booking Received from Patient" vertex="1">
+          <mxGeometry height="50" width="130" x="1410" y="630" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-49" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=9;" value="Mark as booking&amp;nbsp;&lt;div&gt;Confirmed&lt;/div&gt;" vertex="1">
+          <mxGeometry height="50" width="120" x="1560" y="630" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-50" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontStyle=1;fontSize=9;" value="Booking Confirmed" vertex="1">
+          <mxGeometry height="50" width="120" x="1700" y="630" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-51" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=9;" value="Collect Payment or Process Refund" vertex="1">
+          <mxGeometry height="50" width="110" x="1900" y="630" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-52" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontStyle=1;fontSize=9;" value="Collect Payment or&lt;div&gt;Refund Issued&lt;/div&gt;" vertex="1">
+          <mxGeometry height="50" width="120" x="2040" y="630" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-53" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=light-dark(#CCFFCC,#003333);strokeColor=#6c8ebf;fontStyle=1;fontSize=9;" value="Design Booking Page" vertex="1">
+          <mxGeometry height="50" width="130" x="135" y="490" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-54" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=light-dark(#CCFFCC,#003333);strokeColor=#d6b656;fontStyle=1;fontSize=9;" value="Booking Page Published" vertex="1">
+          <mxGeometry height="50" width="130" x="285" y="490" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-57" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=9;" value="Switch Clinic Branch" vertex="1">
+          <mxGeometry height="50" width="120" x="1370" y="490" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-58" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontStyle=1;fontSize=9;" value="Clinic Context Updated" vertex="1">
+          <mxGeometry height="50" width="130" x="1510" y="490" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-59" edge="1" parent="1" source="x2_PHyXJOnVtRUqWVSSn-34" style="edgeStyle=orthogonalEdgeStyle;html=1;" target="x2_PHyXJOnVtRUqWVSSn-35">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-61" edge="1" parent="1" source="x2_PHyXJOnVtRUqWVSSn-36" style="edgeStyle=orthogonalEdgeStyle;html=1;" target="x2_PHyXJOnVtRUqWVSSn-37">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-64" edge="1" parent="1" source="x2_PHyXJOnVtRUqWVSSn-40" style="edgeStyle=orthogonalEdgeStyle;html=1;" target="x2_PHyXJOnVtRUqWVSSn-41">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-65" edge="1" parent="1" source="x2_PHyXJOnVtRUqWVSSn-42" style="edgeStyle=orthogonalEdgeStyle;html=1;" target="x2_PHyXJOnVtRUqWVSSn-45">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1360" y="515" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-69" edge="1" parent="1" source="x2_PHyXJOnVtRUqWVSSn-48" style="edgeStyle=orthogonalEdgeStyle;html=1;" target="x2_PHyXJOnVtRUqWVSSn-49">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-70" edge="1" parent="1" source="x2_PHyXJOnVtRUqWVSSn-49" style="edgeStyle=orthogonalEdgeStyle;html=1;" target="x2_PHyXJOnVtRUqWVSSn-50">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-72" edge="1" parent="1" source="x2_PHyXJOnVtRUqWVSSn-51" style="edgeStyle=orthogonalEdgeStyle;html=1;" target="x2_PHyXJOnVtRUqWVSSn-52">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-73" edge="1" parent="1" source="x2_PHyXJOnVtRUqWVSSn-53" style="edgeStyle=orthogonalEdgeStyle;html=1;" target="x2_PHyXJOnVtRUqWVSSn-54">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-75" edge="1" parent="1" source="x2_PHyXJOnVtRUqWVSSn-57" style="edgeStyle=orthogonalEdgeStyle;html=1;" target="x2_PHyXJOnVtRUqWVSSn-58">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-76" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=9;" value="Login to Therapist Hub" vertex="1">
+          <mxGeometry height="50" width="120" x="160" y="730" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-77" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontStyle=1;fontSize=9;" value="Accound Created" vertex="1">
+          <mxGeometry height="50" width="120" x="310" y="730" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-78" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=9;" value="Update Profile with&amp;nbsp;&lt;div&gt;availability&lt;/div&gt;" vertex="1">
+          <mxGeometry height="50" width="120" x="450" y="730" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-79" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontStyle=1;fontSize=9;" value="Profile Updated with availability" vertex="1">
+          <mxGeometry height="50" width="120" x="590" y="730" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-205" edge="1" parent="1" source="x2_PHyXJOnVtRUqWVSSn-80" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="x2_PHyXJOnVtRUqWVSSn-204">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-80" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontStyle=1;fontSize=9;" value="Booking Assigned" vertex="1">
+          <mxGeometry height="50" width="120" x="800" y="730" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-81" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=9;" value="Begin Session" vertex="1">
+          <mxGeometry height="50" width="120" x="940" y="730" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-82" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontStyle=1;fontSize=9;" value="Session Started" vertex="1">
+          <mxGeometry height="50" width="120" x="1080" y="730" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-83" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=9;" value="Add Clinical Note" vertex="1">
+          <mxGeometry height="50" width="120" x="1220" y="730" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-84" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontStyle=1;fontSize=9;" value="Clinical Note Saved" vertex="1">
+          <mxGeometry height="50" width="120" x="1360" y="730" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-85" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontStyle=1;fontSize=9;" value="Session Completed" vertex="1">
+          <mxGeometry height="50" width="120" x="1500" y="730" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-86" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=9;" value="Send Message to Patient or reply" vertex="1">
+          <mxGeometry height="50" width="130" x="2470" y="830" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-87" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontStyle=1;fontSize=9;" value="Message Sent" vertex="1">
+          <mxGeometry height="50" width="120" x="2620" y="830" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-88" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontStyle=1;fontSize=9;" value="Patient Message Received and read status" vertex="1">
+          <mxGeometry height="50" width="130" x="2525" y="730" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-89" edge="1" parent="1" source="x2_PHyXJOnVtRUqWVSSn-76" style="edgeStyle=orthogonalEdgeStyle;html=1;" target="x2_PHyXJOnVtRUqWVSSn-77">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-90" edge="1" parent="1" source="x2_PHyXJOnVtRUqWVSSn-77" style="edgeStyle=orthogonalEdgeStyle;html=1;" target="x2_PHyXJOnVtRUqWVSSn-78">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-91" edge="1" parent="1" source="x2_PHyXJOnVtRUqWVSSn-78" style="edgeStyle=orthogonalEdgeStyle;html=1;" target="x2_PHyXJOnVtRUqWVSSn-79">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-92" edge="1" parent="1" source="x2_PHyXJOnVtRUqWVSSn-80" style="edgeStyle=orthogonalEdgeStyle;html=1;" target="x2_PHyXJOnVtRUqWVSSn-81">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-93" edge="1" parent="1" source="x2_PHyXJOnVtRUqWVSSn-81" style="edgeStyle=orthogonalEdgeStyle;html=1;" target="x2_PHyXJOnVtRUqWVSSn-82">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-94" edge="1" parent="1" source="x2_PHyXJOnVtRUqWVSSn-82" style="edgeStyle=orthogonalEdgeStyle;html=1;" target="x2_PHyXJOnVtRUqWVSSn-83">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-95" edge="1" parent="1" source="x2_PHyXJOnVtRUqWVSSn-83" style="edgeStyle=orthogonalEdgeStyle;html=1;" target="x2_PHyXJOnVtRUqWVSSn-84">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-96" edge="1" parent="1" source="x2_PHyXJOnVtRUqWVSSn-84" style="edgeStyle=orthogonalEdgeStyle;html=1;" target="x2_PHyXJOnVtRUqWVSSn-85">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-97" edge="1" parent="1" source="x2_PHyXJOnVtRUqWVSSn-86" style="edgeStyle=orthogonalEdgeStyle;html=1;" target="x2_PHyXJOnVtRUqWVSSn-87">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-100" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=9;" value="Browse Clinic Booking Page" vertex="1">
+          <mxGeometry height="50" width="130" x="355" y="345" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-101" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontStyle=1;fontSize=9;" value="Clinic Page Viewed" vertex="1">
+          <mxGeometry height="50" width="120" x="510" y="345" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-102" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=9;" value="Select Service or Package" vertex="1">
+          <mxGeometry height="50" width="120" x="650" y="345" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-103" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontStyle=1;fontSize=9;" value="Service Selected" vertex="1">
+          <mxGeometry height="50" width="120" x="790" y="345" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-104" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=9;" value="Choose Visit Mode" vertex="1">
+          <mxGeometry height="50" width="120" x="930" y="345" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-105" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1;fontSize=8;dashed=1;" value="Home Visit + Equipment Required?" vertex="1">
+          <mxGeometry height="50" width="140" x="950" y="410" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-107" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontStyle=1;fontSize=9;" value="Visit Mode Set" vertex="1">
+          <mxGeometry height="50" width="120" x="1080" y="345" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-108" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=9;" value="Select Therapist / Auto-Assign" vertex="1">
+          <mxGeometry height="50" width="130" x="1230" y="345" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-109" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontStyle=1;fontSize=9;" value="Therapist Assigned" vertex="1">
+          <mxGeometry height="50" width="120" x="1380" y="345" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-110" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=9;" value="Pick Time Slot" vertex="1">
+          <mxGeometry height="50" width="120" x="1520" y="345" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-174" edge="1" parent="1" source="x2_PHyXJOnVtRUqWVSSn-111" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="x2_PHyXJOnVtRUqWVSSn-114">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-111" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontStyle=1;fontSize=9;" value="Time Slot Reserved" vertex="1">
+          <mxGeometry height="50" width="120" x="1660" y="345" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-112" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=9;" value="Submit Payment&amp;nbsp;&lt;div&gt;(Optional)&lt;/div&gt;" vertex="1">
+          <mxGeometry height="50" width="120" x="1950" y="345" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-176" edge="1" parent="1" source="x2_PHyXJOnVtRUqWVSSn-113" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="x2_PHyXJOnVtRUqWVSSn-115">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-113" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontStyle=1;fontSize=9;" value="Payment Processed" vertex="1">
+          <mxGeometry height="50" width="120" x="2090" y="345" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-175" edge="1" parent="1" source="x2_PHyXJOnVtRUqWVSSn-114" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="x2_PHyXJOnVtRUqWVSSn-112">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-114" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontStyle=1;fontSize=9;strokeWidth=2;" value="Booking Pending" vertex="1">
+          <mxGeometry height="50" width="130" x="1800" y="345" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-177" edge="1" parent="1" source="x2_PHyXJOnVtRUqWVSSn-115" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="x2_PHyXJOnVtRUqWVSSn-116">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-115" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;fontSize=9;" value="Confirmation Email Sent" vertex="1">
+          <mxGeometry height="50" width="130" x="2230" y="345" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-116" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=9;" value="Send Message to Therapist (option enable)" vertex="1">
+          <mxGeometry height="50" width="130" x="2380" y="345" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-178" edge="1" parent="1" source="x2_PHyXJOnVtRUqWVSSn-117" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="x2_PHyXJOnVtRUqWVSSn-118">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-117" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontStyle=1;fontSize=9;" value="Message Sent" vertex="1">
+          <mxGeometry height="50" width="120" x="2530" y="345" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-118" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontStyle=1;fontSize=9;" value="Therapist Reply Received and read status" vertex="1">
+          <mxGeometry height="50" width="130" x="2670" y="345" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-121" edge="1" parent="1" source="x2_PHyXJOnVtRUqWVSSn-100" style="edgeStyle=orthogonalEdgeStyle;html=1;" target="x2_PHyXJOnVtRUqWVSSn-101">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-122" edge="1" parent="1" source="x2_PHyXJOnVtRUqWVSSn-101" style="edgeStyle=orthogonalEdgeStyle;html=1;" target="x2_PHyXJOnVtRUqWVSSn-102">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-123" edge="1" parent="1" source="x2_PHyXJOnVtRUqWVSSn-102" style="edgeStyle=orthogonalEdgeStyle;html=1;" target="x2_PHyXJOnVtRUqWVSSn-103">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-124" edge="1" parent="1" source="x2_PHyXJOnVtRUqWVSSn-103" style="edgeStyle=orthogonalEdgeStyle;html=1;" target="x2_PHyXJOnVtRUqWVSSn-104">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-125" edge="1" parent="1" source="x2_PHyXJOnVtRUqWVSSn-104" style="html=1;" target="x2_PHyXJOnVtRUqWVSSn-105">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-126" edge="1" parent="1" source="x2_PHyXJOnVtRUqWVSSn-105" style="edgeStyle=orthogonalEdgeStyle;html=1;" target="x2_PHyXJOnVtRUqWVSSn-106">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-127" edge="1" parent="1" source="x2_PHyXJOnVtRUqWVSSn-104" style="edgeStyle=orthogonalEdgeStyle;html=1;" target="x2_PHyXJOnVtRUqWVSSn-107">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-128" edge="1" parent="1" source="x2_PHyXJOnVtRUqWVSSn-107" style="edgeStyle=orthogonalEdgeStyle;html=1;" target="x2_PHyXJOnVtRUqWVSSn-108">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-129" edge="1" parent="1" source="x2_PHyXJOnVtRUqWVSSn-108" style="edgeStyle=orthogonalEdgeStyle;html=1;" target="x2_PHyXJOnVtRUqWVSSn-109">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-130" edge="1" parent="1" source="x2_PHyXJOnVtRUqWVSSn-109" style="edgeStyle=orthogonalEdgeStyle;html=1;" target="x2_PHyXJOnVtRUqWVSSn-110">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-131" edge="1" parent="1" source="x2_PHyXJOnVtRUqWVSSn-110" style="edgeStyle=orthogonalEdgeStyle;html=1;" target="x2_PHyXJOnVtRUqWVSSn-153">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1600" y="305" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-133" edge="1" parent="1" source="x2_PHyXJOnVtRUqWVSSn-112" style="edgeStyle=orthogonalEdgeStyle;html=1;" target="x2_PHyXJOnVtRUqWVSSn-113">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-136" edge="1" parent="1" source="x2_PHyXJOnVtRUqWVSSn-116" style="edgeStyle=orthogonalEdgeStyle;html=1;" target="x2_PHyXJOnVtRUqWVSSn-117">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-137" edge="1" parent="1" source="x2_PHyXJOnVtRUqWVSSn-18" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#CC0000;dashed=1;strokeWidth=2;fontColor=#CC0000;fontSize=8;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" target="x2_PHyXJOnVtRUqWVSSn-34" value="Grants Access">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="715" y="870" />
+              <mxPoint x="120" y="870" />
+              <mxPoint x="120" y="670" />
+              <mxPoint x="140" y="670" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-138" edge="1" parent="1" source="x2_PHyXJOnVtRUqWVSSn-41" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#CC0000;dashed=1;strokeWidth=2;fontColor=#CC0000;fontSize=8;" target="x2_PHyXJOnVtRUqWVSSn-102" value="Service or Package Visible on Portal">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="840" y="460" />
+              <mxPoint x="710" y="460" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-140" edge="1" parent="1" source="x2_PHyXJOnVtRUqWVSSn-37" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#9673a6;dashed=1;strokeWidth=2;fontColor=#9673a6;fontSize=8;" target="x2_PHyXJOnVtRUqWVSSn-105" value="Home Visit Gate">
+          <mxGeometry relative="1" x="-0.8" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="930" y="435" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-141" edge="1" parent="1" source="x2_PHyXJOnVtRUqWVSSn-45" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#CC0000;dashed=1;strokeWidth=2;fontColor=#CC0000;fontSize=8;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" target="x2_PHyXJOnVtRUqWVSSn-108" value="Staff Pool for Auto-Assign">
+          <mxGeometry relative="1" x="0.3716" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="1295" y="515" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-142" edge="1" parent="1" source="x2_PHyXJOnVtRUqWVSSn-79" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#CC0000;dashed=1;strokeWidth=2;fontColor=#CC0000;fontSize=8;" target="x2_PHyXJOnVtRUqWVSSn-108" value="Therapist Slots Available">
+          <mxGeometry relative="1" x="0.2093" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="670" y="680" />
+              <mxPoint x="1320" y="680" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-143" edge="1" parent="1" source="x2_PHyXJOnVtRUqWVSSn-114" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#CC0000;dashed=1;strokeWidth=2;fontColor=#CC0000;fontSize=8;" target="x2_PHyXJOnVtRUqWVSSn-80" value="Assignment Pushed">
+          <mxGeometry relative="1" x="-0.3881" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="1865" y="570" />
+              <mxPoint x="1350" y="570" />
+              <mxPoint x="1350" y="690" />
+              <mxPoint x="860" y="690" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-144" edge="1" parent="1" source="x2_PHyXJOnVtRUqWVSSn-114" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#CC0000;dashed=1;strokeWidth=2;fontColor=#CC0000;fontSize=8;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="x2_PHyXJOnVtRUqWVSSn-48" value="Booking in Dashboard">
+          <mxGeometry relative="1" x="0.6108" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="1865" y="590" />
+              <mxPoint x="1475" y="590" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-145" edge="1" parent="1" source="x2_PHyXJOnVtRUqWVSSn-113" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#CC0000;dashed=1;strokeWidth=2;fontColor=#CC0000;fontSize=8;" target="x2_PHyXJOnVtRUqWVSSn-19" value="Revenue Aggregated">
+          <mxGeometry relative="1" x="-0.377" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="2180" y="965" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-146" edge="1" parent="1" source="x2_PHyXJOnVtRUqWVSSn-50" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#CC0000;dashed=1;strokeWidth=2;fontColor=#CC0000;fontSize=8;" target="x2_PHyXJOnVtRUqWVSSn-20" value="Transaction Reported">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1770" y="1045" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-147" edge="1" parent="1" source="x2_PHyXJOnVtRUqWVSSn-54" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#4C0099;dashed=1;strokeWidth=2;fontColor=#CC0000;fontSize=8;fillColor=#CCFFFF;" target="x2_PHyXJOnVtRUqWVSSn-100" value="Updated Portal Visible">
+          <mxGeometry relative="1" x="-0.1515" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="350" y="450" />
+              <mxPoint x="420" y="450" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-148" edge="1" parent="1" source="x2_PHyXJOnVtRUqWVSSn-87" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#7B1FA2;dashed=1;strokeWidth=2;fontColor=#7B1FA2;fontSize=8;" target="x2_PHyXJOnVtRUqWVSSn-118" value="Message Delivered">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="2710" y="750" />
+              <mxPoint x="2710" y="750" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-149" edge="1" parent="1" source="x2_PHyXJOnVtRUqWVSSn-117" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#7B1FA2;dashed=1;strokeWidth=2;fontColor=#7B1FA2;fontSize=8;" target="x2_PHyXJOnVtRUqWVSSn-88" value="Unread Badge Triggered">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="2590" y="755" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-150" edge="1" parent="1" source="x2_PHyXJOnVtRUqWVSSn-79" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#CC0000;dashed=1;strokeWidth=2;fontColor=#CC0000;fontSize=8;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" target="x2_PHyXJOnVtRUqWVSSn-42" value="Reflects in Staff Table">
+          <mxGeometry relative="1" x="0.3125" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="650" y="670" />
+              <mxPoint x="1020" y="670" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-155" edge="1" parent="1" source="x2_PHyXJOnVtRUqWVSSn-152" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" target="x2_PHyXJOnVtRUqWVSSn-111">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1730" y="305" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-152" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontStyle=1;fontSize=9;" value="Account Created &amp;amp;&amp;nbsp;&lt;div&gt;logged in&lt;/div&gt;" vertex="1">
+          <mxGeometry height="50" width="120" x="1660" y="280" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-154" edge="1" parent="1" source="x2_PHyXJOnVtRUqWVSSn-153" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="x2_PHyXJOnVtRUqWVSSn-152">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-153" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=9;" value="Register / Login" vertex="1">
+          <mxGeometry height="50" width="120" x="1520" y="280" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-159" edge="1" parent="1" source="x2_PHyXJOnVtRUqWVSSn-156" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="x2_PHyXJOnVtRUqWVSSn-100">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-156" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFA5A5;strokeColor=#6c8ebf;fontStyle=1;fontSize=9;" value="Click on Book" vertex="1">
+          <mxGeometry height="50" width="110" x="220" y="345" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-158" edge="1" parent="1" source="x2_PHyXJOnVtRUqWVSSn-157" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="x2_PHyXJOnVtRUqWVSSn-156">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-157" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFA5A5;strokeColor=#6c8ebf;fontStyle=1;fontSize=9;" value="Visit Clinic Website" vertex="1">
+          <mxGeometry height="50" width="120" x="75" y="345" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-165" parent="1" style="text;html=1;fontStyle=1;fontSize=11;fillColor=none;strokeColor=none;" value="LEGEND" vertex="1">
+          <mxGeometry height="20" width="80" x="20" y="220" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-166" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=9;" value="Command" vertex="1">
+          <mxGeometry height="30" width="90" x="110" y="217" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-167" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontStyle=1;fontSize=9;" value="Domain Event Happenned" vertex="1">
+          <mxGeometry height="30" width="100" x="210" y="217" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-168" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1;fontSize=9;dashed=1;" value="Policy / Rule" vertex="1">
+          <mxGeometry height="30" width="100" x="320" y="217" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-169" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;fontSize=9;" value="Read Model" vertex="1">
+          <mxGeometry height="30" width="90" x="430" y="217" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-170" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFA5A5;strokeColor=#6c8ebf;fontStyle=1;fontSize=9;" value="Before us" vertex="1">
+          <mxGeometry height="30" width="90" x="530" y="217" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-106" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=9;dashed=1;" value="Confirm Equipment Owned" vertex="1">
+          <mxGeometry height="50" width="130" x="1110" y="410" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-182" edge="1" parent="1" source="x2_PHyXJOnVtRUqWVSSn-179" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" target="x2_PHyXJOnVtRUqWVSSn-180">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-179" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=9;" value="Publish fast track package" vertex="1">
+          <mxGeometry height="50" width="120" x="370" y="560" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-189" edge="1" parent="1" source="x2_PHyXJOnVtRUqWVSSn-180" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="x2_PHyXJOnVtRUqWVSSn-36">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-180" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontStyle=1;fontSize=9;" value="Fast Track Booking&amp;nbsp;&lt;div&gt;Activated&lt;/div&gt;" vertex="1">
+          <mxGeometry height="50" width="130" x="530" y="560" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-196" edge="1" parent="1" source="x2_PHyXJOnVtRUqWVSSn-190" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="x2_PHyXJOnVtRUqWVSSn-191">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-190" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontStyle=1;fontSize=9;" value="Booking Confirmed" vertex="1">
+          <mxGeometry height="50" width="130" x="1900" y="410" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-198" edge="1" parent="1" source="x2_PHyXJOnVtRUqWVSSn-192" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="x2_PHyXJOnVtRUqWVSSn-193">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-192" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontStyle=1;fontSize=9;" value="Session completed" vertex="1">
+          <mxGeometry height="50" width="120" x="2200" y="410" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-200" edge="1" parent="1" source="x2_PHyXJOnVtRUqWVSSn-193" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" target="x2_PHyXJOnVtRUqWVSSn-199">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-193" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=9;" value="Leave Feedback to the clinic and the theraphist" vertex="1">
+          <mxGeometry height="50" width="110" x="2340" y="410" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-194" edge="1" parent="1" source="x2_PHyXJOnVtRUqWVSSn-50" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#CC0000;dashed=1;strokeWidth=2;fontColor=#CC0000;fontSize=8;entryX=0.5;entryY=1;entryDx=0;entryDy=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" target="x2_PHyXJOnVtRUqWVSSn-190" value="Confirm Booking">
+          <mxGeometry relative="1" x="-0.2533" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="1760" y="610" />
+              <mxPoint x="1965" y="610" />
+            </Array>
+            <mxPoint x="2220" y="590" as="sourcePoint" />
+            <mxPoint x="1830" y="825" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-197" edge="1" parent="1" source="x2_PHyXJOnVtRUqWVSSn-191" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" target="x2_PHyXJOnVtRUqWVSSn-192">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-191" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=9;" value="Complete the session or ask refund" vertex="1">
+          <mxGeometry height="50" width="120" x="2050" y="410" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-199" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontStyle=1;fontSize=9;" value="Feedback&lt;div&gt;Published&lt;/div&gt;" vertex="1">
+          <mxGeometry height="50" width="90" x="2480" y="410" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-202" edge="1" parent="1" source="x2_PHyXJOnVtRUqWVSSn-85" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#CC0000;dashed=1;strokeWidth=2;fontColor=#CC0000;fontSize=8;entryX=0.5;entryY=1;entryDx=0;entryDy=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" target="x2_PHyXJOnVtRUqWVSSn-51" value="session complete confirmation">
+          <mxGeometry relative="1" x="0.2619" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="1955" y="755" />
+            </Array>
+            <mxPoint x="1680" y="770" as="sourcePoint" />
+            <mxPoint x="1885" y="600" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-203" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=light-dark(#FFA5A5,#003333);strokeColor=#6c8ebf;fontStyle=1;fontSize=9;" value="Optional Feature" vertex="1">
+          <mxGeometry height="30" width="90" x="630" y="217" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-204" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;fontSize=9;" value="Recieve an email" vertex="1">
+          <mxGeometry height="50" width="130" x="795" y="810" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-214" edge="1" parent="1" source="x2_PHyXJOnVtRUqWVSSn-206" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="x2_PHyXJOnVtRUqWVSSn-207">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-206" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=9;" value="Clinic Query Recieved" vertex="1">
+          <mxGeometry height="50" width="120" x="370" y="1020" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-215" edge="1" parent="1" source="x2_PHyXJOnVtRUqWVSSn-207" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" target="x2_PHyXJOnVtRUqWVSSn-208">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-207" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontStyle=1;fontSize=9;" value="Query saved" vertex="1">
+          <mxGeometry height="50" width="120" x="510" y="1020" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-216" edge="1" parent="1" source="x2_PHyXJOnVtRUqWVSSn-208" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" target="x2_PHyXJOnVtRUqWVSSn-209">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-208" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=9;" value="Open ticket" vertex="1">
+          <mxGeometry height="50" width="120" x="650" y="1020" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-217" edge="1" parent="1" source="x2_PHyXJOnVtRUqWVSSn-209" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="x2_PHyXJOnVtRUqWVSSn-210">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-209" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontStyle=1;fontSize=9;" value="Ticket created" vertex="1">
+          <mxGeometry height="50" width="120" x="790" y="1020" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-218" edge="1" parent="1" source="x2_PHyXJOnVtRUqWVSSn-210" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="x2_PHyXJOnVtRUqWVSSn-211">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-210" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=9;" value="Follow up ticket" vertex="1">
+          <mxGeometry height="50" width="120" x="930" y="1020" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-219" edge="1" parent="1" source="x2_PHyXJOnVtRUqWVSSn-211" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" target="x2_PHyXJOnVtRUqWVSSn-212">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-211" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontStyle=1;fontSize=9;" value="Ticket followed up" vertex="1">
+          <mxGeometry height="50" width="120" x="1070" y="1020" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-220" edge="1" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1455" y="1045" as="sourcePoint" />
+            <mxPoint x="1475" y="1045" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-212" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=9;" value="Solve Ticket" vertex="1">
+          <mxGeometry height="50" width="120" x="1210" y="1020" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-213" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontStyle=1;fontSize=9;" value="Ticket solved" vertex="1">
+          <mxGeometry height="50" width="120" x="1350" y="1020" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-225" edge="1" parent="1" source="x2_PHyXJOnVtRUqWVSSn-221" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" target="x2_PHyXJOnVtRUqWVSSn-222">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-221" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=9;" value="Violation Appeared" vertex="1">
+          <mxGeometry height="50" width="130" x="800" y="940" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-222" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontStyle=1;fontSize=9;" value="Access Denied" vertex="1">
+          <mxGeometry height="50" width="130" x="950" y="940" as="geometry" />
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-223" edge="1" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1095" y="1045" as="sourcePoint" />
+            <mxPoint x="1115" y="1045" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="x2_PHyXJOnVtRUqWVSSn-226" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;fontStyle=1;fontSize=30;" value="Physiobook by ITSELF" vertex="1">
+          <mxGeometry height="50" width="440" x="1170" y="197" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
