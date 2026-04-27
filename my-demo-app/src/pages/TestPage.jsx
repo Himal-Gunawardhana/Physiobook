@@ -1,13 +1,21 @@
-import React, { useState } from 'react';
-import { ChevronDown, ChevronUp, Server, Database, Send, RefreshCw, AlertCircle } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { ChevronDown, ChevronUp, Server, Database, Send, RefreshCw, AlertCircle, LogOut, LogIn } from 'lucide-react';
 import {
   testBackendHealth,
   testApiEndpoint,
+  testLoginUser,
+  testRegisterUser,
+  testGetCurrentUser,
+  testGetClinics,
+  testGetClinic,
+  testListBookings,
   testSupabaseConnection,
   testSupabaseAuth,
   testSupabaseQuery,
   testCORS,
   testBackendDiagnostic,
+  testLogout,
+  getAuthToken,
   BACKEND_URL,
 } from '../utils/testApi';
 import '../styles/test.css';
@@ -16,15 +24,32 @@ const TestPage = () => {
   const [results, setResults] = useState({});
   const [loading, setLoading] = useState({});
   const [expandedSections, setExpandedSections] = useState({
-    backend: true,
-    supabase: true,
+    auth: true,
+    backend: false,
+    clinics: false,
+    bookings: false,
+    supabase: false,
   });
-  const [customEndpoint, setCustomEndpoint] = useState('/api/health');
+  const [activeTab, setActiveTab] = useState('auth');
+  const [isAuthenticated, setIsAuthenticated] = useState(!!getAuthToken());
+
+  // Auth form states
+  const [loginEmail, setLoginEmail] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
+  const [regFirstName, setRegFirstName] = useState('');
+  const [regLastName, setRegLastName] = useState('');
+  const [regEmail, setRegEmail] = useState('');
+  const [regPassword, setRegPassword] = useState('');
+
+  // Custom endpoint
+  const [customEndpoint, setCustomEndpoint] = useState('/clinics');
   const [customMethod, setCustomMethod] = useState('GET');
   const [customBody, setCustomBody] = useState('');
-  const [tableName, setTableName] = useState('');
-  const [authEmail, setAuthEmail] = useState('');
-  const [authPassword, setAuthPassword] = useState('');
+
+  // Clinic/Booking testing
+  const [clinicId, setClinicId] = useState('');
+  const [therapistId, setTherapistId] = useState('');
+  const [bookingDate, setBookingDate] = useState('');
 
   const toggleSection = (section) => {
     setExpandedSections(prev => ({
@@ -51,47 +76,76 @@ const TestPage = () => {
     }
   };
 
-  const handleBackendTest = async () => {
-    await runTest('backendHealth', testBackendHealth);
+  const handleLogin = async () => {
+    if (!loginEmail || !loginPassword) {
+      alert('Please enter email and password');
+      return;
+    }
+    await runTest('login', () => testLoginUser(loginEmail, loginPassword));
+    setIsAuthenticated(true);
   };
 
-  const handleCORSTest = async () => {
-    await runTest('cors', testCORS);
+  const handleRegister = async () => {
+    if (!regFirstName || !regLastName || !regEmail || !regPassword) {
+      alert('Please fill all fields');
+      return;
+    }
+    await runTest('register', () => testRegisterUser(regFirstName, regLastName, regEmail, regPassword));
+    setIsAuthenticated(true);
   };
 
-  const handleDiagnosticTest = async () => {
-    await runTest('diagnostic', testBackendDiagnostic);
+  const handleLogout = () => {
+    const result = testLogout();
+    setResults(prev => ({
+      ...prev,
+      logout: { ...result, timestamp: new Date().toLocaleTimeString() },
+    }));
+    setIsAuthenticated(false);
   };
 
-  const handleSupabaseConnectionTest = async () => {
-    await runTest('supabaseConnection', testSupabaseConnection);
+  const handleGetCurrentUser = async () => {
+    await runTest('currentUser', testGetCurrentUser);
   };
 
-  const handleCustomEndpointTest = async () => {
-    if (!customEndpoint.trim()) {
+  const handleGetClinics = async () => {
+    await runTest('clinics', testGetClinics);
+  };
+
+  const handleGetClinic = async () => {
+    if (!clinicId) {
+      alert('Please enter a clinic ID');
+      return;
+    }
+    await runTest(`clinic_${clinicId}`, () => testGetClinic(clinicId));
+  };
+
+  const handleListBookings = async () => {
+    await runTest('listBookings', testListBookings);
+  };
+
+  const handleCustomEndpoint = async () => {
+    if (!customEndpoint) {
       alert('Please enter an endpoint');
       return;
     }
     const testFunc = () => testApiEndpoint(customEndpoint, customMethod, customBody ? JSON.parse(customBody) : null);
-    await runTest(`endpoint_${customEndpoint}`, testFunc);
+    await runTest(`custom_${customEndpoint}`, testFunc);
   };
 
-  const handleSupabaseTableTest = async () => {
-    if (!tableName.trim()) {
-      alert('Please enter a table name');
-      return;
-    }
-    const testFunc = () => testSupabaseQuery(tableName);
-    await runTest(`table_${tableName}`, testFunc);
+  const handleBackendHealth = async () => {
+    await runTest('backendHealth', testBackendHealth);
   };
 
-  const handleSupabaseAuthTest = async () => {
-    if (!authEmail || !authPassword) {
-      alert('Please enter email and password');
-      return;
-    }
-    const testFunc = () => testSupabaseAuth(authEmail, authPassword);
-    await runTest('supabaseAuth', testFunc);
+  const handleCORS = async () => {
+    await runTest('cors', testCORS);
+  };
+
+  const handleDiagnostic = async () => {
+    await runTest('diagnostic', testBackendDiagnostic);
+  };
+
+  const handleSupabaseConnection = async () => {
+    await runTest('supabaseConnection', testSupabaseConnection);
   };
 
   const ResultBox = ({ name, data }) => {
@@ -120,213 +174,293 @@ const TestPage = () => {
   return (
     <div className="test-page-container">
       <header className="test-header">
-        <h1>🧪 API & Database Test Dashboard</h1>
-        <p>Test your Render backend and Supabase database connectivity</p>
+        <h1>🧪 Physiobook API Test Dashboard</h1>
+        <p>Test your Render backend and Supabase database</p>
+        <div className="auth-status">
+          {isAuthenticated ? (
+            <>
+              <span className="status-badge authenticated">✓ Authenticated</span>
+              <button onClick={handleLogout} className="logout-btn">
+                <LogOut size={16} /> Logout
+              </button>
+            </>
+          ) : (
+            <span className="status-badge">Not Authenticated</span>
+          )}
+        </div>
       </header>
 
-      <div className="test-content">
-        {/* Backend Tests */}
-        <section className="test-section">
-          <div className="section-header" onClick={() => toggleSection('backend')}>
-            <div className="section-title">
-              <Server size={20} />
-              <h2>Backend Tests</h2>
-            </div>
-            {expandedSections.backend ? <ChevronUp /> : <ChevronDown />}
-          </div>
+      <div className="tabs">
+        <button
+          className={`tab ${activeTab === 'auth' ? 'active' : ''}`}
+          onClick={() => setActiveTab('auth')}
+        >
+          🔐 Auth
+        </button>
+        <button
+          className={`tab ${activeTab === 'backend' ? 'active' : ''}`}
+          onClick={() => setActiveTab('backend')}
+        >
+          🏥 Backend
+        </button>
+        <button
+          className={`tab ${activeTab === 'clinics' ? 'active' : ''}`}
+          onClick={() => setActiveTab('clinics')}
+        >
+          🏢 Clinics
+        </button>
+        <button
+          className={`tab ${activeTab === 'bookings' ? 'active' : ''}`}
+          onClick={() => setActiveTab('bookings')}
+        >
+          📅 Bookings
+        </button>
+        <button
+          className={`tab ${activeTab === 'supabase' ? 'active' : ''}`}
+          onClick={() => setActiveTab('supabase')}
+        >
+          🗄️ Supabase
+        </button>
+      </div>
 
-          {expandedSections.backend && (
-            <div className="section-content">
+      <div className="test-content">
+        {/* AUTH TAB */}
+        {activeTab === 'auth' && (
+          <>
+            <section className="test-section">
+              <h2>Login</h2>
+              <div className="form-group">
+                <input
+                  type="email"
+                  placeholder="Email"
+                  value={loginEmail}
+                  onChange={(e) => setLoginEmail(e.target.value)}
+                  className="input"
+                />
+                <input
+                  type="password"
+                  placeholder="Password"
+                  value={loginPassword}
+                  onChange={(e) => setLoginPassword(e.target.value)}
+                  className="input"
+                />
+                <button
+                  onClick={handleLogin}
+                  disabled={loading.login}
+                  className="test-button primary"
+                >
+                  {loading.login ? 'Logging in...' : <><LogIn size={16} /> Login</>}
+                </button>
+              </div>
+              <ResultBox name="Login" data={results.login} />
+            </section>
+
+            <section className="test-section">
+              <h2>Register New User</h2>
+              <div className="form-group">
+                <input
+                  type="text"
+                  placeholder="First Name"
+                  value={regFirstName}
+                  onChange={(e) => setRegFirstName(e.target.value)}
+                  className="input"
+                />
+                <input
+                  type="text"
+                  placeholder="Last Name"
+                  value={regLastName}
+                  onChange={(e) => setRegLastName(e.target.value)}
+                  className="input"
+                />
+                <input
+                  type="email"
+                  placeholder="Email"
+                  value={regEmail}
+                  onChange={(e) => setRegEmail(e.target.value)}
+                  className="input"
+                />
+                <input
+                  type="password"
+                  placeholder="Password (min 8 chars, uppercase, lowercase, number)"
+                  value={regPassword}
+                  onChange={(e) => setRegPassword(e.target.value)}
+                  className="input"
+                />
+                <button
+                  onClick={handleRegister}
+                  disabled={loading.register}
+                  className="test-button primary"
+                >
+                  {loading.register ? 'Registering...' : '📝 Register'}
+                </button>
+              </div>
+              <ResultBox name="Register" data={results.register} />
+            </section>
+
+            <section className="test-section">
+              <h2>Get Current User</h2>
+              <button
+                onClick={handleGetCurrentUser}
+                disabled={loading.currentUser}
+                className="test-button primary"
+              >
+                {loading.currentUser ? 'Loading...' : '👤 Get My Profile'}
+              </button>
+              <ResultBox name="Current User" data={results.currentUser} />
+            </section>
+          </>
+        )}
+
+        {/* BACKEND TAB */}
+        {activeTab === 'backend' && (
+          <>
+            <section className="test-section">
               <div className="backend-url">
                 <strong>Backend URL:</strong> <code>{BACKEND_URL}</code>
               </div>
 
-              <div className="test-group">
+              <div className="button-group">
                 <button
-                  onClick={handleBackendTest}
+                  onClick={handleBackendHealth}
                   disabled={loading.backendHealth}
                   className="test-button primary"
                 >
                   {loading.backendHealth ? 'Testing...' : '🏥 Test Backend Health'}
                 </button>
-                <ResultBox name="Backend Health" data={results.backendHealth} />
-              </div>
-
-              <div className="test-group">
                 <button
-                  onClick={handleCORSTest}
+                  onClick={handleCORS}
                   disabled={loading.cors}
                   className="test-button primary"
                 >
                   {loading.cors ? 'Testing...' : '🔗 Test CORS'}
                 </button>
-                <ResultBox name="CORS Test" data={results.cors} />
-              </div>
-
-              <div className="test-group">
                 <button
-                  onClick={handleDiagnosticTest}
+                  onClick={handleDiagnostic}
                   disabled={loading.diagnostic}
-                  className="test-button primary"
-                  style={{ backgroundColor: '#ff6b6b' }}
+                  className="test-button danger"
                 >
-                  {loading.diagnostic ? 'Running Diagnostic...' : <><AlertCircle size={16} /> Run Full Diagnostic</>}
+                  {loading.diagnostic ? 'Running...' : <><AlertCircle size={16} /> Full Diagnostic</>}
                 </button>
-                {results.diagnostic && (
-                  <div className={`result-box ${results.diagnostic.success ? 'success' : 'error'}`}>
-                    <div className="result-header">
-                      <span className="result-name">Full Backend Diagnostic</span>
-                    </div>
-                    <details className="result-details">
-                      <summary>View Complete Diagnostic Report</summary>
-                      <pre>{JSON.stringify(results.diagnostic, null, 2)}</pre>
-                    </details>
-                  </div>
-                )}
               </div>
 
-              <div className="test-group custom-endpoint">
-                <div className="input-group">
-                  <div>
-                    <label>Custom Endpoint</label>
-                    <input
-                      type="text"
-                      value={customEndpoint}
-                      onChange={(e) => setCustomEndpoint(e.target.value)}
-                      placeholder="/api/path"
-                      className="input"
-                    />
-                  </div>
-                  <div>
-                    <label>Method</label>
-                    <select value={customMethod} onChange={(e) => setCustomMethod(e.target.value)} className="input">
-                      <option>GET</option>
-                      <option>POST</option>
-                      <option>PUT</option>
-                      <option>DELETE</option>
-                    </select>
-                  </div>
-                </div>
-                <div>
-                  <label>Body (JSON)</label>
-                  <textarea
-                    value={customBody}
-                    onChange={(e) => setCustomBody(e.target.value)}
-                    placeholder='{"key": "value"}'
+              <ResultBox name="Backend Health" data={results.backendHealth} />
+              <ResultBox name="CORS Test" data={results.cors} />
+              <ResultBox name="Diagnostic Report" data={results.diagnostic} />
+            </section>
+
+            <section className="test-section">
+              <h2>Custom Endpoint Testing</h2>
+              <div className="form-group">
+                <div className="input-row">
+                  <select value={customMethod} onChange={(e) => setCustomMethod(e.target.value)} className="input">
+                    <option>GET</option>
+                    <option>POST</option>
+                    <option>PUT</option>
+                    <option>PATCH</option>
+                    <option>DELETE</option>
+                  </select>
+                  <input
+                    type="text"
+                    placeholder="/clinics, /bookings, /users/me, etc."
+                    value={customEndpoint}
+                    onChange={(e) => setCustomEndpoint(e.target.value)}
                     className="input"
                   />
                 </div>
+                <textarea
+                  placeholder='Optional JSON body: {"key": "value"}'
+                  value={customBody}
+                  onChange={(e) => setCustomBody(e.target.value)}
+                  className="input"
+                />
                 <button
-                  onClick={handleCustomEndpointTest}
-                  disabled={loading[`endpoint_${customEndpoint}`]}
+                  onClick={handleCustomEndpoint}
+                  disabled={loading[`custom_${customEndpoint}`]}
                   className="test-button primary"
                 >
-                  {loading[`endpoint_${customEndpoint}`] ? 'Testing...' : <><Send size={16} /> Test Custom Endpoint</>}
+                  {loading[`custom_${customEndpoint}`] ? 'Testing...' : <><Send size={16} /> Test Endpoint</>}
                 </button>
-                <ResultBox name={`Custom: ${customMethod} ${customEndpoint}`} data={results[`endpoint_${customEndpoint}`]} />
               </div>
-            </div>
-          )}
-        </section>
+              <ResultBox name={`${customMethod} ${customEndpoint}`} data={results[`custom_${customEndpoint}`]} />
+            </section>
+          </>
+        )}
 
-        {/* Supabase Tests */}
-        <section className="test-section">
-          <div className="section-header" onClick={() => toggleSection('supabase')}>
-            <div className="section-title">
-              <Database size={20} />
-              <h2>Supabase Tests</h2>
-            </div>
-            {expandedSections.supabase ? <ChevronUp /> : <ChevronDown />}
-          </div>
+        {/* CLINICS TAB */}
+        {activeTab === 'clinics' && (
+          <>
+            <section className="test-section">
+              <h2>List All Clinics</h2>
+              <button
+                onClick={handleGetClinics}
+                disabled={loading.clinics}
+                className="test-button primary"
+              >
+                {loading.clinics ? 'Loading...' : '🏢 Get All Clinics'}
+              </button>
+              <ResultBox name="List Clinics" data={results.clinics} />
+            </section>
 
-          {expandedSections.supabase && (
-            <div className="section-content">
+            <section className="test-section">
+              <h2>Get Clinic Details</h2>
+              <div className="form-group">
+                <input
+                  type="text"
+                  placeholder="Clinic ID (UUID)"
+                  value={clinicId}
+                  onChange={(e) => setClinicId(e.target.value)}
+                  className="input"
+                />
+                <button
+                  onClick={handleGetClinic}
+                  disabled={loading[`clinic_${clinicId}`]}
+                  className="test-button primary"
+                >
+                  {loading[`clinic_${clinicId}`] ? 'Loading...' : '🔍 Get Clinic'}
+                </button>
+              </div>
+              <ResultBox name={`Clinic: ${clinicId}`} data={results[`clinic_${clinicId}`]} />
+            </section>
+          </>
+        )}
+
+        {/* BOOKINGS TAB */}
+        {activeTab === 'bookings' && (
+          <>
+            <section className="test-section">
+              <h2>List My Bookings</h2>
+              <button
+                onClick={handleListBookings}
+                disabled={loading.listBookings}
+                className="test-button primary"
+              >
+                {loading.listBookings ? 'Loading...' : '📅 Get My Bookings'}
+              </button>
+              <ResultBox name="My Bookings" data={results.listBookings} />
+            </section>
+          </>
+        )}
+
+        {/* SUPABASE TAB */}
+        {activeTab === 'supabase' && (
+          <>
+            <section className="test-section">
               <div className="warning-box">
-                <strong>⚠️ Configuration Required:</strong> Add your Supabase credentials to <code>.env.local</code>:
+                <strong>⚠️ Configure Supabase:</strong>
                 <pre>VITE_SUPABASE_URL=your_url{'\n'}VITE_SUPABASE_ANON_KEY=your_key</pre>
               </div>
 
-              <div className="test-group">
-                <button
-                  onClick={handleSupabaseConnectionTest}
-                  disabled={loading.supabaseConnection}
-                  className="test-button primary"
-                >
-                  {loading.supabaseConnection ? 'Testing...' : '🔌 Test Supabase Connection'}
-                </button>
-                <ResultBox name="Supabase Connection" data={results.supabaseConnection} />
-              </div>
-
-              <div className="test-group">
-                <div className="input-group">
-                  <div>
-                    <label>Email</label>
-                    <input
-                      type="email"
-                      value={authEmail}
-                      onChange={(e) => setAuthEmail(e.target.value)}
-                      placeholder="test@example.com"
-                      className="input"
-                    />
-                  </div>
-                  <div>
-                    <label>Password</label>
-                    <input
-                      type="password"
-                      value={authPassword}
-                      onChange={(e) => setAuthPassword(e.target.value)}
-                      placeholder="password"
-                      className="input"
-                    />
-                  </div>
-                </div>
-                <button
-                  onClick={handleSupabaseAuthTest}
-                  disabled={loading.supabaseAuth}
-                  className="test-button primary"
-                >
-                  {loading.supabaseAuth ? 'Testing...' : '🔐 Test Auth Login'}
-                </button>
-                <ResultBox name="Supabase Auth Test" data={results.supabaseAuth} />
-              </div>
-
-              <div className="test-group">
-                <div className="input-group">
-                  <div style={{ flex: 1 }}>
-                    <label>Table Name</label>
-                    <input
-                      type="text"
-                      value={tableName}
-                      onChange={(e) => setTableName(e.target.value)}
-                      placeholder="users"
-                      className="input"
-                    />
-                  </div>
-                </div>
-                <button
-                  onClick={handleSupabaseTableTest}
-                  disabled={loading[`table_${tableName}`]}
-                  className="test-button primary"
-                >
-                  {loading[`table_${tableName}`] ? 'Testing...' : <><RefreshCw size={16} /> Query Table</>}
-                </button>
-                <ResultBox name={`Table: ${tableName}`} data={results[`table_${tableName}`]} />
-              </div>
-            </div>
-          )}
-        </section>
-
-        {/* Info Section */}
-        <section className="test-section info-section">
-          <h3>📋 Testing Instructions</h3>
-          <ul>
-            <li>Use <strong>Backend Tests</strong> to verify your Render backend is running and accessible</li>
-            <li>Configure Supabase credentials in <code>.env.local</code> before running Supabase tests</li>
-            <li>Test custom endpoints to verify specific API routes</li>
-            <li>Use <strong>Query Table</strong> to test Supabase database access</li>
-            <li>All requests are logged with timestamps for debugging</li>
-          </ul>
-        </section>
+              <button
+                onClick={handleSupabaseConnection}
+                disabled={loading.supabaseConnection}
+                className="test-button primary"
+              >
+                {loading.supabaseConnection ? 'Testing...' : '🔌 Test Supabase Connection'}
+              </button>
+              <ResultBox name="Supabase Connection" data={results.supabaseConnection} />
+            </section>
+          </>
+        )}
       </div>
     </div>
   );

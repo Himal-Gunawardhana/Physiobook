@@ -2,12 +2,30 @@ import { supabase, SUPABASE_URL, SUPABASE_ANON_KEY } from '../config/supabase';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'https://physiobook-api-jvye.onrender.com';
 
+// Store auth token in memory
+let authToken = localStorage.getItem('physiobook_auth_token') || null;
+
+export const setAuthToken = (token) => {
+  authToken = token;
+  if (token) {
+    localStorage.setItem('physiobook_auth_token', token);
+  } else {
+    localStorage.removeItem('physiobook_auth_token');
+  }
+};
+
+export const getAuthToken = () => authToken;
+
 // Test backend connectivity
 export const testBackendHealth = async () => {
   try {
-    const response = await fetch(`${BACKEND_URL}/api/health`, {
+    // Test with a simple GET to any endpoint
+    const response = await fetch(`${BACKEND_URL}/api/clinics`, {
       method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        ...(authToken && { 'Authorization': `Bearer ${authToken}` }),
+      },
     });
     
     let data;
@@ -18,10 +36,10 @@ export const testBackendHealth = async () => {
     }
     
     return {
-      success: response.ok,
+      success: response.ok || response.status === 401, // 401 means backend is working, just needs auth
       status: response.status,
       data,
-      message: response.ok ? 'Backend is healthy' : `Backend returned error (${response.status})`,
+      message: response.status === 401 ? 'Backend is healthy (authentication required)' : (response.ok ? 'Backend is healthy' : `Backend returned error (${response.status})`),
     };
   } catch (error) {
     return {
@@ -39,9 +57,12 @@ export const testApiEndpoint = async (endpoint, method = 'GET', body = null) => 
       method,
       headers: { 'Content-Type': 'application/json' },
     };
+    if (authToken) {
+      options.headers['Authorization'] = `Bearer ${authToken}`;
+    }
     if (body) options.body = JSON.stringify(body);
 
-    const response = await fetch(`${BACKEND_URL}${endpoint}`, options);
+    const response = await fetch(`${BACKEND_URL}/api${endpoint}`, options);
     let data;
     try {
       data = await response.json();
@@ -62,6 +83,115 @@ export const testApiEndpoint = async (endpoint, method = 'GET', body = null) => 
       message: 'Request failed - Check CORS and backend connectivity',
     };
   }
+};
+
+// Register a new user
+export const testRegisterUser = async (firstName, lastName, email, password) => {
+  try {
+    const response = await fetch(`${BACKEND_URL}/api/auth/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        firstName,
+        lastName,
+        email,
+        password,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      // Auto-login after registration
+      if (data.accessToken) {
+        setAuthToken(data.accessToken);
+      }
+    }
+
+    return {
+      success: response.ok,
+      status: response.status,
+      data,
+      message: response.ok ? 'User registered successfully' : data.message || 'Registration failed',
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: error.message,
+      message: 'Registration failed',
+    };
+  }
+};
+
+// Login user
+export const testLoginUser = async (email, password) => {
+  try {
+    const response = await fetch(`${BACKEND_URL}/api/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    });
+
+    const data = await response.json();
+
+    if (response.ok && data.accessToken) {
+      setAuthToken(data.accessToken);
+    }
+
+    return {
+      success: response.ok,
+      status: response.status,
+      data: response.ok ? { user: data.user, token: '***' } : data,
+      message: response.ok ? 'Login successful' : data.message || 'Login failed',
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: error.message,
+      message: 'Login failed',
+    };
+  }
+};
+
+// Get current user
+export const testGetCurrentUser = async () => {
+  if (!authToken) {
+    return {
+      success: false,
+      message: 'Not authenticated - Please login first',
+    };
+  }
+
+  return testApiEndpoint('/users/me', 'GET');
+};
+
+// Get all clinics
+export const testGetClinics = async () => {
+  return testApiEndpoint('/clinics', 'GET');
+};
+
+// Get clinic details
+export const testGetClinic = async (clinicId) => {
+  return testApiEndpoint(`/clinics/${clinicId}`, 'GET');
+};
+
+// Get available booking slots
+export const testGetSlots = async (therapistId, date, duration = 60) => {
+  return testApiEndpoint(`/bookings/slots?therapistId=${therapistId}&date=${date}&serviceDuration=${duration}`, 'GET');
+};
+
+// List bookings
+export const testListBookings = async () => {
+  return testApiEndpoint('/bookings', 'GET');
+};
+
+// Logout
+export const testLogout = () => {
+  setAuthToken(null);
+  return {
+    success: true,
+    message: 'Logged out successfully',
+  };
 };
 
 // Test Supabase connection
@@ -164,7 +294,7 @@ export const testSupabaseQuery = async (tableName) => {
 // Test CORS with OPTIONS request
 export const testCORS = async () => {
   try {
-    const response = await fetch(`${BACKEND_URL}/api/health`, {
+    const response = await fetch(`${BACKEND_URL}/api/clinics`, {
       method: 'OPTIONS',
       headers: {
         'Content-Type': 'application/json',
@@ -197,6 +327,7 @@ export const testCORS = async () => {
 export const testBackendDiagnostic = async () => {
   const diagnostics = {
     backendUrl: BACKEND_URL,
+    authStatus: authToken ? 'Authenticated' : 'Not authenticated',
     timestamp: new Date().toISOString(),
     tests: {},
   };
