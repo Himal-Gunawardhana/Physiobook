@@ -20,7 +20,7 @@ export const getAuthToken = () => authToken;
 export const testBackendHealth = async () => {
   try {
     // Test with a simple GET to any endpoint
-    const response = await fetch(`${BACKEND_URL}/api/clinics`, {
+    const response = await fetch(`${BACKEND_URL}/api/v1/clinics`, {
       method: 'GET',
       headers: { 
         'Content-Type': 'application/json',
@@ -62,7 +62,10 @@ export const testApiEndpoint = async (endpoint, method = 'GET', body = null) => 
     }
     if (body) options.body = JSON.stringify(body);
 
-    const response = await fetch(`${BACKEND_URL}/api${endpoint}`, options);
+    // Ensure endpoint starts with /
+    const normalizedEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+    
+    const response = await fetch(`${BACKEND_URL}/api/v1${normalizedEndpoint}`, options);
     let data;
     try {
       data = await response.json();
@@ -88,7 +91,7 @@ export const testApiEndpoint = async (endpoint, method = 'GET', body = null) => 
 // Register a new user
 export const testRegisterUser = async (firstName, lastName, email, password) => {
   try {
-    const response = await fetch(`${BACKEND_URL}/api/auth/register`, {
+    const response = await fetch(`${BACKEND_URL}/api/v1/auth/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -126,7 +129,7 @@ export const testRegisterUser = async (firstName, lastName, email, password) => 
 // Login user
 export const testLoginUser = async (email, password) => {
   try {
-    const response = await fetch(`${BACKEND_URL}/api/auth/login`, {
+    const response = await fetch(`${BACKEND_URL}/api/v1/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password }),
@@ -294,7 +297,7 @@ export const testSupabaseQuery = async (tableName) => {
 // Test CORS with OPTIONS request
 export const testCORS = async () => {
   try {
-    const response = await fetch(`${BACKEND_URL}/api/clinics`, {
+    const response = await fetch(`${BACKEND_URL}/api/v1/clinics`, {
       method: 'OPTIONS',
       headers: {
         'Content-Type': 'application/json',
