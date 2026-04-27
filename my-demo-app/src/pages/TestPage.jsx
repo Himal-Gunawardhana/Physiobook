@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronDown, ChevronUp, Server, Database, Send, RefreshCw } from 'lucide-react';
+import { ChevronDown, ChevronUp, Server, Database, Send, RefreshCw, AlertCircle } from 'lucide-react';
 import {
   testBackendHealth,
   testApiEndpoint,
@@ -7,6 +7,7 @@ import {
   testSupabaseAuth,
   testSupabaseQuery,
   testCORS,
+  testBackendDiagnostic,
   BACKEND_URL,
 } from '../utils/testApi';
 import '../styles/test.css';
@@ -56,6 +57,10 @@ const TestPage = () => {
 
   const handleCORSTest = async () => {
     await runTest('cors', testCORS);
+  };
+
+  const handleDiagnosticTest = async () => {
+    await runTest('diagnostic', testBackendDiagnostic);
   };
 
   const handleSupabaseConnectionTest = async () => {
@@ -156,6 +161,28 @@ const TestPage = () => {
                   {loading.cors ? 'Testing...' : '🔗 Test CORS'}
                 </button>
                 <ResultBox name="CORS Test" data={results.cors} />
+              </div>
+
+              <div className="test-group">
+                <button
+                  onClick={handleDiagnosticTest}
+                  disabled={loading.diagnostic}
+                  className="test-button primary"
+                  style={{ backgroundColor: '#ff6b6b' }}
+                >
+                  {loading.diagnostic ? 'Running Diagnostic...' : <><AlertCircle size={16} /> Run Full Diagnostic</>}
+                </button>
+                {results.diagnostic && (
+                  <div className={`result-box ${results.diagnostic.success ? 'success' : 'error'}`}>
+                    <div className="result-header">
+                      <span className="result-name">Full Backend Diagnostic</span>
+                    </div>
+                    <details className="result-details">
+                      <summary>View Complete Diagnostic Report</summary>
+                      <pre>{JSON.stringify(results.diagnostic, null, 2)}</pre>
+                    </details>
+                  </div>
+                )}
               </div>
 
               <div className="test-group custom-endpoint">

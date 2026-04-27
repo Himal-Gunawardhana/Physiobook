@@ -1,6 +1,6 @@
 import { supabase, SUPABASE_URL, SUPABASE_ANON_KEY } from '../config/supabase';
 
-const BACKEND_URL = 'https://physiobook-api-jvye.onrender.com';
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'https://physiobook-api-jvye.onrender.com';
 
 // Test backend connectivity
 export const testBackendHealth = async () => {
@@ -9,17 +9,25 @@ export const testBackendHealth = async () => {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },
     });
+    
+    let data;
+    try {
+      data = await response.json();
+    } catch (e) {
+      data = { message: response.statusText || 'No JSON response' };
+    }
+    
     return {
       success: response.ok,
       status: response.status,
-      data: await response.json(),
-      message: response.ok ? 'Backend is healthy' : 'Backend returned error',
+      data,
+      message: response.ok ? 'Backend is healthy' : `Backend returned error (${response.status})`,
     };
   } catch (error) {
     return {
       success: false,
       error: error.message,
-      message: 'Failed to connect to backend',
+      message: 'Failed to connect to backend - Check if backend is running and CORS is enabled',
     };
   }
 };
@@ -34,18 +42,24 @@ export const testApiEndpoint = async (endpoint, method = 'GET', body = null) => 
     if (body) options.body = JSON.stringify(body);
 
     const response = await fetch(`${BACKEND_URL}${endpoint}`, options);
-    const data = await response.json();
+    let data;
+    try {
+      data = await response.json();
+    } catch (e) {
+      data = { message: response.statusText || 'No JSON response' };
+    }
+    
     return {
       success: response.ok,
       status: response.status,
       data,
-      message: response.ok ? 'Success' : 'Error',
+      message: response.ok ? 'Success' : `Error (${response.status})`,
     };
   } catch (error) {
     return {
       success: false,
       error: error.message,
-      message: 'Request failed',
+      message: 'Request failed - Check CORS and backend connectivity',
     };
   }
 };
@@ -158,19 +172,65 @@ export const testCORS = async () => {
       },
     });
 
+    const corsHeaders = {
+      'Access-Control-Allow-Origin': response.headers.get('Access-Control-Allow-Origin'),
+      'Access-Control-Allow-Methods': response.headers.get('Access-Control-Allow-Methods'),
+      'Access-Control-Allow-Headers': response.headers.get('Access-Control-Allow-Headers'),
+    };
+
     return {
-      success: response.ok,
+      success: response.ok || response.status === 204,
       status: response.status,
-      headers: Object.fromEntries(response.headers.entries()),
-      message: response.ok ? 'CORS enabled' : 'CORS issue',
+      headers: corsHeaders,
+      message: (response.ok || response.status === 204) ? 'CORS enabled' : 'CORS may have issues',
     };
   } catch (error) {
     return {
       success: false,
       error: error.message,
-      message: 'CORS test failed',
+      message: 'CORS test failed - Backend may not be reachable',
     };
   }
+};
+
+// Diagnostic test to check backend connectivity
+export const testBackendDiagnostic = async () => {
+  const diagnostics = {
+    backendUrl: BACKEND_URL,
+    timestamp: new Date().toISOString(),
+    tests: {},
+  };
+
+  // Test 1: Basic connectivity
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000);
+    
+    const response = await fetch(BACKEND_URL, { 
+      method: 'HEAD',
+      signal: controller.signal,
+    });
+    clearTimeout(timeoutId);
+    diagnostics.tests.basicConnectivity = { 
+      success: true, 
+      status: response.status,
+      message: 'Backend is reachable' 
+    };
+  } catch (error) {
+    diagnostics.tests.basicConnectivity = { 
+      success: false, 
+      error: error.message,
+      message: 'Backend is not reachable - Check URL or if Render app is running' 
+    };
+  }
+
+  // Test 2: Health endpoint
+  diagnostics.tests.healthEndpoint = await testBackendHealth();
+
+  // Test 3: CORS
+  diagnostics.tests.cors = await testCORS();
+
+  return diagnostics;
 };
 
 export { BACKEND_URL };
