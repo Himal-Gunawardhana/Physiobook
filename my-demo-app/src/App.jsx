@@ -39,6 +39,9 @@ import SuperAdminSubscriptions from './pages/SuperAdmin/Subscriptions';
 // Home
 import Home from './pages/Home';
 
+// Test
+import TestPage from './pages/TestPage';
+
 const DEMO_CLINICS = [
   { id: 'c1', name: 'Elite Physio — Downtown' },
   { id: 'c2', name: 'Elite Physio — North Branch' },
@@ -87,6 +90,7 @@ export default function App() {
     <Router>
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/test" element={<TestPage />} />
 
         {/* Auth */}
         <Route path="/login/:role"    element={<Login />} />
