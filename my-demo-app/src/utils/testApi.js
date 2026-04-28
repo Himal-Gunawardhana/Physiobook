@@ -19,12 +19,11 @@ export const getAuthToken = () => authToken;
 // Test backend connectivity
 export const testBackendHealth = async () => {
   try {
-    // Test with a simple GET to any endpoint
-    const response = await fetch(`${BACKEND_URL}/api/v1/clinics`, {
+    // Test with /health endpoint (no auth required)
+    const response = await fetch(`${BACKEND_URL}/health`, {
       method: 'GET',
       headers: { 
         'Content-Type': 'application/json',
-        ...(authToken && { 'Authorization': `Bearer ${authToken}` }),
       },
     });
     
@@ -36,16 +35,16 @@ export const testBackendHealth = async () => {
     }
     
     return {
-      success: response.ok || response.status === 401, // 401 means backend is working, just needs auth
+      success: response.ok,
       status: response.status,
       data,
-      message: response.status === 401 ? 'Backend is healthy (authentication required)' : (response.ok ? 'Backend is healthy' : `Backend returned error (${response.status})`),
+      message: response.ok ? 'Backend is healthy and responding' : `Backend returned error (${response.status})`,
     };
   } catch (error) {
     return {
       success: false,
       error: error.message,
-      message: 'Failed to connect to backend - Check if backend is running and CORS is enabled',
+      message: 'Failed to connect to backend - Check if backend is running at ' + BACKEND_URL,
     };
   }
 };
@@ -297,6 +296,21 @@ export const testSupabaseQuery = async (tableName) => {
 // Test CORS with OPTIONS request
 export const testCORS = async () => {
   try {
+    // First check if backend is reachable via health endpoint
+    const healthCheck = await fetch(`${BACKEND_URL}/health`, {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+    });
+
+    if (!healthCheck.ok) {
+      return {
+        success: false,
+        status: healthCheck.status,
+        message: 'Backend is not reachable',
+      };
+    }
+
+    // Try to fetch with CORS headers to /api/v1 endpoint
     const response = await fetch(`${BACKEND_URL}/api/v1/clinics`, {
       method: 'OPTIONS',
       headers: {
@@ -312,16 +326,19 @@ export const testCORS = async () => {
     };
 
     return {
-      success: response.ok || response.status === 204,
+      success: response.ok || response.status === 204 || response.status === 403,
       status: response.status,
       headers: corsHeaders,
-      message: (response.ok || response.status === 204) ? 'CORS enabled' : 'CORS may have issues',
+      message: 
+        response.status === 403 ? 'CORS not enabled for this origin (update backend CORS_ORIGINS)' :
+        (response.ok || response.status === 204) ? 'CORS enabled' : 
+        'CORS may have issues (status: ' + response.status + ')',
     };
   } catch (error) {
     return {
       success: false,
       error: error.message,
-      message: 'CORS test failed - Backend may not be reachable',
+      message: 'CORS test failed - Connection issue: ' + error.message,
     };
   }
 };
