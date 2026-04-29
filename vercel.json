@@ -2,6 +2,8 @@
   "buildCommand": "cd my-demo-app && npm install && npm run build",
   "outputDirectory": "my-demo-app/dist",
   "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
+    { "source": "/api/:path*",  "destination": "https://physiobook-api-jvye.onrender.com/api/:path*" },
+    { "source": "/health",      "destination": "https://physiobook-api-jvye.onrender.com/health" },
+    { "source": "/(.*)",        "destination": "/index.html" }
   ]
 }

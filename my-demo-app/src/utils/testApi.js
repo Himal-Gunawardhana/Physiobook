@@ -1,6 +1,11 @@
 import { supabase, SUPABASE_URL, SUPABASE_ANON_KEY } from '../config/supabase';
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'https://physiobook-api-jvye.onrender.com';
+// In production (Vercel), use relative URLs — Vercel proxies /api/* to Render.
+// In local dev, point directly at the local backend or the Render backend.
+const isDev = import.meta.env.DEV;
+const BACKEND_URL = isDev
+  ? (import.meta.env.VITE_BACKEND_URL || 'https://physiobook-api-jvye.onrender.com')
+  : '';
 
 // Store auth token in memory
 let authToken = localStorage.getItem('physiobook_auth_token') || null;
@@ -19,32 +24,31 @@ export const getAuthToken = () => authToken;
 // Test backend connectivity
 export const testBackendHealth = async () => {
   try {
-    // Test with /health endpoint (no auth required)
     const response = await fetch(`${BACKEND_URL}/health`, {
       method: 'GET',
-      headers: { 
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
     });
-    
+
     let data;
     try {
       data = await response.json();
     } catch (e) {
       data = { message: response.statusText || 'No JSON response' };
     }
-    
+
     return {
       success: response.ok,
       status: response.status,
       data,
-      message: response.ok ? 'Backend is healthy and responding' : `Backend returned error (${response.status})`,
+      message: response.ok
+        ? 'Backend is healthy and responding'
+        : `Backend returned error (${response.status})`,
     };
   } catch (error) {
     return {
       success: false,
       error: error.message,
-      message: 'Failed to connect to backend - Check if backend is running at ' + BACKEND_URL,
+      message: 'Failed to connect to backend',
     };
   }
 };
@@ -61,17 +65,16 @@ export const testApiEndpoint = async (endpoint, method = 'GET', body = null) => 
     }
     if (body) options.body = JSON.stringify(body);
 
-    // Ensure endpoint starts with /
     const normalizedEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
-    
     const response = await fetch(`${BACKEND_URL}/api/v1${normalizedEndpoint}`, options);
+
     let data;
     try {
       data = await response.json();
     } catch (e) {
       data = { message: response.statusText || 'No JSON response' };
     }
-    
+
     return {
       success: response.ok,
       status: response.status,
@@ -82,7 +85,7 @@ export const testApiEndpoint = async (endpoint, method = 'GET', body = null) => 
     return {
       success: false,
       error: error.message,
-      message: 'Request failed - Check CORS and backend connectivity',
+      message: 'Request failed',
     };
   }
 };
@@ -93,28 +96,22 @@ export const testRegisterUser = async (firstName, lastName, email, password) => 
     const response = await fetch(`${BACKEND_URL}/api/v1/auth/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        firstName,
-        lastName,
-        email,
-        password,
-      }),
+      body: JSON.stringify({ firstName, lastName, email, password }),
     });
 
     const data = await response.json();
 
-    if (response.ok) {
-      // Auto-login after registration
-      if (data.accessToken) {
-        setAuthToken(data.accessToken);
-      }
+    if (response.ok && data.accessToken) {
+      setAuthToken(data.accessToken);
     }
 
     return {
       success: response.ok,
       status: response.status,
       data,
-      message: response.ok ? 'User registered successfully' : data.message || 'Registration failed',
+      message: response.ok
+        ? 'User registered successfully'
+        : data.message || 'Registration failed',
     };
   } catch (error) {
     return {
@@ -158,48 +155,37 @@ export const testLoginUser = async (email, password) => {
 // Get current user
 export const testGetCurrentUser = async () => {
   if (!authToken) {
-    return {
-      success: false,
-      message: 'Not authenticated - Please login first',
-    };
+    return { success: false, message: 'Not authenticated — please login first' };
   }
-
   return testApiEndpoint('/users/me', 'GET');
 };
 
 // Get all clinics
-export const testGetClinics = async () => {
-  return testApiEndpoint('/clinics', 'GET');
-};
+export const testGetClinics = async () => testApiEndpoint('/clinics', 'GET');
 
 // Get clinic details
-export const testGetClinic = async (clinicId) => {
-  return testApiEndpoint(`/clinics/${clinicId}`, 'GET');
-};
+export const testGetClinic = async (clinicId) =>
+  testApiEndpoint(`/clinics/${clinicId}`, 'GET');
 
 // Get available booking slots
-export const testGetSlots = async (therapistId, date, duration = 60) => {
-  return testApiEndpoint(`/bookings/slots?therapistId=${therapistId}&date=${date}&serviceDuration=${duration}`, 'GET');
-};
+export const testGetSlots = async (therapistId, date, duration = 60) =>
+  testApiEndpoint(
+    `/bookings/slots?therapistId=${therapistId}&date=${date}&serviceDuration=${duration}`,
+    'GET'
+  );
 
 // List bookings
-export const testListBookings = async () => {
-  return testApiEndpoint('/bookings', 'GET');
-};
+export const testListBookings = async () => testApiEndpoint('/bookings', 'GET');
 
 // Logout
 export const testLogout = () => {
   setAuthToken(null);
-  return {
-    success: true,
-    message: 'Logged out successfully',
-  };
+  return { success: true, message: 'Logged out successfully' };
 };
 
 // Test Supabase connection
 export const testSupabaseConnection = async () => {
   try {
-    // Check if credentials are set
     if (!SUPABASE_URL || SUPABASE_URL.includes('your-project')) {
       return {
         success: false,
@@ -208,15 +194,13 @@ export const testSupabaseConnection = async () => {
       };
     }
 
-    // Try to fetch a simple query to verify connection
-    const { data, error } = await supabase.from('information_schema.tables').select('*').limit(1);
-    
+    const { data, error } = await supabase
+      .from('information_schema.tables')
+      .select('*')
+      .limit(1);
+
     if (error) {
-      return {
-        success: false,
-        error: error.message,
-        message: 'Failed to connect to Supabase',
-      };
+      return { success: false, error: error.message, message: 'Failed to connect to Supabase' };
     }
 
     return {
@@ -225,41 +209,24 @@ export const testSupabaseConnection = async () => {
       data: { url: SUPABASE_URL },
     };
   } catch (error) {
-    return {
-      success: false,
-      error: error.message,
-      message: 'Supabase connection error',
-    };
+    return { success: false, error: error.message, message: 'Supabase connection error' };
   }
 };
 
 // Test Supabase auth
 export const testSupabaseAuth = async (email, password) => {
   try {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) {
-      return {
-        success: false,
-        error: error.message,
-        message: 'Auth test failed',
-      };
+      return { success: false, error: error.message, message: 'Auth test failed' };
     }
-
     return {
       success: true,
       message: 'Auth connection successful',
       data: { user: data.user?.email },
     };
   } catch (error) {
-    return {
-      success: false,
-      error: error.message,
-      message: 'Auth test error',
-    };
+    return { success: false, error: error.message, message: 'Auth test error' };
   }
 };
 
@@ -272,11 +239,7 @@ export const testSupabaseQuery = async (tableName) => {
       .limit(5);
 
     if (error) {
-      return {
-        success: false,
-        error: error.message,
-        message: `Failed to query ${tableName}`,
-      };
+      return { success: false, error: error.message, message: `Failed to query ${tableName}` };
     }
 
     return {
@@ -285,32 +248,22 @@ export const testSupabaseQuery = async (tableName) => {
       data: { rowCount: count, sampleData: data },
     };
   } catch (error) {
-    return {
-      success: false,
-      error: error.message,
-      message: `Query error for ${tableName}`,
-    };
+    return { success: false, error: error.message, message: `Query error for ${tableName}` };
   }
 };
 
-// Test CORS with OPTIONS request
+// Test CORS / connectivity
 export const testCORS = async () => {
   try {
-    // First check if backend is reachable via health endpoint
     const healthCheck = await fetch(`${BACKEND_URL}/health`, {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },
     });
 
     if (!healthCheck.ok) {
-      return {
-        success: false,
-        status: healthCheck.status,
-        message: 'Backend is not reachable',
-      };
+      return { success: false, status: healthCheck.status, message: 'Backend is not reachable' };
     }
 
-    // Try to fetch with CORS headers to /api/v1 endpoint
     const response = await fetch(`${BACKEND_URL}/api/v1/clinics`, {
       method: 'OPTIONS',
       headers: {
@@ -326,27 +279,28 @@ export const testCORS = async () => {
     };
 
     return {
-      success: response.ok || response.status === 204 || response.status === 403,
+      success: response.ok || response.status === 204,
       status: response.status,
       headers: corsHeaders,
-      message: 
-        response.status === 403 ? 'CORS not enabled for this origin (update backend CORS_ORIGINS)' :
-        (response.ok || response.status === 204) ? 'CORS enabled' : 
-        'CORS may have issues (status: ' + response.status + ')',
+      message:
+        response.ok || response.status === 204
+          ? 'Backend reachable (via Vercel proxy in production)'
+          : `Status: ${response.status}`,
     };
   } catch (error) {
     return {
       success: false,
       error: error.message,
-      message: 'CORS test failed - Connection issue: ' + error.message,
+      message: 'Connection issue: ' + error.message,
     };
   }
 };
 
-// Diagnostic test to check backend connectivity
+// Full diagnostic
 export const testBackendDiagnostic = async () => {
   const diagnostics = {
-    backendUrl: BACKEND_URL,
+    backendUrl: BACKEND_URL || '(relative — Vercel proxy active)',
+    mode: isDev ? 'development' : 'production',
     authStatus: authToken ? 'Authenticated' : 'Not authenticated',
     timestamp: new Date().toISOString(),
     tests: {},
@@ -355,30 +309,29 @@ export const testBackendDiagnostic = async () => {
   // Test 1: Basic connectivity
   try {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 5000);
-    
-    const response = await fetch(BACKEND_URL, { 
+    const timeoutId = setTimeout(() => controller.abort(), 8000);
+    const response = await fetch(`${BACKEND_URL}/health`, {
       method: 'HEAD',
       signal: controller.signal,
     });
     clearTimeout(timeoutId);
-    diagnostics.tests.basicConnectivity = { 
-      success: true, 
+    diagnostics.tests.basicConnectivity = {
+      success: true,
       status: response.status,
-      message: 'Backend is reachable' 
+      message: 'Backend is reachable',
     };
   } catch (error) {
-    diagnostics.tests.basicConnectivity = { 
-      success: false, 
+    diagnostics.tests.basicConnectivity = {
+      success: false,
       error: error.message,
-      message: 'Backend is not reachable - Check URL or if Render app is running' 
+      message: 'Backend is not reachable — check Render dashboard',
     };
   }
 
   // Test 2: Health endpoint
   diagnostics.tests.healthEndpoint = await testBackendHealth();
 
-  // Test 3: CORS
+  // Test 3: CORS / proxy
   diagnostics.tests.cors = await testCORS();
 
   return diagnostics;
