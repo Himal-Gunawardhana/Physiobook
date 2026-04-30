@@ -24,7 +24,6 @@ export default function Login() {
   const [loading,   setLoading]   = useState(false);
   const [error,     setError]     = useState('');
 
-  // 2FA state
   const [needs2FA,      setNeeds2FA]      = useState(false);
   const [partialToken,  setPartialToken]  = useState('');
   const [otpCode,       setOtpCode]       = useState('');
@@ -36,15 +35,12 @@ export default function Login() {
     setLoading(true);
     try {
       const result = await login(email, password);
-
       if (result.requiresTwoFa) {
         setPartialToken(result.partialToken);
         setNeeds2FA(true);
         setLoading(false);
         return;
       }
-
-      // Redirect based on actual role from backend
       const dest = ROLE_ROUTES[result.user?.role] ?? '/';
       navigate(dest);
     } catch (err) {
@@ -67,13 +63,12 @@ export default function Login() {
     }
   };
 
-  // Guest shortcut — navigate to the portal without auth
   const guestDest = ROLE_ROUTES[cfg.backendRole] ?? '/';
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', fontFamily: 'Inter, sans-serif' }}>
-      {/* Left panel */}
-      <div style={{ flex: 1, background: cfg.gradient, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', padding: '3rem', textAlign: 'center', color: 'white', position: 'relative', overflow: 'hidden' }}>
+    <div className="auth-split" style={{ fontFamily: 'Inter, sans-serif' }}>
+      {/* Left panel — hidden on mobile via CSS */}
+      <div className="auth-split-left" style={{ background: cfg.gradient }}>
         <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at 30% 40%, rgba(255,255,255,0.15) 0%, transparent 60%)' }} />
         <div style={{ position: 'relative', zIndex: 1 }}>
           <Icon size={72} color="rgba(255,255,255,0.9)" style={{ marginBottom: '1.5rem' }} />
@@ -86,11 +81,10 @@ export default function Login() {
       </div>
 
       {/* Right panel */}
-      <div style={{ flex: 1, background: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
+      <div className="auth-split-right">
         <div style={{ width: '100%', maxWidth: 400 }}>
 
           {needs2FA ? (
-            /* ── 2FA Screen ── */
             <>
               <h2 style={{ fontSize: '1.75rem', fontWeight: 800, color: '#0f172a', marginBottom: '0.4rem' }}>Two-Factor Auth</h2>
               <p style={{ color: '#64748b', marginBottom: '2rem' }}>Enter the 6-digit code from your authenticator app.</p>
@@ -107,7 +101,6 @@ export default function Login() {
               </form>
             </>
           ) : (
-            /* ── Login Screen ── */
             <>
               <h2 style={{ fontSize: '1.75rem', fontWeight: 800, color: '#0f172a', marginBottom: '0.4rem' }}>Welcome back</h2>
               <p style={{ color: '#64748b', marginBottom: '2rem' }}>Sign in to your <strong>{cfg.label}</strong> account</p>
@@ -146,7 +139,7 @@ export default function Login() {
                 </button>
               </form>
 
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '1.5rem', fontSize: '0.87rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '1.5rem', fontSize: '0.87rem', flexWrap: 'wrap', gap: '0.5rem' }}>
                 <Link to={`/register/${role}`} style={{ color: cfg.color, fontWeight: 600 }}>Create an account</Link>
                 <Link to="/" style={{ color: '#64748b' }}>← All Portals</Link>
               </div>

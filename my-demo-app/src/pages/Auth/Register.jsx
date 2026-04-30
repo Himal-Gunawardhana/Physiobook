@@ -10,12 +10,8 @@ const ROLE_CONFIG = {
   superadmin: { label: 'Super Admin',     Icon: ShieldCheck, color: '#f59e0b', backendRole: 'super_admin',  gradient: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', desc: 'Admin access to the platform.' },
 };
 
-// Map URL role → backend role string
 const BACKEND_ROLE = {
-  patient:    'patient',
-  clinic:     'clinic_admin',
-  therapist:  'therapist',
-  superadmin: 'super_admin',
+  patient: 'patient', clinic: 'clinic_admin', therapist: 'therapist', superadmin: 'super_admin',
 };
 
 export default function Register() {
@@ -37,27 +33,21 @@ export default function Register() {
     e.preventDefault();
     setError('');
     setFieldErrors({});
-
     if (form.password !== form.confirm) {
       setFieldErrors({ confirm: 'Passwords do not match.' });
       return;
     }
-
     setLoading(true);
     try {
       const payload = {
-        firstName: form.firstName,
-        lastName:  form.lastName,
-        email:     form.email,
-        password:  form.password,
-        role:      BACKEND_ROLE[role] || 'patient',
+        firstName: form.firstName, lastName: form.lastName,
+        email: form.email, password: form.password,
+        role: BACKEND_ROLE[role] || 'patient',
       };
-
       const result = await register(payload);
       const dest = ROLE_ROUTES[result.user?.role] ?? '/';
       navigate(dest);
     } catch (err) {
-      // Handle Zod validation errors from backend
       if (err?.error?.details) {
         const fe = {};
         err.error.details.forEach(d => { fe[d.field] = d.message; });
@@ -71,9 +61,9 @@ export default function Register() {
   const guestDest = ROLE_ROUTES[cfg.backendRole] ?? '/';
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', fontFamily: 'Inter, sans-serif' }}>
-      {/* Left banner */}
-      <div style={{ flex: 1, background: cfg.gradient, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', padding: '3rem', textAlign: 'center', color: 'white', position: 'relative', overflow: 'hidden' }}>
+    <div className="auth-split" style={{ fontFamily: 'Inter, sans-serif' }}>
+      {/* Left banner — hidden on mobile via CSS */}
+      <div className="auth-split-left" style={{ background: cfg.gradient }}>
         <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at 30% 40%, rgba(255,255,255,0.15) 0%, transparent 60%)' }} />
         <div style={{ position: 'relative', zIndex: 1 }}>
           <Icon size={72} color="rgba(255,255,255,0.9)" style={{ marginBottom: '1.5rem' }} />
@@ -83,19 +73,19 @@ export default function Register() {
       </div>
 
       {/* Right form */}
-      <div style={{ flex: 1, background: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem', overflowY: 'auto' }}>
+      <div className="auth-split-right">
         <div style={{ width: '100%', maxWidth: 440 }}>
           <h2 style={{ fontSize: '1.75rem', fontWeight: 800, color: '#0f172a', marginBottom: '0.4rem' }}>Create Account</h2>
           <p style={{ color: '#64748b', marginBottom: '2rem' }}>Register as a <strong>{cfg.label}</strong></p>
 
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            <div style={{ display: 'flex', gap: '1rem' }}>
-              <div style={{ flex: 1 }}>
+            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+              <div style={{ flex: '1 1 140px' }}>
                 <label className="form-label">First Name</label>
                 <input className="form-input" placeholder="John" value={form.firstName} onChange={set('firstName')} required />
                 {fieldErrors.firstName && <FieldError msg={fieldErrors.firstName} />}
               </div>
-              <div style={{ flex: 1 }}>
+              <div style={{ flex: '1 1 140px' }}>
                 <label className="form-label">Last Name</label>
                 <input className="form-input" placeholder="Doe" value={form.lastName} onChange={set('lastName')} required />
                 {fieldErrors.lastName && <FieldError msg={fieldErrors.lastName} />}
@@ -109,7 +99,7 @@ export default function Register() {
             </div>
 
             <div>
-              <label className="form-label">Password <span style={{ color: '#94a3b8', fontWeight: 400 }}>(min 8 chars, upper + lower + number)</span></label>
+              <label className="form-label">Password <span style={{ color: '#94a3b8', fontWeight: 400 }}>(min 8 chars)</span></label>
               <input type="password" className="form-input" placeholder="Create a strong password" value={form.password} onChange={set('password')} required minLength={8} />
               {fieldErrors.password && <FieldError msg={fieldErrors.password} />}
             </div>
@@ -137,7 +127,7 @@ export default function Register() {
             </button>
           </form>
 
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '1.5rem', fontSize: '0.87rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '1.5rem', fontSize: '0.87rem', flexWrap: 'wrap', gap: '0.5rem' }}>
             <Link to={`/login/${role}`} style={{ color: cfg.color, fontWeight: 600 }}>Already have an account?</Link>
             <Link to="/" style={{ color: '#64748b' }}>← All Portals</Link>
           </div>

@@ -149,7 +149,7 @@ export default function Payments() {
 
       {/* Filters */}
       <div className="card" style={{ marginBottom: '1.25rem', padding: '1rem 1.25rem' }}>
-        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
+        <div className="filter-row">
           <div style={{ flex: '1 1 240px', position: 'relative' }}>
             <Search size={15} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
             <input
@@ -161,7 +161,7 @@ export default function Payments() {
               onChange={e => setSearch(e.target.value)}
             />
           </div>
-          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+          <div className="filter-pills">
             {['all', 'paid', 'pending', 'refunded', 'failed'].map(f => (
               <button
                 key={f}

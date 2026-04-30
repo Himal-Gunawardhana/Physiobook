@@ -646,62 +646,275 @@ tbody tr:hover { background: var(--surface); }
 .therapist-card-select:hover { border-color: var(--blue-mid); }
 .therapist-card-select.selected { border-color: var(--blue); background: var(--blue-light); }
 
-/* ─── Home / Landing Page ────────────────────────────── */
-.home-page {
-  min-height: 100vh;
+/* ─── Home / Landing Page (new) ─────────────────────── */
+.home-root {
   width: 100%;
-  background: var(--navy);
+  min-height: 100dvh;
+  background: linear-gradient(160deg, #060b18 0%, #0d1f45 40%, #0c1a38 70%, #060b18 100%);
+  font-family: 'Inter', sans-serif;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+}
+
+/* Nav */
+.home-nav {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 2rem;
-  background-image:
-    radial-gradient(circle at 15% 25%, rgba(37,99,235,0.12) 0%, transparent 45%),
-    radial-gradient(circle at 85% 75%, rgba(139,92,246,0.1) 0%, transparent 45%);
+  padding: 0.75rem 1.5rem;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  flex-shrink: 0;
 }
-
-/* Keep old class name for backward compat */
-.home-container {
-  min-height: 100vh;
-  width: 100%;
+.home-nav-brand {
   display: flex;
   align-items: center;
-  justify-content: center;
-  background: var(--navy);
-  color: var(--white);
-  padding: 2rem;
-  background-image:
-    radial-gradient(circle at 15% 25%, rgba(37,99,235,0.12) 0%, transparent 45%),
-    radial-gradient(circle at 85% 75%, rgba(139,92,246,0.1) 0%, transparent 45%);
+  gap: 0.45rem;
+  color: #93c5fd;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
 }
 
-.home-content { max-width: 1040px; width: 100%; text-align: center; }
+/* Hero */
+.home-hero {
+  position: relative;
+  flex-shrink: 0;
+  text-align: center;
+  padding: clamp(1.25rem, 4vw, 2.5rem) 1rem clamp(0.75rem, 2vw, 1.5rem);
+  overflow: hidden;
+}
+.home-orb {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+.home-orb-left  { top: -10%; left: 5%;  width: 380px; height: 380px; background: radial-gradient(circle, rgba(37,99,235,0.1) 0%, transparent 70%); }
+.home-orb-right { bottom: -10%; right: 5%; width: 300px; height: 300px; background: radial-gradient(circle, rgba(124,58,237,0.08) 0%, transparent 70%); }
 
-.home-title {
-  font-size: clamp(2.5rem, 6vw, 4rem);
-  font-weight: 800;
-  background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  margin-bottom: 0.75rem;
+.home-headline {
+  position: relative;
+  z-index: 1;
+  margin: 0 0 0.6rem;
+  font-size: clamp(1.6rem, 5vw, 3rem);
+  font-weight: 900;
+  color: #fff;
+  line-height: 1.1;
   letter-spacing: -0.02em;
 }
-
-.home-subtitle {
-  font-size: 1.1rem;
-  color: var(--slate-light);
-  margin-bottom: 3.5rem;
-  max-width: 480px;
-  margin-left: auto;
-  margin-right: auto;
+.home-headline-accent {
+  background: linear-gradient(90deg, #60a5fa, #34d399);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.home-subheadline {
+  position: relative;
+  z-index: 1;
+  margin: 0 auto;
+  max-width: 500px;
+  color: #94a3b8;
+  font-size: clamp(0.82rem, 2vw, 1rem);
+  line-height: 1.6;
 }
 
+/* Cards section */
+.home-cards-section {
+  flex: 1;
+  padding: clamp(0.5rem, 1.5vw, 1rem) clamp(0.75rem, 3vw, 1.5rem);
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+.home-cards-label {
+  text-align: center;
+  color: #475569;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-weight: 700;
+  margin: 0 0 0.6rem;
+}
+.home-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: clamp(0.6rem, 2vw, 1.2rem);
+  flex: 1;
+}
+
+/* Role card */
+.role-card {
+  border-radius: 16px;
+  overflow: hidden;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.09);
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+  cursor: default;
+}
+.role-card-header {
+  padding: clamp(0.85rem, 2.5vw, 1.35rem) clamp(0.85rem, 2.5vw, 1.35rem) clamp(0.6rem, 1.5vw, 1rem);
+  position: relative;
+  overflow: hidden;
+}
+.role-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: clamp(0.5rem, 1.5vw, 0.9rem);
+}
+.role-card-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.role-card-badge {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: rgba(255,255,255,0.75);
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  background: rgba(255,255,255,0.14);
+  padding: 0.2rem 0.55rem;
+  border-radius: 20px;
+}
+.role-card-title {
+  font-size: clamp(1rem, 2.5vw, 1.3rem);
+  font-weight: 800;
+  color: #fff;
+  margin: 0 0 0.2rem;
+  line-height: 1.1;
+}
+.role-card-tagline {
+  font-size: 0.78rem;
+  color: rgba(255,255,255,0.7);
+  font-style: italic;
+  margin: 0;
+}
+.role-card-body {
+  padding: clamp(0.75rem, 2vw, 1.1rem) clamp(0.85rem, 2.5vw, 1.35rem);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+.role-card-desc {
+  color: #94a3b8;
+  font-size: clamp(0.76rem, 1.5vw, 0.84rem);
+  line-height: 1.6;
+  margin: 0;
+}
+.role-card-features {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+.role-card-features li {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: #cbd5e1;
+  font-size: clamp(0.72rem, 1.3vw, 0.78rem);
+}
+.role-card-actions {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+.role-btn-primary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: clamp(0.55rem, 1.5vw, 0.7rem) 1rem;
+  color: #fff;
+  border: none;
+  border-radius: 9px;
+  font-weight: 700;
+  font-size: clamp(0.76rem, 1.5vw, 0.84rem);
+  cursor: pointer;
+  transition: filter 0.2s;
+  white-space: nowrap;
+}
+.role-btn-ghost {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(0.45rem, 1.2vw, 0.6rem) 1rem;
+  background: rgba(255,255,255,0.05);
+  color: #94a3b8;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 9px;
+  font-weight: 600;
+  font-size: clamp(0.72rem, 1.3vw, 0.78rem);
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+/* Feature strip */
+.home-features {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: clamp(0.5rem, 2vw, 1rem);
+  padding: clamp(0.6rem, 1.5vw, 1rem) clamp(0.75rem, 3vw, 2rem);
+  border-top: 1px solid rgba(255,255,255,0.06);
+  background: rgba(0,0,0,0.2);
+  flex-shrink: 0;
+}
+.home-feature-item {
+  display: flex;
+  gap: 0.6rem;
+  align-items: flex-start;
+}
+.home-feature-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.home-feature-title {
+  font-weight: 700;
+  color: #e2e8f0;
+  font-size: 0.78rem;
+}
+.home-feature-desc {
+  color: #64748b;
+  font-size: 0.7rem;
+  line-height: 1.4;
+  margin-top: 0.1rem;
+}
+
+/* Footer */
+.home-footer {
+  text-align: center;
+  padding: 0.5rem 1rem;
+  color: #334155;
+  font-size: 0.7rem;
+  border-top: 1px solid rgba(255,255,255,0.04);
+  flex-shrink: 0;
+}
+
+/* ─── Legacy portal classes (kept for compat) ────────── */
 .portal-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 1.25rem;
 }
-
 .portal-card {
   background: rgba(30,41,59,0.5);
   backdrop-filter: blur(12px);
@@ -716,25 +929,14 @@ tbody tr:hover { background: var(--surface); }
   gap: 0.75rem;
   cursor: pointer;
 }
-.portal-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 24px 48px rgba(0,0,0,0.35);
-  background: rgba(30,41,59,0.75);
-  border-color: rgba(255,255,255,0.15);
-}
+.portal-card:hover { transform: translateY(-6px); box-shadow: 0 24px 48px rgba(0,0,0,0.35); }
 .portal-card h2 { font-size: 1.1rem; color: var(--white); margin: 0; }
 .portal-card p  { color: var(--slate-light); font-size: 0.9rem; margin: 0; line-height: 1.5; }
-
 .portal-icon { width: 44px; height: 44px; }
-
 .patient-card    { border-top: 3px solid var(--green); }
-.patient-card .portal-icon    { color: var(--green); }
 .clinic-card     { border-top: 3px solid var(--blue); }
-.clinic-card .portal-icon     { color: var(--blue); }
 .therapist-card  { border-top: 3px solid var(--purple); }
-.therapist-card .portal-icon  { color: var(--purple); }
 .superadmin-card { border-top: 3px solid var(--amber); }
-.superadmin-card .portal-icon { color: var(--amber); }
 
 /* ─── Modals ─────────────────────────────────────────── */
 .modal-backdrop {
@@ -811,18 +1013,135 @@ tbody tr:hover { background: var(--surface); }
 
 .animate-in { animation: slideUp 0.3s ease; }
 
+/* ─── Responsive Layout Classes ──────────────────────── */
+/* Classes used by components so media queries can override inline styles */
+
+.auth-split {
+  display: flex;
+  min-height: 100vh;
+}
+.auth-split-left {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 3rem;
+  text-align: center;
+  color: white;
+  position: relative;
+  overflow: hidden;
+}
+.auth-split-right {
+  flex: 1;
+  background: #f8fafc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  overflow-y: auto;
+}
+
+.schedule-grid {
+  display: grid;
+  grid-template-columns: minmax(280px, 1fr) 300px;
+  gap: 1.5rem;
+}
+
+.settings-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.filter-row {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.filter-pills {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.svc-item-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.section-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.25rem;
+}
+
+.profile-banner {
+  display: flex;
+  gap: 1.25rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.profile-banner-stats {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.booking-banner {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  border-radius: 14px;
+  padding: 1.25rem 1.5rem;
+  color: white;
+  margin-bottom: 2rem;
+}
+
+.package-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.25rem;
+}
+
+.tab-bar {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 2px solid #e2e8f0;
+  padding-bottom: 0;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.feature-strip-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.5rem;
+}
+
 /* ─── Responsive Breakpoints ─────────────────────────── */
 
 /* ── Small laptop / large tablet (≤1100px) ── */
 @media (max-width: 1100px) {
   .dashboard-content { padding: 1.75rem 1.5rem; }
   .stats-grid { grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); }
+  .schedule-grid { grid-template-columns: 1fr !important; }
 }
 
 /* ── Tablet (≤768px) ── */
 @media (max-width: 768px) {
 
-  /* ── Show mobile header, hide permanent sidebar ── */
+  /* Show mobile header */
   .mobile-header { display: flex; }
 
   /* Off-canvas sidebar */
@@ -838,40 +1157,51 @@ tbody tr:hover { background: var(--surface); }
   }
   .dashboard-sidebar.sidebar-open { left: 0; }
 
-  /* Dashboard layout stacks vertically */
+  /* Dashboard layout */
   .dashboard-layout { flex-direction: column; }
   .dashboard-content { padding: 1.25rem 1rem; }
 
-  /* Page header stacks */
+  /* Page header */
   .page-header { flex-direction: column; align-items: flex-start; }
   .page-title  { font-size: 1.4rem; }
 
-  /* Stats grid: 2-col */
-  .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 0.875rem; }
+  /* Stats grid */
+  .stats-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 0.875rem; }
 
-  /* Tables: horizontal scroll */
+  /* Tables */
   .table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-  table          { min-width: 520px; }
+  table { min-width: 520px; }
 
-  /* Cards: reduce padding */
+  /* Cards */
   .card, .card-base { padding: 1.125rem; }
 
-  /* Booking layout stacks */
+  /* AUTH: hide left panel, full-width right */
+  .auth-split { flex-direction: column !important; }
+  .auth-split-left { display: none !important; }
+  .auth-split-right { flex: 1 1 100% !important; min-height: 100vh; padding: 2rem 1.25rem; }
+
+  /* SCHEDULE: stack */
+  .schedule-grid { grid-template-columns: 1fr !important; }
+
+  /* SETTINGS: stack */
+  .settings-grid { grid-template-columns: 1fr !important; }
+
+  /* Booking layout */
   .booking-layout { flex-direction: column; }
   .booking-left, .booking-right { flex: 1 1 100%; }
 
-  /* Time grid: more compact */
+  /* Time grid */
   .time-grid { grid-template-columns: repeat(auto-fill, minmax(95px, 1fr)); gap: 0.625rem; }
 
-  /* Mode grid: always 3-up */
+  /* Mode grid */
   .mode-grid { grid-template-columns: repeat(3, 1fr); }
 
-  /* Auth pages: hide left panel */
+  /* Old auth classes */
   .auth-page { grid-template-columns: 1fr; }
   .auth-left  { display: none; }
   .auth-right { padding: 2rem 1.25rem; }
 
-  /* Service cards stack vertically */
+  /* Service cards */
   .service-card {
     flex-direction: column;
     align-items: flex-start;
@@ -884,59 +1214,89 @@ tbody tr:hover { background: var(--surface); }
     align-items: center;
   }
 
+  /* Service item rows (Services page) */
+  .svc-item-row { flex-direction: column; align-items: flex-start !important; }
+  .svc-item-row > div:last-child { width: 100%; justify-content: flex-start; }
+
+  /* Section header rows */
+  .section-header-row { flex-direction: column; align-items: flex-start !important; }
+  .section-header-row > button { width: 100%; justify-content: center; }
+
+  /* Profile banner */
+  .profile-banner { flex-direction: column; text-align: center; }
+  .profile-banner-stats { justify-content: center; width: 100%; }
+
+  /* Booking banner */
+  .booking-banner { flex-direction: column; text-align: center; padding: 1.25rem 1rem; }
+
+  /* Package grid */
+  .package-grid { grid-template-columns: 1fr !important; }
+
+  /* Tab bar: scroll horizontally */
+  .tab-bar { gap: 0; }
+  .tab-bar button { flex-shrink: 0; white-space: nowrap; font-size: 0.82rem; padding: 0.5rem 0.875rem; }
+
+  /* Feature strip */
+  .feature-strip-grid { grid-template-columns: 1fr 1fr !important; }
+
   /* Patient pages */
   .patient-header  { padding: 0.875rem 1rem; }
   .patient-main    { padding: 1.5rem 1rem; }
 
-  /* Portal grid: 2-col on tablet */
+  /* Portal grid */
   .portal-grid { grid-template-columns: repeat(2, 1fr); }
 
-  /* Settings / schedule grids stack */
-  .settings-grid  { grid-template-columns: 1fr !important; }
-  .schedule-grid  { grid-template-columns: 1fr !important; }
+  /* Filter row */
+  .filter-row { flex-direction: column; align-items: stretch !important; }
+  .filter-pills { justify-content: flex-start; }
 
-  /* Stat card value size */
+  /* Stat value */
   .stat-value { font-size: 1.65rem; }
 
   /* Home */
-  .home-subtitle  { margin-bottom: 2rem; }
-  .home-content   { padding: 1rem; }
+  .home-subtitle { margin-bottom: 2rem; }
+  .home-content  { padding: 1rem; }
 
-  /* Modal: full-width feel */
+  /* Home (new) – tablet: stack cards 1-col, features 2-col */
+  .home-cards-grid  { grid-template-columns: 1fr; }
+  .home-features    { grid-template-columns: repeat(2, 1fr); }
+
+  /* Modal */
   .modal-box { padding: 1.5rem; width: 95%; max-height: 95dvh; }
 }
 
 /* ── Phone (≤480px) ── */
 @media (max-width: 480px) {
 
-  /* Stats: 1-col on very small screens */
-  .stats-grid   { grid-template-columns: repeat(2, 1fr); }
+  /* Stats */
+  .stats-grid { grid-template-columns: repeat(2, 1fr) !important; }
 
-  /* Portal grid: 1-col */
-  .portal-grid  { grid-template-columns: 1fr; }
+  /* Portal grid */
+  .portal-grid { grid-template-columns: 1fr; }
 
-  /* Time grid: smaller slots */
-  .time-grid    { grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); }
+  /* Time grid */
+  .time-grid { grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); }
 
-  /* Modal: full bleed */
-  .modal-box    { padding: 1.125rem; border-radius: var(--radius-lg); }
+  /* Modal */
+  .modal-box { padding: 1.125rem; border-radius: var(--radius-lg); }
 
   /* Service card button */
   .service-card a,
   .service-card .btn-primary { width: 100%; justify-content: center; }
 
-  /* Patient main: tight */
+  /* Patient main */
   .patient-main { padding: 1.25rem 0.875rem; }
 
   /* Booking flow */
   .booking-left, .booking-right { gap: 1rem; }
 
-  /* Reduce heading sizes */
-  .page-title  { font-size: 1.25rem; }
+  /* Headings */
+  .page-title { font-size: 1.25rem; }
 
   /* Stat card */
   .stat-card   { padding: 1rem; }
-  .stat-value  { font-size: 1.5rem; }
+  .stat-value  { font-size: 1.35rem !important; }
+  .stat-label  { font-size: 0.72rem; }
 
   /* Mobile header */
   .mobile-header { padding: 0.75rem 1rem; }
@@ -945,18 +1305,42 @@ tbody tr:hover { background: var(--surface); }
   /* Dashboard content */
   .dashboard-content { padding: 1rem 0.875rem; }
 
-  /* Form inputs */
-  .form-input  { font-size: 16px; } /* prevent iOS zoom */
+  /* Form inputs - prevent iOS zoom */
+  .form-input { font-size: 16px; }
 
-  /* Mode grid: 3-col small */
+  /* Mode grid */
   .mode-grid { grid-template-columns: repeat(3, 1fr); gap: 0.5rem; }
   .mode-btn  { padding: 0.6rem 0.25rem; font-size: 0.78rem; }
+
+  /* Feature strip */
+  .feature-strip-grid { grid-template-columns: 1fr !important; }
+
+  /* Profile banner stats */
+  .profile-banner-stats .stat-card { padding: 0.6rem 0.75rem; min-width: 80px !important; }
+
+  /* Booking banner */
+  .booking-banner { padding: 1rem !important; border-radius: 10px !important; }
+
+  /* Tab bar */
+  .tab-bar button { font-size: 0.78rem; padding: 0.45rem 0.65rem; }
+
+  /* Auth split right padding */
+  .auth-split-right { padding: 1.5rem 1rem !important; }
+}
+
+/* ── Phone (≤480px) – home features single col ── */
+@media (max-width: 480px) {
+  .home-features  { grid-template-columns: 1fr !important; }
+  .home-cards-grid { grid-template-columns: 1fr !important; }
 }
 
 /* ── Very small phones (≤360px) ── */
 @media (max-width: 360px) {
-  .stats-grid  { grid-template-columns: 1fr; }
+  .stats-grid  { grid-template-columns: 1fr !important; }
   .time-grid   { grid-template-columns: repeat(3, 1fr); }
   .portal-grid { grid-template-columns: 1fr; }
+  .page-title  { font-size: 1.1rem; }
+  .page-subtitle { font-size: 0.82rem; }
+  .home-cards-grid { grid-template-columns: 1fr !important; }
+  .home-features   { grid-template-columns: 1fr !important; }
 }
-

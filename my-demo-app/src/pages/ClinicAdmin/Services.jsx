@@ -107,7 +107,7 @@ export default function Services() {
       </div>
 
       {/* Tabs */}
-      <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem', borderBottom: '2px solid #e2e8f0', paddingBottom: '0' }}>
+      <div className="tab-bar">
         {TABS.map(({ id, label, Icon }) => (
           <button
             key={id}
@@ -130,7 +130,7 @@ export default function Services() {
       {/* ── Equipment Tab ── */}
       {tab === 'equipment' && (
         <div className="card animate-in">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
+          <div className="section-header-row">
             <h2 style={{ fontSize: '1.05rem', margin: 0 }}>Clinic Equipment Inventory</h2>
             <button className="btn-primary" style={{ fontSize: '0.85rem', padding: '0.5rem 1rem' }}
               onClick={() => { setEqForm({ name: '', qty: 1, status: 'Active', portable: false }); setEqModal('add'); }}>
@@ -177,7 +177,7 @@ export default function Services() {
       {/* ── Services Tab ── */}
       {tab === 'services' && (
         <div className="card animate-in">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
+          <div className="section-header-row">
             <div>
               <h2 style={{ fontSize: '1.05rem', margin: '0 0 0.25rem' }}>Treatments & Service Requirements</h2>
               <p style={{ color: '#64748b', fontSize: '0.875rem', margin: 0 }}>Map each service to its required staff and equipment to prevent scheduling conflicts.</p>
@@ -189,7 +189,7 @@ export default function Services() {
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
             {services.map(svc => (
-              <div key={svc.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem 1.25rem', border: '1px solid #e2e8f0', borderRadius: 10, background: '#fafafa', gap: '1rem', flexWrap: 'wrap' }}>
+              <div key={svc.id} className="svc-item-row" style={{ padding: '1rem 1.25rem', border: '1px solid #e2e8f0', borderRadius: 10, background: '#fafafa' }}>
                 <div style={{ flex: 1, minWidth: 200 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.35rem', flexWrap: 'wrap' }}>
                     <strong style={{ fontSize: '0.97rem' }}>{svc.name}</strong>
@@ -218,7 +218,7 @@ export default function Services() {
       {/* ── Packages Tab ── */}
       {tab === 'packages' && (
         <div className="animate-in">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
+          <div className="section-header-row">
             <div>
               <h2 style={{ fontSize: '1.05rem', margin: '0 0 0.25rem' }}>Long-Term & Express Packages</h2>
               <p style={{ color: '#64748b', fontSize: '0.875rem', margin: 0 }}>Packages marked ⚡ Fast-Track appear on the patient portal as a simplified booking option.</p>
@@ -228,7 +228,7 @@ export default function Services() {
               <Plus size={14} /> New Package
             </button>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1.25rem' }}>
+          <div className="package-grid">
             {packages.map(pkg => (
               <div key={pkg.id} style={{ border: `2px solid ${pkg.fast ? '#bae6fd' : '#e2e8f0'}`, borderRadius: 14, overflow: 'hidden', background: 'white', boxShadow: '0 1px 4px rgba(0,0,0,0.05)' }}>
                 <div style={{ padding: '1.25rem', background: pkg.fast ? '#f0f9ff' : '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>

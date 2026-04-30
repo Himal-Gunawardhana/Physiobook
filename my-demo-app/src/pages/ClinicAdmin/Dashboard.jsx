@@ -80,7 +80,7 @@ export default function ClinicDashboard() {
       <div className="card">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '0.75rem' }}>
           <h2 style={{ fontSize: '1.1rem', margin: 0 }}>Today's Bookings</h2>
-          <div style={{ display: 'flex', gap: '0.4rem' }}>
+          <div className="filter-pills">
             {['all', 'pending', 'confirmed', 'cancelled'].map(f => (
               <button key={f} onClick={() => setFilter(f)} style={{ padding: '0.35rem 0.75rem', border: '1.5px solid', borderColor: filter === f ? '#2563eb' : '#e2e8f0', background: filter === f ? '#eff6ff' : '#fff', color: filter === f ? '#2563eb' : '#64748b', borderRadius: 8, fontSize: '0.78rem', fontWeight: 600, cursor: 'pointer', textTransform: 'capitalize' }}>
                 {f}

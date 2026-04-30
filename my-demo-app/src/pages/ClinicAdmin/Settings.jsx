@@ -23,7 +23,7 @@ export default function Settings() {
         </button>
       </div>
 
-      <div className="settings-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', alignItems: 'start' }}>
+      <div className="settings-grid">
 
         {/* Subdomain */}
         <div className="card">

@@ -46,7 +46,7 @@ export default function TherapistSchedule() {
       )}
 
 
-      <div className="card" style={{ marginBottom: '1.5rem', background: 'linear-gradient(to right, #eff6ff, #f8fafc)', border: '1px solid #bfdbfe', display: 'flex', gap: '1.25rem', alignItems: 'center', flexWrap: 'wrap' }}>
+      <div className="card profile-banner" style={{ marginBottom: '1.5rem', background: 'linear-gradient(to right, #eff6ff, #f8fafc)', border: '1px solid #bfdbfe' }}>
         <div style={{ width: 64, height: 64, borderRadius: '50%', background: '#bfdbfe', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
           <User size={28} color="#1e40af" />
         </div>
@@ -60,7 +60,7 @@ export default function TherapistSchedule() {
             </span>
           </div>
         </div>
-        <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+        <div className="profile-banner-stats">
           <div className="stat-card" style={{ textAlign: 'center', padding: '0.75rem 1.25rem', minWidth: 100 }}>
             <div className="stat-label">Today</div>
             <div className="stat-value" style={{ fontSize: '1.5rem' }}>3</div>
@@ -74,7 +74,7 @@ export default function TherapistSchedule() {
         </div>
       </div>
 
-      <div className="schedule-grid" style={{ display: 'grid', gridTemplateColumns: 'minmax(280px, 1fr) 300px', gap: '1.5rem' }}>
+      <div className="schedule-grid">
         {/* Today's agenda */}
         <div className="card">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', paddingBottom: '0.75rem', borderBottom: '1px solid #e2e8f0' }}>

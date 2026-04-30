@@ -78,7 +78,7 @@ export default function SelectTime() {
 
       <main className="patient-main">
         {/* Service banner */}
-        <div style={{ background: isFastTrack ? 'linear-gradient(135deg, #0369a1, #0284c7)' : 'linear-gradient(135deg, #1e3a8a, #2563eb)', borderRadius: 14, padding: '1.25rem 1.5rem', color: 'white', marginBottom: '2rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+        <div className="booking-banner" style={{ background: isFastTrack ? 'linear-gradient(135deg, #0369a1, #0284c7)' : 'linear-gradient(135deg, #1e3a8a, #2563eb)' }}>
           {isFastTrack && <Zap size={24} color="#fbbf24" />}
           <div>
             <div style={{ fontSize: '0.8rem', opacity: 0.8, marginBottom: '0.2rem' }}>Booking for</div>
