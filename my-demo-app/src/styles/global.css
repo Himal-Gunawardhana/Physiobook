@@ -812,12 +812,17 @@ tbody tr:hover { background: var(--surface); }
 .animate-in { animation: slideUp 0.3s ease; }
 
 /* ─── Responsive Breakpoints ─────────────────────────── */
-@media (max-width: 1024px) {
-  .dashboard-content { padding: 1.5rem; }
+
+/* ── Small laptop / large tablet (≤1100px) ── */
+@media (max-width: 1100px) {
+  .dashboard-content { padding: 1.75rem 1.5rem; }
+  .stats-grid { grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); }
 }
 
+/* ── Tablet (≤768px) ── */
 @media (max-width: 768px) {
-  /* Show mobile header */
+
+  /* ── Show mobile header, hide permanent sidebar ── */
   .mobile-header { display: flex; }
 
   /* Off-canvas sidebar */
@@ -825,52 +830,133 @@ tbody tr:hover { background: var(--surface); }
     position: fixed;
     top: 0;
     left: -280px;
-    height: 100vh;
-    width: 260px;
-    z-index: 100;
+    height: 100dvh;
+    width: 270px;
+    z-index: 200;
     box-shadow: var(--shadow-lg);
-    transition: left 0.3s ease;
+    transition: left 0.3s cubic-bezier(0.4,0,0.2,1);
   }
   .dashboard-sidebar.sidebar-open { left: 0; }
 
-  /* Stack dashboard vertically */
+  /* Dashboard layout stacks vertically */
   .dashboard-layout { flex-direction: column; }
   .dashboard-content { padding: 1.25rem 1rem; }
 
-  /* Booking layout stack */
+  /* Page header stacks */
+  .page-header { flex-direction: column; align-items: flex-start; }
+  .page-title  { font-size: 1.4rem; }
+
+  /* Stats grid: 2-col */
+  .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 0.875rem; }
+
+  /* Tables: horizontal scroll */
+  .table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  table          { min-width: 520px; }
+
+  /* Cards: reduce padding */
+  .card, .card-base { padding: 1.125rem; }
+
+  /* Booking layout stacks */
   .booking-layout { flex-direction: column; }
   .booking-left, .booking-right { flex: 1 1 100%; }
 
-  /* Auth page stack */
+  /* Time grid: more compact */
+  .time-grid { grid-template-columns: repeat(auto-fill, minmax(95px, 1fr)); gap: 0.625rem; }
+
+  /* Mode grid: always 3-up */
+  .mode-grid { grid-template-columns: repeat(3, 1fr); }
+
+  /* Auth pages: hide left panel */
   .auth-page { grid-template-columns: 1fr; }
   .auth-left  { display: none; }
   .auth-right { padding: 2rem 1.25rem; }
 
-  /* Service cards stack */
-  .service-card { flex-direction: column; align-items: flex-start; gap: 1rem; }
-  .service-card > div:last-child { width: 100%; justify-content: space-between; }
+  /* Service cards stack vertically */
+  .service-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.875rem;
+  }
+  .service-card > div:last-child {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
 
-  /* Page header */
-  .page-header { flex-direction: column; }
+  /* Patient pages */
+  .patient-header  { padding: 0.875rem 1rem; }
+  .patient-main    { padding: 1.5rem 1rem; }
 
-  /* Settings grid */
-  .settings-grid { grid-template-columns: 1fr !important; }
+  /* Portal grid: 2-col on tablet */
+  .portal-grid { grid-template-columns: repeat(2, 1fr); }
 
-  /* Schedule grid */
-  .schedule-grid { grid-template-columns: 1fr !important; }
+  /* Settings / schedule grids stack */
+  .settings-grid  { grid-template-columns: 1fr !important; }
+  .schedule-grid  { grid-template-columns: 1fr !important; }
+
+  /* Stat card value size */
+  .stat-value { font-size: 1.65rem; }
 
   /* Home */
-  .home-subtitle { margin-bottom: 2.5rem; }
-  .home-content { padding: 1rem; }
+  .home-subtitle  { margin-bottom: 2rem; }
+  .home-content   { padding: 1rem; }
 
-  /* Patient header */
-  .patient-header { padding: 0.875rem 1rem; }
-  .patient-main { padding: 1.5rem 1rem; }
+  /* Modal: full-width feel */
+  .modal-box { padding: 1.5rem; width: 95%; max-height: 95dvh; }
 }
 
+/* ── Phone (≤480px) ── */
 @media (max-width: 480px) {
-  .portal-grid { grid-template-columns: 1fr; }
-  .stats-grid  { grid-template-columns: 1fr 1fr; }
-  .time-grid   { grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); }
-  .modal-box   { padding: 1.25rem; }
+
+  /* Stats: 1-col on very small screens */
+  .stats-grid   { grid-template-columns: repeat(2, 1fr); }
+
+  /* Portal grid: 1-col */
+  .portal-grid  { grid-template-columns: 1fr; }
+
+  /* Time grid: smaller slots */
+  .time-grid    { grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); }
+
+  /* Modal: full bleed */
+  .modal-box    { padding: 1.125rem; border-radius: var(--radius-lg); }
+
+  /* Service card button */
+  .service-card a,
+  .service-card .btn-primary { width: 100%; justify-content: center; }
+
+  /* Patient main: tight */
+  .patient-main { padding: 1.25rem 0.875rem; }
+
+  /* Booking flow */
+  .booking-left, .booking-right { gap: 1rem; }
+
+  /* Reduce heading sizes */
+  .page-title  { font-size: 1.25rem; }
+
+  /* Stat card */
+  .stat-card   { padding: 1rem; }
+  .stat-value  { font-size: 1.5rem; }
+
+  /* Mobile header */
+  .mobile-header { padding: 0.75rem 1rem; }
+  .mobile-header-title { font-size: 1rem; }
+
+  /* Dashboard content */
+  .dashboard-content { padding: 1rem 0.875rem; }
+
+  /* Form inputs */
+  .form-input  { font-size: 16px; } /* prevent iOS zoom */
+
+  /* Mode grid: 3-col small */
+  .mode-grid { grid-template-columns: repeat(3, 1fr); gap: 0.5rem; }
+  .mode-btn  { padding: 0.6rem 0.25rem; font-size: 0.78rem; }
 }
+
+/* ── Very small phones (≤360px) ── */
+@media (max-width: 360px) {
+  .stats-grid  { grid-template-columns: 1fr; }
+  .time-grid   { grid-template-columns: repeat(3, 1fr); }
+  .portal-grid { grid-template-columns: 1fr; }
+}
+

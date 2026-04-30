@@ -123,12 +123,18 @@ export default function App() {
           <Route path="notes" element={<TherapistSessionNotes />} />
         </Route>
 
-        {/* Super Admin */}
+        {/* Super Admin  (also accessible via /admin shortcut) */}
         <Route path="/superadmin" element={<DashboardLayout role="superadmin" />}>
           <Route index                 element={<SuperAdminOverview />} />
           <Route path="tickets"        element={<SuperAdminTickets />} />
           <Route path="subscriptions"  element={<SuperAdminSubscriptions />} />
         </Route>
+        <Route path="/admin" element={<DashboardLayout role="superadmin" />}>
+          <Route index                 element={<SuperAdminOverview />} />
+          <Route path="tickets"        element={<SuperAdminTickets />} />
+          <Route path="subscriptions"  element={<SuperAdminSubscriptions />} />
+        </Route>
+
       </Routes>
     </Router>
   );
