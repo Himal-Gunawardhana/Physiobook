@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Outlet } from 'react-router-dom';
 import { Menu } from 'lucide-react';
 import Sidebar from './components/Sidebar';
 import './styles/global.css';
+import api from './lib/api';
+import { useAuth } from './context/AuthContext';
 
 // Auth
 import Login    from './pages/Auth/Login';
@@ -27,8 +29,8 @@ import ClinicAdminBookingPage from './pages/ClinicAdmin/BookingPage';
 import ClinicAdminAccount    from './pages/ClinicAdmin/Account';
 
 // Therapist
-import TherapistSchedule    from './pages/Therapist/Schedule';
-import TherapistChat        from './pages/Therapist/PatientChat';
+import TherapistSchedule     from './pages/Therapist/Schedule';
+import TherapistChat         from './pages/Therapist/PatientChat';
 import TherapistSessionNotes from './pages/Therapist/SessionNotes';
 
 // Super Admin
@@ -42,14 +44,25 @@ import Home from './pages/Home';
 // Test
 import TestPage from './pages/TestPage';
 
-const DEMO_CLINICS = [
-  { id: 'c1', name: 'Elite Physio — Downtown' },
-  { id: 'c2', name: 'Elite Physio — North Branch' },
-];
-
 function DashboardLayout({ role }) {
-  const [activeClinic,  setActiveClinic]  = useState(DEMO_CLINICS[0]);
+  const { user } = useAuth();
+  const [clinics,       setClinics]       = useState([]);
+  const [activeClinic,  setActiveClinic]  = useState(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  useEffect(() => {
+    if (role !== 'clinic') return;
+    (async () => {
+      try {
+        const data = await api.get('/clinics/mine');
+        const list = Array.isArray(data) ? data : data?.clinics ?? [];
+        setClinics(list);
+        if (list.length > 0) setActiveClinic(list[0]);
+      } catch {
+        // If not authorised or no clinics, leave empty
+      }
+    })();
+  }, [role, user]);
 
   return (
     <div className="dashboard-layout">
@@ -61,7 +74,7 @@ function DashboardLayout({ role }) {
         role={role}
         activeClinic={activeClinic}
         setActiveClinic={setActiveClinic}
-        clinics={DEMO_CLINICS}
+        clinics={clinics}
         isSidebarOpen={isSidebarOpen}
         setIsSidebarOpen={setIsSidebarOpen}
       />
@@ -71,14 +84,14 @@ function DashboardLayout({ role }) {
             <Menu size={22} />
           </button>
           <span className="mobile-header-title">Physiobook</span>
-          {role === 'clinic' && (
+          {role === 'clinic' && activeClinic && (
             <span style={{ fontSize: '0.8rem', color: '#64748b', marginLeft: 'auto', maxWidth: '140px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
               {activeClinic.name}
             </span>
           )}
         </header>
         <main className="dashboard-content">
-          <Outlet context={{ activeClinic }} />
+          <Outlet context={{ activeClinic, clinics }} />
         </main>
       </div>
     </div>
@@ -118,21 +131,21 @@ export default function App() {
 
         {/* Therapist */}
         <Route path="/therapist" element={<DashboardLayout role="therapist" />}>
-          <Route index       element={<TherapistSchedule />} />
-          <Route path="chat" element={<TherapistChat />} />
+          <Route index        element={<TherapistSchedule />} />
+          <Route path="chat"  element={<TherapistChat />} />
           <Route path="notes" element={<TherapistSessionNotes />} />
         </Route>
 
-        {/* Super Admin  (also accessible via /admin shortcut) */}
+        {/* Super Admin (also accessible via /admin shortcut) */}
         <Route path="/superadmin" element={<DashboardLayout role="superadmin" />}>
-          <Route index                 element={<SuperAdminOverview />} />
-          <Route path="tickets"        element={<SuperAdminTickets />} />
-          <Route path="subscriptions"  element={<SuperAdminSubscriptions />} />
+          <Route index                element={<SuperAdminOverview />} />
+          <Route path="tickets"       element={<SuperAdminTickets />} />
+          <Route path="subscriptions" element={<SuperAdminSubscriptions />} />
         </Route>
         <Route path="/admin" element={<DashboardLayout role="superadmin" />}>
-          <Route index                 element={<SuperAdminOverview />} />
-          <Route path="tickets"        element={<SuperAdminTickets />} />
-          <Route path="subscriptions"  element={<SuperAdminSubscriptions />} />
+          <Route index                element={<SuperAdminOverview />} />
+          <Route path="tickets"       element={<SuperAdminTickets />} />
+          <Route path="subscriptions" element={<SuperAdminSubscriptions />} />
         </Route>
 
       </Routes>
