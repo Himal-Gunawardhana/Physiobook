@@ -7,8 +7,9 @@ import api from './lib/api';
 import { useAuth } from './context/AuthContext';
 
 // Auth
-import Login    from './pages/Auth/Login';
-import Register from './pages/Auth/Register';
+import Login       from './pages/Auth/Login';
+import Register    from './pages/Auth/Register';
+import VerifyEmail from './pages/Auth/VerifyEmail';
 
 // Patient
 import ClinicLanding      from './pages/Patient/ClinicLanding';
@@ -108,6 +109,7 @@ export default function App() {
         {/* Auth */}
         <Route path="/login/:role"    element={<Login />} />
         <Route path="/register/:role" element={<Register />} />
+        <Route path="/verify-email"   element={<VerifyEmail />} />
 
         {/* Patient public flow */}
         <Route path="/book"              element={<ClinicLanding />} />

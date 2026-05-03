@@ -26,6 +26,7 @@ export default function Register() {
   const [loading, setLoading] = useState(false);
   const [error,   setError]   = useState('');
   const [fieldErrors, setFieldErrors] = useState({});
+  const [emailSent, setEmailSent] = useState(false);
 
   const set = (field) => (e) => setForm(f => ({ ...f, [field]: e.target.value }));
 
@@ -44,9 +45,9 @@ export default function Register() {
         email: form.email, password: form.password,
         role: BACKEND_ROLE[role] || 'patient',
       };
-      const result = await register(payload);
-      const dest = ROLE_ROUTES[result.user?.role] ?? '/';
-      navigate(dest);
+      await register(payload);
+      // Don't navigate — user must verify email first
+      setEmailSent(true);
     } catch (err) {
       if (err?.error?.details) {
         const fe = {};
@@ -59,6 +60,31 @@ export default function Register() {
   };
 
   const guestDest = ROLE_ROUTES[cfg.backendRole] ?? '/';
+
+  // ── Email sent confirmation screen ────────────────────────────────────────
+  if (emailSent) {
+    return (
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)', fontFamily: 'Inter, sans-serif', padding: '1rem' }}>
+        <div style={{ background: '#fff', borderRadius: 20, boxShadow: '0 20px 60px rgba(0,0,0,0.1)', padding: '3rem 2.5rem', maxWidth: 440, width: '100%', textAlign: 'center' }}>
+          <div style={{ width: 72, height: 72, borderRadius: '50%', background: 'linear-gradient(135deg, #10b981, #059669)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem' }}>
+            <span style={{ fontSize: '2rem' }}>📧</span>
+          </div>
+          <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#0f172a', marginBottom: '0.75rem' }}>Check Your Email!</h2>
+          <p style={{ color: '#475569', lineHeight: 1.7, marginBottom: '1.5rem' }}>
+            We sent a verification link to <strong>{form.email}</strong>.<br />
+            Click the link in the email to activate your account.
+          </p>
+          <div style={{ background: '#f0fdf4', border: '1px solid #86efac', borderRadius: 10, padding: '1rem', color: '#166534', fontSize: '0.875rem', marginBottom: '1.5rem' }}>
+            ✅ The link expires in <strong>24 hours</strong>.
+          </div>
+          <p style={{ color: '#64748b', fontSize: '0.875rem' }}>
+            Already verified?{' '}
+            <Link to={`/login/${role}`} style={{ color: cfg.color, fontWeight: 600 }}>Log in here →</Link>
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="auth-split" style={{ fontFamily: 'Inter, sans-serif' }}>
