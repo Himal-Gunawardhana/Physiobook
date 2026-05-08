@@ -41,19 +41,23 @@ export default function Login() {
         setLoading(false);
         return;
       }
-      // Use backend role from result user object for proper routing\n      const backendRole = result.user?.role;
+      // Use backend role from result user object for proper routing
+      const backendRole = result.user?.role;
       console.log('Login successful. Backend role:', backendRole, 'User:', result.user);
-      \n      if (!backendRole) {
+      
+      if (!backendRole) {
         console.error('No role returned from backend. Full response:', result);
         throw new Error('User role not returned from server');
       }
-      \n      // Validate role is one of the expected values
+      
+      // Validate role is one of the expected values
       const validRoles = ['patient', 'clinic_admin', 'therapist', 'super_admin'];
       if (!validRoles.includes(backendRole)) {
         console.error(`Invalid role returned: ${backendRole}. Valid roles:`, validRoles);
         throw new Error(`Invalid user role: ${backendRole}. Please contact support.`);
       }
-      \n      const dest = ROLE_ROUTES[backendRole];
+      
+      const dest = ROLE_ROUTES[backendRole];
       if (!dest) {
         console.error(`No route found for role: ${backendRole}. Available routes:`, Object.keys(ROLE_ROUTES), 'ROLE_ROUTES:', ROLE_ROUTES);
         alert(`Error: Unknown role "${backendRole}". Please contact support.`);

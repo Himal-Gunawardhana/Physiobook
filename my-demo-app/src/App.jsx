@@ -45,7 +45,8 @@ import Home from './pages/Home';
 // Test
 import TestPage from './pages/TestPage';
 
-function DashboardLayout({ role }) {\n  const { user, loading, dashboardRoute } = useAuth();
+function DashboardLayout({ role }) {
+  const { user, loading, dashboardRoute } = useAuth();
   const [clinics,       setClinics]       = useState([]);
   const [activeClinic,  setActiveClinic]  = useState(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
