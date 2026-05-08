@@ -22,42 +22,93 @@ export default function Register() {
   const cfg  = ROLE_CONFIG[role] || ROLE_CONFIG.patient;
   const Icon = cfg.Icon;
 
-  const [form, setForm] = useState({ firstName: '', lastName: '', email: '', password: '', confirm: '' });
+  const [form, setForm] = useState({ firstName: '', lastName: '', email: '', phone: '', password: '', confirm: '' });
   const [loading, setLoading] = useState(false);
   const [error,   setError]   = useState('');
   const [fieldErrors, setFieldErrors] = useState({});
   const [emailSent, setEmailSent] = useState(false);
+  const [passwordValidation, setPasswordValidation] = useState({
+    minLength: false,
+    hasUpper: false,
+    hasNumber: false,
+    hasSpecial: false,
+  });
 
-  const set = (field) => (e) => setForm(f => ({ ...f, [field]: e.target.value }));
+  const set = (field) => (e) => {
+    const value = e.target.value;
+    setForm(f => ({ ...f, [field]: value }));
+    
+    // Real-time password validation
+    if (field === 'password') {
+      validatePassword(value);
+    }
+  };
+
+  const validatePassword = (pwd) => {
+    setPasswordValidation({
+      minLength: pwd.length >= 8,
+      hasUpper: /[A-Z]/.test(pwd),
+      hasNumber: /[0-9]/.test(pwd),
+      hasSpecial: /[!@#$%^&*]/.test(pwd),
+    });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setFieldErrors({});
+
+    // Validate all password requirements
+    const allPasswordValid = Object.values(passwordValidation).every(v => v);
+    if (!allPasswordValid) {
+      setError('Please ensure password meets all requirements.');
+      return;
+    }
+
     if (form.password !== form.confirm) {
       setFieldErrors({ confirm: 'Passwords do not match.' });
       return;
     }
+
     setLoading(true);
     try {
       const payload = {
-        firstName: form.firstName, lastName: form.lastName,
-        email: form.email, password: form.password,
+        firstName: form.firstName,
+        lastName: form.lastName,
+        email: form.email,
+        phone: form.phone || undefined,
+        password: form.password,
         role: BACKEND_ROLE[role] || 'patient',
       };
-      await register(payload);
-      // Store backend role for email verification and subsequent login
-      localStorage.setItem('pending_verification_backend_role', BACKEND_ROLE[role] || 'patient');
-      // Store frontend role for URL routing
+
+      const response = await register(payload);
+      console.log('Registration response:', response);
+
+      // Store role from backend response (or fallback to form role)
+      const userRole = response?.data?.user?.role || BACKEND_ROLE[role] || 'patient';
+      const isEmailVerified = response?.data?.user?.isEmailVerified || false;
+
+      localStorage.setItem('pending_verification_backend_role', userRole);
       localStorage.setItem('pending_verification_frontend_role', role);
+      localStorage.setItem('pending_verification_email_verified', isEmailVerified.toString());
+
+      console.log('Registration stored in localStorage:', { userRole, isEmailVerified });
+
       // Don't navigate — user must verify email first
       setEmailSent(true);
     } catch (err) {
-      if (err?.error?.details) {
+      console.error('Registration error:', err);
+
+      if (err?.error?.details && Array.isArray(err.error.details)) {
         const fe = {};
-        err.error.details.forEach(d => { fe[d.field] = d.message; });
+        err.error.details.forEach(d => {
+          // Extract field name from "body.fieldName" format
+          const fieldName = d.field?.split('.').pop() || d.field;
+          fe[fieldName] = d.message;
+        });
         setFieldErrors(fe);
       }
+
       setError(err?.error?.message || err?.message || 'Registration failed. Please try again.');
       setLoading(false);
     }
@@ -129,9 +180,40 @@ export default function Register() {
             </div>
 
             <div>
+              <label className="form-label">Phone <span style={{ color: '#94a3b8', fontWeight: 400 }}>(optional)</span></label>
+              <input type="tel" className="form-input" placeholder="+94123456789" value={form.phone} onChange={set('phone')} />
+              {fieldErrors.phone && <FieldError msg={fieldErrors.phone} />}
+            </div>
+
+            <div>
               <label className="form-label">Password <span style={{ color: '#94a3b8', fontWeight: 400 }}>(min 8 chars)</span></label>
-              <input type="password" className="form-input" placeholder="Create a strong password" value={form.password} onChange={set('password')} required minLength={8} />
+              <input type="password" className="form-input" placeholder="Create a strong password" value={form.password} onChange={set('password')} required />
               {fieldErrors.password && <FieldError msg={fieldErrors.password} />}
+
+              {/* Password Strength Validator */}
+              {form.password && (
+                <div style={{ marginTop: '0.75rem', padding: '0.75rem', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 6 }}>
+                  <p style={{ fontSize: '0.75rem', fontWeight: 600, color: '#475569', marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Password Requirements:</p>
+                  <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                    <PasswordCheck
+                      valid={passwordValidation.minLength}
+                      label="At least 8 characters"
+                    />
+                    <PasswordCheck
+                      valid={passwordValidation.hasUpper}
+                      label="Contains uppercase letter (A-Z)"
+                    />
+                    <PasswordCheck
+                      valid={passwordValidation.hasNumber}
+                      label="Contains number (0-9)"
+                    />
+                    <PasswordCheck
+                      valid={passwordValidation.hasSpecial}
+                      label="Contains special character (!@#$%^&*)"
+                    />
+                  </ul>
+                </div>
+              )}
             </div>
 
             <div>
@@ -169,4 +251,15 @@ export default function Register() {
 
 function FieldError({ msg }) {
   return <p style={{ color: '#ef4444', fontSize: '0.78rem', marginTop: '0.25rem' }}>{msg}</p>;
+}
+
+function PasswordCheck({ valid, label }) {
+  return (
+    <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem', color: valid ? '#10b981' : '#94a3b8' }}>
+      <span style={{ fontSize: '0.9rem', fontWeight: 600 }}>
+        {valid ? '✓' : '○'}
+      </span>
+      <span>{label}</span>
+    </li>
+  );
 }

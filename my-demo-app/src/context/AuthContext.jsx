@@ -66,9 +66,11 @@ export function AuthProvider({ children }) {
 
   const register = useCallback(async (payload) => {
     const data = await api.post('/auth/register', payload);
+    console.log('Register response data:', data);
     // DO NOT store token or set user after registration
     // User must verify email and login separately to access the app
     // Token and user will be set only after successful login
+    // Return full response so component can access user.role and isEmailVerified
     return data;
   }, []);
 
