@@ -41,8 +41,21 @@ export default function Login() {
         setLoading(false);
         return;
       }
-      const dest = ROLE_ROUTES[result.user?.role] ?? '/';
-      navigate(dest);
+      // Use backend role from result user object for proper routing
+      const backendRole = result.user?.role;
+      if (!backendRole) {
+        throw new Error('User role not returned from server');
+      }
+      const dest = ROLE_ROUTES[backendRole];
+      if (!dest) {
+        console.warn(`No route found for role: ${backendRole}`);
+        navigate('/');
+      } else {
+        // Clear pending verification data after successful login
+        localStorage.removeItem('pending_verification_backend_role');
+        localStorage.removeItem('pending_verification_frontend_role');
+        navigate(dest);
+      }
     } catch (err) {
       setError(err?.error?.message || err?.message || 'Login failed. Check your credentials.');
       setLoading(false);
@@ -55,8 +68,20 @@ export default function Login() {
     setLoading(true);
     try {
       const result = await verify2fa(partialToken, otpCode);
-      const dest = ROLE_ROUTES[result.user?.role] ?? '/';
-      navigate(dest);
+      const backendRole = result.user?.role;
+      if (!backendRole) {
+        throw new Error('User role not returned from server');
+      }
+      const dest = ROLE_ROUTES[backendRole];
+      if (!dest) {
+        console.warn(`No route found for role: ${backendRole}`);
+        navigate('/');
+      } else {
+        // Clear pending verification data after successful 2FA
+        localStorage.removeItem('pending_verification_backend_role');
+        localStorage.removeItem('pending_verification_frontend_role');
+        navigate(dest);
+      }
     } catch (err) {
       setError(err?.error?.message || err?.message || 'Invalid code. Try again.');
       setLoading(false);
@@ -133,10 +158,12 @@ export default function Login() {
                   <div style={{ flex: 1, height: 1, background: '#e2e8f0' }} />
                 </div>
 
-                <button type="button" onClick={() => navigate(guestDest)} className="btn-ghost"
-                  style={{ width: '100%', justifyContent: 'center', padding: '0.875rem' }}>
-                  Continue as Guest →
-                </button>
+                {role === 'patient' && (
+                  <button type="button" onClick={() => navigate(guestDest)} className="btn-ghost"
+                    style={{ width: '100%', justifyContent: 'center', padding: '0.875rem' }}>
+                    Continue as Guest →
+                  </button>
+                )}
               </form>
 
               <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '1.5rem', fontSize: '0.87rem', flexWrap: 'wrap', gap: '0.5rem' }}>

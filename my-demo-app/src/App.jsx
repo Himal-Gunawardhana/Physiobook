@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Outlet } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Outlet, Navigate } from 'react-router-dom';
 import { Menu } from 'lucide-react';
 import Sidebar from './components/Sidebar';
 import './styles/global.css';
@@ -46,10 +46,24 @@ import Home from './pages/Home';
 import TestPage from './pages/TestPage';
 
 function DashboardLayout({ role }) {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const [clinics,       setClinics]       = useState([]);
   const [activeClinic,  setActiveClinic]  = useState(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  // Redirect to login if not authenticated
+  if (!loading && !user) {
+    return <Navigate to={`/login/${role}`} replace />;
+  }
+
+  // Show loading while checking auth
+  if (loading) {
+    return (
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ fontSize: '1rem', color: '#64748b' }}>Loading...</div>
+      </div>
+    );
+  }
 
   useEffect(() => {
     if (role !== 'clinic') return;

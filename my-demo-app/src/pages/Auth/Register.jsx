@@ -46,6 +46,10 @@ export default function Register() {
         role: BACKEND_ROLE[role] || 'patient',
       };
       await register(payload);
+      // Store backend role for email verification and subsequent login
+      localStorage.setItem('pending_verification_backend_role', BACKEND_ROLE[role] || 'patient');
+      // Store frontend role for URL routing
+      localStorage.setItem('pending_verification_frontend_role', role);
       // Don't navigate — user must verify email first
       setEmailSent(true);
     } catch (err) {

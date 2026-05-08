@@ -62,8 +62,9 @@ export function AuthProvider({ children }) {
 
   const register = useCallback(async (payload) => {
     const data = await api.post('/auth/register', payload);
-    if (data.accessToken) tokenStore.set(data.accessToken);
-    if (data.user) setUser(data.user);
+    // DO NOT store token or set user after registration
+    // User must verify email and login separately to access the app
+    // Token and user will be set only after successful login
     return data;
   }, []);
 

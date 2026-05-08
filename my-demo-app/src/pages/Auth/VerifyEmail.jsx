@@ -31,7 +31,13 @@ export default function VerifyEmail() {
     if (status !== 'success') return;
     const timer = setInterval(() => {
       setCountdown((c) => {
-        if (c <= 1) { clearInterval(timer); navigate('/login/patient'); }
+        if (c <= 1) {
+          clearInterval(timer);
+          // Get the frontend role from localStorage for URL routing
+          const frontendRole = localStorage.getItem('pending_verification_frontend_role') || 'patient';
+          // We'll leave the backend role in localStorage for the login handler to use
+          navigate(`/login/${frontendRole}`);
+        }
         return c - 1;
       });
     }, 1000);
@@ -107,7 +113,7 @@ export default function VerifyEmail() {
             }}>
               Redirecting to login in <strong>{countdown}</strong> seconds…
             </div>
-            <Link to="/login/patient" style={{
+            <Link to={`/login/${localStorage.getItem('pending_verification_frontend_role') || 'patient'}`} style={{
               display: 'block',
               background: 'linear-gradient(135deg, #2563eb, #7c3aed)',
               color: '#fff',
@@ -135,7 +141,7 @@ export default function VerifyEmail() {
               {message}
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-              <Link to="/register/patient" style={{
+              <Link to={`/register/${localStorage.getItem('pending_verification_frontend_role') || 'patient'}`} style={{
                 display: 'block',
                 background: 'linear-gradient(135deg, #2563eb, #7c3aed)',
                 color: '#fff',

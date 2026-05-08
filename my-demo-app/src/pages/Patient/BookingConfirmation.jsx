@@ -72,12 +72,6 @@ export default function BookingConfirmation() {
           >
             <Calendar size={18} /> View My Bookings <ArrowRight size={16} />
           </button>
-          <button
-            onClick={() => navigate('/book')}
-            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', padding: '0.9rem', background: 'transparent', color: '#2563eb', border: '1.5px solid #2563eb', borderRadius: 12, fontWeight: 700, fontSize: '0.95rem', cursor: 'pointer' }}
-          >
-            <MessageCircle size={18} /> Message Your Therapist (Optional)
-          </button>
         </div>
 
         <p style={{ textAlign: 'center', marginTop: '1.5rem', color: '#94a3b8', fontSize: '0.8rem' }}>
