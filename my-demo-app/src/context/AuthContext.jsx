@@ -54,9 +54,13 @@ export function AuthProvider({ children }) {
   // ── Auth actions ─────────────────────────────────────────────────────────
   const login = useCallback(async (email, password) => {
     const data = await api.post('/auth/login', { email, password });
+    console.log('Login response:', data);
     // Backend sets HttpOnly refresh cookie automatically
     if (data.accessToken) tokenStore.set(data.accessToken);
-    if (data.user) setUser(data.user);
+    if (data.user) {
+      console.log('Setting user:', data.user);
+      setUser(data.user);
+    }
     return data; // may include { requiresTwoFa, partialToken }
   }, []);
 

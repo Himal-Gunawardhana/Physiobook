@@ -45,8 +45,7 @@ import Home from './pages/Home';
 // Test
 import TestPage from './pages/TestPage';
 
-function DashboardLayout({ role }) {
-  const { user, loading } = useAuth();
+function DashboardLayout({ role }) {\n  const { user, loading, dashboardRoute } = useAuth();
   const [clinics,       setClinics]       = useState([]);
   const [activeClinic,  setActiveClinic]  = useState(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -54,6 +53,25 @@ function DashboardLayout({ role }) {
   // Redirect to login if not authenticated
   if (!loading && !user) {
     return <Navigate to={`/login/${role}`} replace />;
+  }
+
+  // Validate user role matches the dashboard they're accessing
+  if (!loading && user) {
+    // Map role param to expected backend role
+    const expectedRoles = {
+      clinic: 'clinic_admin',
+      therapist: 'therapist',
+      superadmin: 'super_admin',
+      patient: 'patient',
+    };
+    const expectedRole = expectedRoles[role];
+    
+    if (expectedRole && user.role !== expectedRole) {
+      console.warn(`User role mismatch. User role: ${user.role}, Expected: ${expectedRole}, Dashboard: ${role}`);
+      // Redirect to the user's correct dashboard
+      const correctRoute = dashboardRoute || '/';
+      return <Navigate to={correctRoute} replace />;
+    }
   }
 
   // Show loading while checking auth

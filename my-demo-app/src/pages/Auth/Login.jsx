@@ -41,16 +41,25 @@ export default function Login() {
         setLoading(false);
         return;
       }
-      // Use backend role from result user object for proper routing
-      const backendRole = result.user?.role;
-      if (!backendRole) {
+      // Use backend role from result user object for proper routing\n      const backendRole = result.user?.role;
+      console.log('Login successful. Backend role:', backendRole, 'User:', result.user);
+      \n      if (!backendRole) {
+        console.error('No role returned from backend. Full response:', result);
         throw new Error('User role not returned from server');
       }
-      const dest = ROLE_ROUTES[backendRole];
+      \n      // Validate role is one of the expected values
+      const validRoles = ['patient', 'clinic_admin', 'therapist', 'super_admin'];
+      if (!validRoles.includes(backendRole)) {
+        console.error(`Invalid role returned: ${backendRole}. Valid roles:`, validRoles);
+        throw new Error(`Invalid user role: ${backendRole}. Please contact support.`);
+      }
+      \n      const dest = ROLE_ROUTES[backendRole];
       if (!dest) {
-        console.warn(`No route found for role: ${backendRole}`);
+        console.error(`No route found for role: ${backendRole}. Available routes:`, Object.keys(ROLE_ROUTES), 'ROLE_ROUTES:', ROLE_ROUTES);
+        alert(`Error: Unknown role "${backendRole}". Please contact support.`);
         navigate('/');
       } else {
+        console.log(`Navigating to ${dest} for role ${backendRole}`);
         // Clear pending verification data after successful login
         localStorage.removeItem('pending_verification_backend_role');
         localStorage.removeItem('pending_verification_frontend_role');
@@ -68,15 +77,25 @@ export default function Login() {
     setLoading(true);
     try {
       const result = await verify2fa(partialToken, otpCode);
+      console.log('2FA successful. Role:', result.user?.role);
+      
       const backendRole = result.user?.role;
       if (!backendRole) {
-        throw new Error('User role not returned from server');
+        throw new Error('User role not returned from server after 2FA');
       }
+      
+      const validRoles = ['patient', 'clinic_admin', 'therapist', 'super_admin'];
+      if (!validRoles.includes(backendRole)) {
+        console.error(`Invalid role after 2FA: ${backendRole}`);
+        throw new Error(`Invalid user role: ${backendRole}`);
+      }
+      
       const dest = ROLE_ROUTES[backendRole];
       if (!dest) {
-        console.warn(`No route found for role: ${backendRole}`);
+        console.error(`No route found for 2FA role: ${backendRole}`);
         navigate('/');
       } else {
+        console.log(`2FA: Navigating to ${dest} for role ${backendRole}`);
         // Clear pending verification data after successful 2FA
         localStorage.removeItem('pending_verification_backend_role');
         localStorage.removeItem('pending_verification_frontend_role');
