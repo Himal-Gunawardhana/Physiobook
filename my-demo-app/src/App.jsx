@@ -48,9 +48,10 @@ import TestPage from './pages/TestPage';
 
 function DashboardLayout({ role }) {
   const { user, loading, dashboardRoute } = useAuth();
-  const [clinics,       setClinics]       = useState([]);
-  const [activeClinic,  setActiveClinic]  = useState(null);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [clinics,        setClinics]        = useState([]);
+  const [activeClinic,   setActiveClinic]   = useState(null);
+  const [clinicsLoading, setClinicsLoading] = useState(true);
+  const [isSidebarOpen,  setIsSidebarOpen]  = useState(false);
 
   // Redirect to login if not authenticated
   if (!loading && !user) {
@@ -86,7 +87,11 @@ function DashboardLayout({ role }) {
   }
 
   useEffect(() => {
-    if (role !== 'clinic') return;
+    if (role !== 'clinic' || !user) {
+      setClinicsLoading(false);
+      return;
+    }
+    setClinicsLoading(true);
     (async () => {
       try {
         const data = await api.get('/clinics/mine');
@@ -94,7 +99,9 @@ function DashboardLayout({ role }) {
         setClinics(list);
         if (list.length > 0) setActiveClinic(list[0]);
       } catch {
-        // If not authorised or no clinics, leave empty
+        // not authorised or no clinics yet — still unblock render
+      } finally {
+        setClinicsLoading(false);
       }
     })();
   }, [role, user]);
@@ -126,7 +133,14 @@ function DashboardLayout({ role }) {
           )}
         </header>
         <main className="dashboard-content">
-          <Outlet context={{ activeClinic, clinics }} />
+          {clinicsLoading ? (
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '6rem', color: '#64748b', gap: '1rem' }}>
+              <div style={{ width: 32, height: 32, border: '3px solid #e2e8f0', borderTopColor: '#2563eb', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }}/>
+              <span style={{ fontSize: '0.9rem' }}>Loading clinic data…</span>
+            </div>
+          ) : (
+            <Outlet context={{ activeClinic, clinics }} />
+          )}
         </main>
       </div>
     </div>
