@@ -20,6 +20,8 @@ export const tokenStore = {
 };
 
 // ── Core fetch ────────────────────────────────────────────────────────────
+const TIMEOUT_MS = 12000; // 12 s — enough for Render cold-start
+
 async function apiFetch(endpoint, options = {}, retry = true) {
   const headers = {
     'Content-Type': 'application/json',
@@ -29,11 +31,26 @@ async function apiFetch(endpoint, options = {}, retry = true) {
   const token = tokenStore.get();
   if (token) headers['Authorization'] = `Bearer ${token}`;
 
-  const res = await fetch(`${BASE}${endpoint}`, {
-    ...options,
-    headers,
-    credentials: 'include', // send HttpOnly refresh cookie
-  });
+  // Abort after TIMEOUT_MS so pages never hang indefinitely
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
+
+  let res;
+  try {
+    res = await fetch(`${BASE}${endpoint}`, {
+      ...options,
+      headers,
+      credentials: 'include',
+      signal: controller.signal,
+    });
+  } catch (err) {
+    clearTimeout(timer);
+    if (err.name === 'AbortError') {
+      throw { success: false, error: 'TIMEOUT', message: 'Request timed out. The server may be waking up — please try again.' };
+    }
+    throw err;
+  }
+  clearTimeout(timer);
 
   // Auto-refresh on 401
   if (res.status === 401 && retry) {

@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useOutletContext } from 'react-router-dom';
 import { Plus, Edit2, Trash2, Calendar, Users, Settings2, X, Monitor, Package, Activity, Loader, AlertCircle, RefreshCw } from 'lucide-react';
 import api from '../../lib/api';
 
@@ -30,10 +29,6 @@ function LoadBlock({ loading, error, children }) {
 }
 
 export default function Services() {
-  // ── Get activeClinic from the parent DashboardLayout outlet ────────────────
-  const { activeClinic } = useOutletContext() ?? {};
-  const clinicId = activeClinic?.id;
-
   const [tab, setTab] = useState('equipment');
 
   // Equipment
@@ -63,49 +58,47 @@ export default function Services() {
   const [toast, setToast] = useState(null);
   const showToast = (msg) => { setToast(msg); setTimeout(() => setToast(null), 3000); };
 
-  // ── Clinic-scoped data loaders ─────────────────────────────────────────────
+  // Load equipment
   const loadEq = useCallback(async () => {
-    if (!clinicId) return;
     setEqLoading(true); setEqError('');
     try {
-      const data = await api.get(`/clinics/${clinicId}/equipment`);
+      const data = await api.get('/equipment');
       setEquipment(Array.isArray(data) ? data : data?.equipment ?? []);
-    } catch (err) { setEqError(err?.message || 'Failed to load equipment.'); }
+    }
+    catch (err) { setEqError(err?.message || 'Failed to load equipment.'); }
     finally { setEqLoading(false); }
-  }, [clinicId]);
+  }, []);
 
+  // Load services
   const loadSvc = useCallback(async () => {
-    if (!clinicId) return;
     setSvcLoading(true); setSvcError('');
     try {
-      const data = await api.get(`/clinics/${clinicId}/services`);
+      const data = await api.get('/services');
       setServices(Array.isArray(data) ? data : data?.services ?? []);
-    } catch (err) { setSvcError(err?.message || 'Failed to load services.'); }
+    }
+    catch (err) { setSvcError(err?.message || 'Failed to load services.'); }
     finally { setSvcLoading(false); }
-  }, [clinicId]);
+  }, []);
 
+  // Load packages
   const loadPkg = useCallback(async () => {
-    if (!clinicId) return;
     setPkgLoading(true); setPkgError('');
     try {
-      const data = await api.get(`/clinics/${clinicId}/packages`);
+      const data = await api.get('/packages');
       setPackages(Array.isArray(data) ? data : data?.packages ?? []);
-    } catch (err) { setPkgError(err?.message || 'Failed to load packages.'); }
+    }
+    catch (err) { setPkgError(err?.message || 'Failed to load packages.'); }
     finally { setPkgLoading(false); }
-  }, [clinicId]);
+  }, []);
 
-  // Wait for clinicId before fetching — re-fetch whenever clinic changes
-  useEffect(() => {
-    if (!clinicId) return;
-    loadEq(); loadSvc(); loadPkg();
-  }, [clinicId, loadEq, loadSvc, loadPkg]);
+  useEffect(() => { loadEq(); loadSvc(); loadPkg(); }, [loadEq, loadSvc, loadPkg]);
 
   // Equipment CRUD
   const addEq = async () => {
-    if (!eqForm.name || !clinicId) return;
+    if (!eqForm.name) return;
     setEqSaving(true);
     try {
-      const created = await api.post(`/clinics/${clinicId}/equipment`, { ...eqForm, qty: +eqForm.qty });
+      const created = await api.post('/equipment', { ...eqForm, qty: +eqForm.qty });
       setEquipment(prev => [...prev, created]);
       setEqModal(null);
       showToast('Equipment added.');
@@ -114,16 +107,16 @@ export default function Services() {
   };
 
   const deleteEq = async (id) => {
-    try { await api.delete(`/clinics/${clinicId}/equipment/${id}`); setEquipment(prev => prev.filter(e => e.id !== id)); showToast('Equipment removed.'); }
+    try { await api.delete(`/equipment/${id}`); setEquipment(prev => prev.filter(e => e.id !== id)); showToast('Equipment removed.'); }
     catch (err) { showToast(`Error: ${err?.message}`); }
   };
 
   // Service CRUD
   const addSvc = async () => {
-    if (!svcForm.name || !clinicId) return;
+    if (!svcForm.name) return;
     setSvcSaving(true);
     try {
-      const created = await api.post(`/clinics/${clinicId}/services`, svcForm);
+      const created = await api.post('/services', svcForm);
       setServices(prev => [...prev, created]);
       setSvcModal(null);
       showToast('Service added.');
@@ -132,16 +125,16 @@ export default function Services() {
   };
 
   const deleteSvc = async (id) => {
-    try { await api.delete(`/clinics/${clinicId}/services/${id}`); setServices(prev => prev.filter(s => s.id !== id)); showToast('Service removed.'); }
+    try { await api.delete(`/services/${id}`); setServices(prev => prev.filter(s => s.id !== id)); showToast('Service removed.'); }
     catch (err) { showToast(`Error: ${err?.message}`); }
   };
 
   const saveSvcEdit = async (id) => {
     setSvcSaving(true);
     const target = services.find(s => s.id === id);
-    if (!target || !clinicId) return;
+    if (!target) return;
     try {
-      const updated = await api.put(`/clinics/${clinicId}/services/${id}`, target);
+      const updated = await api.put(`/services/${id}`, target);
       setServices(prev => prev.map(s => s.id === id ? updated : s));
       setSvcModal(null);
       showToast('Service updated.');
@@ -151,10 +144,10 @@ export default function Services() {
 
   // Package CRUD
   const addPkg = async () => {
-    if (!pkgForm.name || !clinicId) return;
+    if (!pkgForm.name) return;
     setPkgSaving(true);
     try {
-      const created = await api.post(`/clinics/${clinicId}/packages`, { ...pkgForm, base_price: +pkgForm.base, discount_percent: +pkgForm.discount });
+      const created = await api.post('/packages', { ...pkgForm, base_price: +pkgForm.base, discount_percent: +pkgForm.discount });
       setPackages(prev => [...prev, created]);
       setPkgModal(null);
       showToast('Package created.');
@@ -163,22 +156,12 @@ export default function Services() {
   };
 
   const deletePkg = async (id) => {
-    try { await api.delete(`/clinics/${clinicId}/packages/${id}`); setPackages(prev => prev.filter(p => p.id !== id)); showToast('Package removed.'); }
+    try { await api.delete(`/packages/${id}`); setPackages(prev => prev.filter(p => p.id !== id)); showToast('Package removed.'); }
     catch (err) { showToast(`Error: ${err?.message}`); }
   };
 
   const finalPrice = (base, disc) => Math.round((base || 0) * (1 - (disc || 0) / 100));
   const editSvcTarget = services.find(s => s.id === svcModal);
-
-  // ── Wait for clinic to load from the outlet context ──────────────────────
-  if (!clinicId) {
-    return (
-      <div style={{ display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', padding:'5rem', color:'#64748b', gap:'1rem' }}>
-        <Loader size={28} style={{ animation:'spin 1s linear infinite' }}/>
-        <p style={{ margin:0, fontWeight:500 }}>Loading clinic data…</p>
-      </div>
-    );
-  }
 
   return (
     <div className="animate-in">

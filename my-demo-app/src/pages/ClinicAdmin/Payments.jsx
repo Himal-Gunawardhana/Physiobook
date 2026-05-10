@@ -85,7 +85,7 @@ export default function Payments() {
     setLoading(true); setError('');
     try {
       const data = await api.get('/payments?limit=100');
-      setTxns(Array.isArray(data) ? data : data?.payments ?? []);
+      setTxns(Array.isArray(data) ? data : data?.payments ?? data?.transactions ?? []);
     } catch (err) {
       setError(err?.message || 'Failed to load payments.');
     } finally {
