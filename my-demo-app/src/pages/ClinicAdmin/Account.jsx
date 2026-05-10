@@ -90,15 +90,28 @@ function InviteModal({ onClose, onInvite }) {
 
 export default function Account() {
   const navigate = useNavigate();
-  const [profile,     setProfile]     = useState(null);
-  const [team,        setTeam]        = useState([]);
-  const [loading,     setLoading]     = useState(true);
-  const [error,       setError]       = useState('');
-  const [editProfile, setEditProfile] = useState(false);
-  const [showPwd,     setShowPwd]     = useState(false);
-  const [confirm,     setConfirm]     = useState(null);
-  const [inviteOpen,  setInviteOpen]  = useState(false);
-  const [toast,       setToast]       = useState('');
+  const [profile,          setProfile]          = useState(null);
+  const [team,             setTeam]             = useState([]);
+  const [loading,          setLoading]          = useState(true);
+  const [error,            setError]            = useState('');
+  const [editProfile,      setEditProfile]      = useState(false);
+  const [showPwd,          setShowPwd]          = useState(false);
+  const [confirm,          setConfirm]          = useState(null);
+  const [inviteOpen,       setInviteOpen]       = useState(false);
+  const [toast,            setToast]            = useState('');
+  const [notifications,    setNotifications]    = useState({
+    newBooking:     true,
+    cancellation:   true,
+    dailySummary:   false,
+    staffChanges:   true,
+    equipment:      true,
+    refunds:        true
+  });
+  const [currentPwd,       setCurrentPwd]       = useState('');
+  const [newPwd,           setNewPwd]           = useState('');
+  const [confirmPwd,       setConfirmPwd]       = useState('');
+  const [pwdError,         setPwdError]         = useState('');
+  const [pwdSaving,        setPwdSaving]        = useState(false);
 
   const showToast = (msg) => { setToast(msg); setTimeout(() => setToast(''), 3000); };
 
@@ -164,6 +177,70 @@ export default function Account() {
     }
   };
 
+  const handlePasswordChange = async () => {
+    setPwdError('');
+    
+    if (!currentPwd.trim() || !newPwd.trim() || !confirmPwd.trim()) {
+      setPwdError('All password fields are required.');
+      return;
+    }
+    
+    if (newPwd.length < 8) {
+      setPwdError('New password must be at least 8 characters.');
+      return;
+    }
+    
+    if (!/[A-Z]/.test(newPwd)) {
+      setPwdError('Password must contain at least one uppercase letter.');
+      return;
+    }
+    
+    if (!/[0-9]/.test(newPwd)) {
+      setPwdError('Password must contain at least one number.');
+      return;
+    }
+    
+    if (!/[!@#$%^&*]/.test(newPwd)) {
+      setPwdError('Password must contain at least one special character (!@#$%^&*).');
+      return;
+    }
+    
+    if (newPwd !== confirmPwd) {
+      setPwdError('New passwords do not match.');
+      return;
+    }
+    
+    setPwdSaving(true);
+    try {
+      await api.post('/auth/change-password', { 
+        currentPassword: currentPwd, 
+        newPassword: newPwd 
+      });
+      setCurrentPwd('');
+      setNewPwd('');
+      setConfirmPwd('');
+      showToast('Password updated successfully!');
+    } catch (err) {
+      setPwdError(err?.message || 'Failed to update password.');
+    } finally {
+      setPwdSaving(false);
+    }
+  };
+
+  const handleProfileUpdate = async () => {
+    try {
+      await api.put('/users/me', {
+        firstName: profile.firstName,
+        lastName: profile.lastName,
+        email: profile.email
+      });
+      showToast('Profile updated successfully!');
+      setEditProfile(false);
+    } catch (err) {
+      showToast(`Error: ${err?.message || 'Failed to update profile.'}`);
+    }
+  };
+
   if (loading) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '400px', color: '#64748b' }}>
@@ -223,20 +300,44 @@ export default function Account() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <div>
                 <label className="form-label">First Name</label>
-                <input className="form-input" value={profile.firstName || ''} disabled={!editProfile} style={{ opacity: editProfile ? 1 : 0.7 }} />
+                <input 
+                  className="form-input" 
+                  value={profile.firstName || ''} 
+                  onChange={e => setProfile({ ...profile, firstName: e.target.value })}
+                  disabled={!editProfile} 
+                  style={{ opacity: editProfile ? 1 : 0.7 }} 
+                />
               </div>
               <div>
                 <label className="form-label">Last Name</label>
-                <input className="form-input" value={profile.lastName || ''} disabled={!editProfile} style={{ opacity: editProfile ? 1 : 0.7 }} />
+                <input 
+                  className="form-input" 
+                  value={profile.lastName || ''} 
+                  onChange={e => setProfile({ ...profile, lastName: e.target.value })}
+                  disabled={!editProfile} 
+                  style={{ opacity: editProfile ? 1 : 0.7 }} 
+                />
               </div>
               <div>
                 <label className="form-label">Email Address</label>
-                <input type="email" className="form-input" value={profile.email || ''} disabled={!editProfile} style={{ opacity: editProfile ? 1 : 0.7 }} />
+                <input 
+                  type="email" 
+                  className="form-input" 
+                  value={profile.email || ''} 
+                  onChange={e => setProfile({ ...profile, email: e.target.value })}
+                  disabled={!editProfile} 
+                  style={{ opacity: editProfile ? 1 : 0.7 }} 
+                />
               </div>
               {editProfile && (
-                <button className="btn-primary" onClick={() => { setEditProfile(false); showToast('Profile updated.'); }} style={{ width: '100%', justifyContent: 'center' }}>
-                  <Save size={14} /> Save Changes
-                </button>
+                <div style={{ display: 'flex', gap: '0.75rem' }}>
+                  <button className="btn-primary" onClick={handleProfileUpdate} style={{ flex: 1, justifyContent: 'center' }}>
+                    <Save size={14} /> Save Changes
+                  </button>
+                  <button className="btn-ghost" onClick={() => setEditProfile(false)} style={{ flex: 1, justifyContent: 'center' }}>
+                    Cancel
+                  </button>
+                </div>
               )}
             </div>
           </div>
@@ -248,10 +349,22 @@ export default function Account() {
             <Shield size={16} /> Security & Password
           </h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '1.5rem' }}>
+            {pwdError && (
+              <div style={{ background: '#fee2e2', border: '1px solid #fca5a5', borderRadius: 8, padding: '0.75rem', color: '#991b1b', fontSize: '0.85rem' }}>
+                {pwdError}
+              </div>
+            )}
             <div>
               <label className="form-label">Current Password</label>
               <div style={{ position: 'relative' }}>
-                <input type={showPwd ? 'text' : 'password'} className="form-input" placeholder="••••••••" style={{ paddingRight: '2.5rem' }} />
+                <input 
+                  type={showPwd ? 'text' : 'password'} 
+                  className="form-input" 
+                  placeholder="••••••••" 
+                  value={currentPwd}
+                  onChange={e => setCurrentPwd(e.target.value)}
+                  style={{ paddingRight: '2.5rem' }} 
+                />
                 <button onClick={() => setShowPwd(v => !v)} style={{ position: 'absolute', right: '0.75rem', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer' }}>
                   {showPwd ? <EyeOff size={15} /> : <Eye size={15} />}
                 </button>
@@ -259,14 +372,31 @@ export default function Account() {
             </div>
             <div>
               <label className="form-label">New Password</label>
-              <input type="password" className="form-input" placeholder="••••••••" />
+              <input 
+                type="password" 
+                className="form-input" 
+                placeholder="••••••••"
+                value={newPwd}
+                onChange={e => setNewPwd(e.target.value)}
+              />
             </div>
             <div>
               <label className="form-label">Confirm New Password</label>
-              <input type="password" className="form-input" placeholder="••••••••" />
+              <input 
+                type="password" 
+                className="form-input" 
+                placeholder="••••••••"
+                value={confirmPwd}
+                onChange={e => setConfirmPwd(e.target.value)}
+              />
             </div>
-            <button className="btn-ghost" style={{ width: '100%', justifyContent: 'center' }} onClick={() => showToast('Password updated successfully.')}>
-              Update Password
+            <button 
+              className="btn-primary" 
+              style={{ width: '100%', justifyContent: 'center' }}
+              onClick={handlePasswordChange}
+              disabled={pwdSaving}
+            >
+              {pwdSaving ? 'Updating...' : 'Update Password'}
             </button>
           </div>
 
@@ -284,88 +414,23 @@ export default function Account() {
           </h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.875rem' }}>
             {[
-              { label: 'New booking confirmation (email)', key: 'newBooking',      default: true  },
-              { label: 'Booking cancellation alerts',       key: 'cancellation',   default: true  },
-              { label: 'Daily revenue summary report',      key: 'dailySummary',   default: false },
-              { label: 'Staff availability changes',         key: 'staffChanges',   default: true  },
-              { label: 'Equipment maintenance due',          key: 'equipment',      default: true  },
-              { label: 'Refund processed alerts',            key: 'refunds',        default: true  },
-            ].map(({ label, key, default: def }) => {
-              const [on, setOn] = useState(def);
-              return (
-                <label key={key} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem', cursor: 'pointer' }}>
-                  <span style={{ fontSize: '0.875rem', color: '#475569' }}>{label}</span>
-                  <div onClick={() => setOn(v => !v)} style={{ width: 40, height: 22, borderRadius: 99, background: on ? '#2563eb' : '#e2e8f0', position: 'relative', cursor: 'pointer', transition: 'background 0.2s', flexShrink: 0 }}>
-                    <div style={{ width: 16, height: 16, borderRadius: '50%', background: 'white', position: 'absolute', top: 3, left: on ? 21 : 3, transition: 'left 0.2s', boxShadow: '0 1px 3px rgba(0,0,0,0.2)' }} />
-                  </div>
-                </label>
-              );
-            })}
-          </div>
-        </div>
-
-      </div>
-
-      {/* Security Card */}
-      <div className="card">
-        <h2 style={{ fontSize: '0.97rem', fontWeight: 700, marginBottom: '1.25rem', paddingBottom: '0.875rem', borderBottom: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <Shield size={16} /> Security & Password
-        </h2>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '1.5rem' }}>
-          <div>
-            <label className="form-label">Current Password</label>
-            <div style={{ position: 'relative' }}>
-              <input type={showPwd ? 'text' : 'password'} className="form-input" placeholder="••••••••" style={{ paddingRight: '2.5rem' }} />
-              <button onClick={() => setShowPwd(v => !v)} style={{ position: 'absolute', right: '0.75rem', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer' }}>
-                {showPwd ? <EyeOff size={15} /> : <Eye size={15} />}
-              </button>
-            </div>
-          </div>
-          <div>
-            <label className="form-label">New Password</label>
-            <input type="password" className="form-input" placeholder="••••••••" />
-          </div>
-          <div>
-            <label className="form-label">Confirm New Password</label>
-            <input type="password" className="form-input" placeholder="••••••••" />
-          </div>
-          <button className="btn-ghost" style={{ width: '100%', justifyContent: 'center' }} onClick={() => showToast('Password updated successfully.')}>
-            Update Password
-          </button>
-        </div>
-
-        <div style={{ borderTop: '1px solid #e2e8f0', paddingTop: '1.25rem' }}>
-          <div style={{ fontSize: '0.88rem', fontWeight: 600, color: '#0f172a', marginBottom: '0.5rem' }}>Two-Factor Authentication</div>
-          <div style={{ fontSize: '0.82rem', color: '#64748b', marginBottom: '0.875rem' }}>Add an extra layer of security to your account with 2FA.</div>
-          <button className="btn-ghost" style={{ width: '100%', justifyContent: 'center', borderColor: '#10b981', color: '#16a34a' }}>Enable 2FA</button>
-        </div>
-      </div>
-
-      {/* Notifications Card */}
-      <div className="card">
-        <h2 style={{ fontSize: '0.97rem', fontWeight: 700, marginBottom: '1.25rem', paddingBottom: '0.875rem', borderBottom: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <Bell size={16} /> Notification Preferences
-        </h2>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.875rem' }}>
-          {[
-            { label: 'New booking confirmation (email)', key: 'newBooking',      default: true  },
-            { label: 'Booking cancellation alerts',       key: 'cancellation',   default: true  },
-            { label: 'Daily revenue summary report',      key: 'dailySummary',   default: false },
-            { label: 'Staff availability changes',         key: 'staffChanges',   default: true  },
-            { label: 'Equipment maintenance due',          key: 'equipment',      default: true  },
-            { label: 'Refund processed alerts',            key: 'refunds',        default: true  },
-          ].map(({ label, key, default: def }) => {
-            const [on, setOn] = useState(def);
-            return (
+              { label: 'New booking confirmation (email)', key: 'newBooking' },
+              { label: 'Booking cancellation alerts',       key: 'cancellation' },
+              { label: 'Daily revenue summary report',      key: 'dailySummary' },
+              { label: 'Staff availability changes',         key: 'staffChanges' },
+              { label: 'Equipment maintenance due',          key: 'equipment' },
+              { label: 'Refund processed alerts',            key: 'refunds' },
+            ].map(({ label, key }) => (
               <label key={key} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem', cursor: 'pointer' }}>
                 <span style={{ fontSize: '0.875rem', color: '#475569' }}>{label}</span>
-                <div onClick={() => setOn(v => !v)} style={{ width: 40, height: 22, borderRadius: 99, background: on ? '#2563eb' : '#e2e8f0', position: 'relative', cursor: 'pointer', transition: 'background 0.2s', flexShrink: 0 }}>
-                  <div style={{ width: 16, height: 16, borderRadius: '50%', background: 'white', position: 'absolute', top: 3, left: on ? 21 : 3, transition: 'left 0.2s', boxShadow: '0 1px 3px rgba(0,0,0,0.2)' }} />
+                <div onClick={() => setNotifications(prev => ({ ...prev, [key]: !prev[key] }))} style={{ width: 40, height: 22, borderRadius: 99, background: notifications[key] ? '#2563eb' : '#e2e8f0', position: 'relative', cursor: 'pointer', transition: 'background 0.2s', flexShrink: 0 }}>
+                  <div style={{ width: 16, height: 16, borderRadius: '50%', background: 'white', position: 'absolute', top: 3, left: notifications[key] ? 21 : 3, transition: 'left 0.2s', boxShadow: '0 1px 3px rgba(0,0,0,0.2)' }} />
                 </div>
               </label>
-            );
-          })}
+            ))}
+          </div>
         </div>
+
       </div>
 
       {/* Team Members */}
