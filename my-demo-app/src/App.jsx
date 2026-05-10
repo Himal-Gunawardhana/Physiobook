@@ -158,8 +158,9 @@ function DashboardLayout({ role }) {
     );
   }
 
-  // No clinic yet — let them create one
-  if (role === 'clinic' && !activeClinic) {
+  // Only show setup screen when the backend explicitly says clinic is NOT set up.
+  // If clinicSetupComplete is true or undefined (older sessions), skip setup entirely.
+  if (role === 'clinic' && user.clinicSetupComplete === false && !activeClinic) {
     return <ClinicSetupScreen user={user} onCreated={(clinic) => { setClinics([clinic]); setActiveClinic(clinic); }} />;
   }
 
