@@ -60,7 +60,10 @@ async function apiFetch(endpoint, options = {}, retry = true) {
   const json = await res.json();
   if (!res.ok) {
     // Throw the backend error object so callers can inspect it
-    throw json;
+    // Enhance error with a message property for easier access
+    const error = json.error || json;
+    const message = error?.message || json?.message || `Request failed with status ${res.status}`;
+    throw { ...json, message };
   }
 
   // Backend wraps all success in { success:true, data: ... }

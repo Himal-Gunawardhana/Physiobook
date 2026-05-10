@@ -29,7 +29,7 @@ export default function ClinicDashboard() {
       const q = activeClinic?.id ? `?clinic_id=${activeClinic.id}` : '';
       const [bData, sData] = await Promise.all([
         api.get(`/bookings/today${q}`),
-        api.get(`/dashboard/stats${q}`),
+        api.get(`/clinics/dashboard/stats${q}`),
       ]);
       setBookings(Array.isArray(bData) ? bData : bData?.bookings ?? []);
       setStats(sData);

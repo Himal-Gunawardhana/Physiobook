@@ -31,7 +31,7 @@ export default function MyBookings() {
     let cancelled = false;
     (async () => {
       try {
-        const data = await api.get('/bookings?limit=50');
+        const data = await api.get('/bookings/my?limit=50');
         if (cancelled) return;
         const rows = Array.isArray(data) ? data : data?.bookings ?? [];
         setBookings(rows);
