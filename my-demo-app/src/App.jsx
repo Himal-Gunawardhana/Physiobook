@@ -9,7 +9,8 @@ import { useAuth } from './context/AuthContext';
 // Auth
 import Login       from './pages/Auth/Login';
 import Register    from './pages/Auth/Register';
-import VerifyEmail from './pages/Auth/VerifyEmail';
+import VerifyEmail    from './pages/Auth/VerifyEmail';
+import AcceptInvite  from './pages/Auth/AcceptInvite';
 
 // Patient
 import ClinicLanding      from './pages/Patient/ClinicLanding';
@@ -143,6 +144,7 @@ export default function App() {
         <Route path="/login/:role"    element={<Login />} />
         <Route path="/register/:role" element={<Register />} />
         <Route path="/verify-email"   element={<VerifyEmail />} />
+        <Route path="/accept-invite"  element={<AcceptInvite />} />
 
         {/* Patient public flow */}
         <Route path="/book"              element={<ClinicLanding />} />
