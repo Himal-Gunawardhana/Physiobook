@@ -103,17 +103,6 @@ export default function Services() {
     loadEq(); loadSvc(); loadPkg();
   }, [clinicId, loadEq, loadSvc, loadPkg]);
 
-  // If no clinic linked yet, show friendly state
-  if (!clinicId) {
-    return (
-      <div className="animate-in" style={{ display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', padding:'6rem', color:'#94a3b8', gap:'1rem', textAlign:'center' }}>
-        <div style={{ fontSize:'3rem' }}>🏥</div>
-        <p style={{ margin:0, fontWeight:600, color:'#64748b' }}>No clinic linked to your account yet.</p>
-        <p style={{ margin:0, fontSize:'0.875rem' }}>Please contact your platform admin to set up your clinic.</p>
-      </div>
-    );
-  }
-
   // Equipment CRUD
   const addEq = async () => {
     if (!eqForm.name || !clinicId) return;
