@@ -50,42 +50,11 @@ function DashboardLayout({ role }) {
   const { user, loading, dashboardRoute } = useAuth();
   const [clinics,        setClinics]        = useState([]);
   const [activeClinic,   setActiveClinic]   = useState(null);
-  const [clinicsLoading, setClinicsLoading] = useState(true);
+  // For non-clinic roles clinicsLoading is irrelevant — start false so Outlet renders immediately
+  const [clinicsLoading, setClinicsLoading] = useState(role === 'clinic');
   const [isSidebarOpen,  setIsSidebarOpen]  = useState(false);
 
-  // Redirect to login if not authenticated
-  if (!loading && !user) {
-    return <Navigate to={`/login/${role}`} replace />;
-  }
-
-  // Validate user role matches the dashboard they're accessing
-  if (!loading && user) {
-    // Map role param to expected backend role
-    const expectedRoles = {
-      clinic: 'clinic_admin',
-      therapist: 'therapist',
-      superadmin: 'super_admin',
-      patient: 'patient',
-    };
-    const expectedRole = expectedRoles[role];
-    
-    if (expectedRole && user.role !== expectedRole) {
-      console.warn(`User role mismatch. User role: ${user.role}, Expected: ${expectedRole}, Dashboard: ${role}`);
-      // Redirect to the user's correct dashboard
-      const correctRoute = dashboardRoute || '/';
-      return <Navigate to={correctRoute} replace />;
-    }
-  }
-
-  // Show loading while checking auth
-  if (loading) {
-    return (
-      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ fontSize: '1rem', color: '#64748b' }}>Loading...</div>
-      </div>
-    );
-  }
-
+  // ── ALL hooks must come before any conditional returns ────────────────────
   useEffect(() => {
     if (role !== 'clinic' || !user) {
       setClinicsLoading(false);
@@ -99,12 +68,41 @@ function DashboardLayout({ role }) {
         setClinics(list);
         if (list.length > 0) setActiveClinic(list[0]);
       } catch {
-        // not authorised or no clinics yet — still unblock render
+        // not authorised or no clinics yet — unblock render anyway
       } finally {
         setClinicsLoading(false);
       }
     })();
   }, [role, user]);
+
+  // ── Conditional returns AFTER hooks ──────────────────────────────────────
+
+  // Show loading while checking auth session
+  if (loading) {
+    return (
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ fontSize: '1rem', color: '#64748b' }}>Loading…</div>
+      </div>
+    );
+  }
+
+  // Redirect to login if not authenticated
+  if (!user) {
+    return <Navigate to={`/login/${role}`} replace />;
+  }
+
+  // Validate user role matches the dashboard they're accessing
+  const expectedRoles = {
+    clinic: 'clinic_admin',
+    therapist: 'therapist',
+    superadmin: 'super_admin',
+    patient: 'patient',
+  };
+  const expectedRole = expectedRoles[role];
+  if (expectedRole && user.role !== expectedRole) {
+    console.warn(`Role mismatch: user is "${user.role}", dashboard expects "${expectedRole}". Redirecting.`);
+    return <Navigate to={dashboardRoute || '/'} replace />;
+  }
 
   return (
     <div className="dashboard-layout">
