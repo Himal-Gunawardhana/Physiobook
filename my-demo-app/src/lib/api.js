@@ -21,6 +21,7 @@ export const tokenStore = {
 
 // ── Core fetch ────────────────────────────────────────────────────────────
 const TIMEOUT_MS = 12000; // 12 s — enough for Render cold-start
+const REFRESH_TIMEOUT_MS = 8000; // Shorter timeout for refresh endpoint
 
 async function apiFetch(endpoint, options = {}, retry = true) {
   const headers = {
@@ -32,8 +33,9 @@ async function apiFetch(endpoint, options = {}, retry = true) {
   if (token) headers['Authorization'] = `Bearer ${token}`;
 
   // Abort after TIMEOUT_MS so pages never hang indefinitely
+  const timeoutDuration = endpoint.includes('refresh') ? REFRESH_TIMEOUT_MS : TIMEOUT_MS;
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
+  const timer = setTimeout(() => controller.abort(), timeoutDuration);
 
   let res;
   try {
@@ -45,6 +47,7 @@ async function apiFetch(endpoint, options = {}, retry = true) {
     });
   } catch (err) {
     clearTimeout(timer);
+    console.error(`[API] Fetch error on ${endpoint}:`, err.message);
     if (err.name === 'AbortError') {
       throw { success: false, error: 'TIMEOUT', message: 'Request timed out. The server may be waking up — please try again.' };
     }
@@ -54,19 +57,43 @@ async function apiFetch(endpoint, options = {}, retry = true) {
 
   // Auto-refresh on 401
   if (res.status === 401 && retry) {
-    const refreshRes = await fetch(`${BASE}/auth/refresh`, {
-      method:      'POST',
-      credentials: 'include',
-      headers:     { 'Content-Type': 'application/json' },
-    });
+    console.log('[API] Got 401, attempting refresh...');
+    let refreshRes;
+    try {
+      const refreshController = new AbortController();
+      const refreshTimer = setTimeout(() => refreshController.abort(), REFRESH_TIMEOUT_MS);
+      
+      refreshRes = await fetch(`${BASE}/auth/refresh`, {
+        method:      'POST',
+        credentials: 'include',
+        headers:     { 'Content-Type': 'application/json' },
+        signal:      refreshController.signal,
+      });
+      
+      clearTimeout(refreshTimer);
+    } catch (refreshErr) {
+      console.error('[API] Refresh fetch failed:', refreshErr.message);
+      tokenStore.clear();
+      window.dispatchEvent(new Event('auth:logout'));
+      throw { success: false, error: 'SESSION_EXPIRED', message: 'Session expired. Please log in again.' };
+    }
 
     if (refreshRes.ok) {
       const json = await refreshRes.json();
       // Backend returns { success:true, data: { accessToken } }
       const newToken = json.data?.accessToken || json.accessToken;
-      if (newToken) tokenStore.set(newToken);
-      return apiFetch(endpoint, options, false); // retry once
+      if (newToken) {
+        console.log('[API] Token refreshed, retrying original request');
+        tokenStore.set(newToken);
+        return apiFetch(endpoint, options, false); // retry once
+      } else {
+        console.error('[API] No token in refresh response');
+        tokenStore.clear();
+        window.dispatchEvent(new Event('auth:logout'));
+        throw { success: false, error: 'SESSION_EXPIRED', message: 'Session expired. Please log in again.' };
+      }
     } else {
+      console.error(`[API] Refresh failed with status ${refreshRes.status}`);
       // Refresh failed — force logout
       tokenStore.clear();
       window.dispatchEvent(new Event('auth:logout'));

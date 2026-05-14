@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import api, { tokenStore } from '../lib/api';
+import cacheManager from '../lib/cache';
 
 const AuthContext = createContext(null);
 
@@ -18,8 +19,13 @@ export function AuthProvider({ children }) {
   // ── Restore session on mount ─────────────────────────────────────────────
   useEffect(() => {
     let cancelled = false;
-    (async () => {
+    let retryCount = 0;
+    const maxRetries = 2;
+
+    const attemptSessionRestore = async () => {
       try {
+        console.log('[Auth] Attempting to restore session...');
+        
         // Try to get a new access token using the HttpOnly refresh cookie
         const refreshRes = await fetch('/api/v1/auth/refresh', {
           method:      'POST',
@@ -27,20 +33,60 @@ export function AuthProvider({ children }) {
           headers:     { 'Content-Type': 'application/json' },
         });
 
-        if (!refreshRes.ok) throw new Error('no session');
+        if (!refreshRes.ok) {
+          console.log(`[Auth] Refresh failed with status ${refreshRes.status}`);
+          throw new Error(`refresh_failed_${refreshRes.status}`);
+        }
+
         const json = await refreshRes.json();
-        const token = json.data?.accessToken;
-        if (token) tokenStore.set(token);
+        const token = json.data?.accessToken || json.accessToken;
+        
+        if (!token) {
+          console.log('[Auth] No token in refresh response');
+          throw new Error('no_token_in_response');
+        }
+
+        console.log('[Auth] Token refreshed successfully');
+        tokenStore.set(token);
 
         // Fetch user profile
+        console.log('[Auth] Fetching user profile...');
         const userData = await api.get('/users/me');
-        if (!cancelled) setUser(userData);
-      } catch {
-        if (!cancelled) setUser(null);
+        
+        if (!cancelled) {
+          console.log('[Auth] User restored:', userData?.email);
+          setUser(userData);
+        }
+      } catch (err) {
+        console.error('[Auth] Session restore failed:', err.message);
+        
+        // Retry up to maxRetries times with exponential backoff
+        if (retryCount < maxRetries) {
+          retryCount++;
+          const delay = Math.pow(2, retryCount) * 500; // 1s, 2s
+          console.log(`[Auth] Retrying in ${delay}ms (attempt ${retryCount}/${maxRetries})`);
+          
+          if (!cancelled) {
+            setTimeout(attemptSessionRestore, delay);
+            return;
+          }
+        }
+
+        // After all retries exhausted, mark as logged out
+        if (!cancelled) {
+          console.log('[Auth] Session restore failed after retries, user logged out');
+          setUser(null);
+        }
       } finally {
-        if (!cancelled) setLoading(false);
+        // Only set loading to false once we're done with all retries
+        if (retryCount >= maxRetries || !cancelled) {
+          if (!cancelled) setLoading(false);
+        }
       }
-    })();
+    };
+
+    attemptSessionRestore();
+    
     return () => { cancelled = true; };
   }, []);
 
@@ -77,6 +123,7 @@ export function AuthProvider({ children }) {
   const logout = useCallback(async () => {
     try { await api.post('/auth/logout'); } catch (_) {}
     tokenStore.clear();
+    cacheManager.clearSessionData();
     setUser(null);
   }, []);
 
