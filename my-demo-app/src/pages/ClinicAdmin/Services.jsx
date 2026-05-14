@@ -63,6 +63,7 @@ export default function Services() {
   const showToast = (msg) => { setToast(msg); setTimeout(() => setToast(null), 3000); };
 
   const [deleteConfirm, setDeleteConfirm] = useState(null);
+  const [deleteConfirmType, setDeleteConfirmType] = useState(null);
 
   // Load equipment
   const loadEq = useCallback(async () => {
@@ -118,8 +119,30 @@ export default function Services() {
     finally { setEqSaving(false); }
   };
 
+  const saveEqEdit = async (id) => {
+    setEqSaving(true);
+    const target = equipment.find(e => e.id === id);
+    if (!target) return;
+    try {
+      const updated = await api.put(`/equipment/${id}`, { 
+        qty: +target.qty, 
+        status: target.status, 
+        portable: target.portable 
+      });
+      setEquipment(prev => prev.map(e => e.id === id ? updated : e));
+      setEqModal(null);
+      showToast('Equipment updated.');
+    } catch (err) { showToast(`Error: ${err?.message}`); }
+    finally { setEqSaving(false); }
+  };
+
   const deleteEq = async (id) => {
-    try { await api.delete(`/clinics/${clinicId}/equipment/${id}`); setEquipment(prev => prev.filter(e => e.id !== id)); showToast('Equipment removed.'); }
+    try { 
+      await api.delete(`/clinics/${clinicId}/equipment/${id}`); 
+      setEquipment(prev => prev.filter(e => e.id !== id)); 
+      setDeleteConfirm(null);
+      showToast('Equipment removed.'); 
+    }
     catch (err) { showToast(`Error: ${err?.message}`); }
   };
 
@@ -223,7 +246,14 @@ export default function Services() {
                         <td>{eq.qty || eq.quantity} unit{(eq.qty||eq.quantity)>1?'s':''}</td>
                         <td><span className={`badge ${eq.portable?'badge-purple':'badge-blue'}`}>{eq.portable?'🏠 Portable':'🏥 Clinic Only'}</span></td>
                         <td><span className={`badge ${eq.status==='Active'?'badge-green':'badge-amber'}`}>{eq.status}</span></td>
-                        <td><button onClick={() => deleteEq(eq.id)} style={{ background:'none', border:'none', cursor:'pointer', color:'#ef4444' }}><Trash2 size={15}/></button></td>
+                        <td style={{ display:'flex', gap:'0.5rem' }}>
+                          <button onClick={() => { setEqForm({ ...eq, qty:eq.qty||eq.quantity }); setEqModal(eq.id); }} style={{ display:'flex', alignItems:'center', gap:'0.35rem', padding:'0.4rem 0.75rem', background:'white', border:'1px solid #e2e8f0', borderRadius:7, cursor:'pointer', fontSize:'0.82rem', fontWeight:600 }}>
+                            <Settings2 size={13}/> Edit
+                          </button>
+                          <button onClick={() => { setDeleteConfirm(eq.id); setDeleteConfirmType('equipment'); }} style={{ background:'none', border:'none', cursor:'pointer', color:'#ef4444', padding:'0.4rem' }}>
+                            <Trash2 size={15}/>
+                          </button>
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -291,7 +321,7 @@ export default function Services() {
                       <button onClick={() => setSvcModal(svc.id)} style={{ display:'flex', alignItems:'center', gap:'0.35rem', padding:'0.5rem 0.85rem', background:'white', border:'1px solid #e2e8f0', borderRadius:7, cursor:'pointer', fontSize:'0.85rem', fontWeight:600, color:'#2563eb', transition:'all 0.2s' }} onMouseEnter={e => e.target.style.background='#eff6ff'} onMouseLeave={e => e.target.style.background='white'}>
                         <Settings2 size={14}/> Edit
                       </button>
-                      <button onClick={() => setDeleteConfirm(svc.id)} style={{ background:'none', border:'none', cursor:'pointer', color:'#ef4444', padding:'0.5rem', transition:'all 0.2s', fontSize:'0.9rem' }} onMouseEnter={e => e.target.style.opacity='0.7'} onMouseLeave={e => e.target.style.opacity='1'}>
+                      <button onClick={() => { setDeleteConfirm(svc.id); setDeleteConfirmType('service'); }} style={{ background:'none', border:'none', cursor:'pointer', color:'#ef4444', padding:'0.5rem', transition:'all 0.2s', fontSize:'0.9rem' }} onMouseEnter={e => e.target.style.opacity='0.7'} onMouseLeave={e => e.target.style.opacity='1'}>
                         <Trash2 size={16}/>
                       </button>
                     </div>
@@ -379,6 +409,31 @@ export default function Services() {
             <button className="btn-ghost" onClick={() => setEqModal(null)}>Cancel</button>
             <button className="btn-primary" onClick={addEq} disabled={eqSaving}>
               {eqSaving ? <><Loader size={14} style={{ animation:'spin 1s linear infinite' }}/> Saving…</> : 'Add Equipment'}
+            </button>
+          </div>
+        </Modal>
+      )}
+
+      {/* Edit Equipment Modal */}
+      {eqModal && eqModal !== 'add' && equipment.find(e => e.id === eqModal) && (
+        <Modal title={`Edit — ${equipment.find(e => e.id === eqModal)?.name}`} onClose={() => setEqModal(null)}>
+          <div style={{ display:'flex', flexDirection:'column', gap:'1rem' }}>
+            <div><label className="form-label">Quantity</label>
+              <input type="number" className="form-input" min={1} value={eqForm.qty} 
+                onChange={e => setEqForm(p => ({...p,qty:e.target.value}))}/></div>
+            <div><label className="form-label">Status</label>
+              <select className="form-input" value={eqForm.status} onChange={e => setEqForm(p => ({...p,status:e.target.value}))}>
+                <option>Active</option><option>Needs Maintenance</option><option>Inactive</option>
+              </select></div>
+            <div><label className="form-label">Portability</label>
+              <select className="form-input" value={String(eqForm.portable)} onChange={e => setEqForm(p => ({...p,portable:e.target.value==='true'}))}>
+                <option value="false">🏥 Clinic Only</option><option value="true">🏠 Portable (Home Visits)</option>
+              </select></div>
+          </div>
+          <div className="modal-footer">
+            <button className="btn-ghost" onClick={() => setEqModal(null)}>Cancel</button>
+            <button className="btn-primary" onClick={() => saveEqEdit(eqModal)} disabled={eqSaving}>
+              {eqSaving ? <><Loader size={14} style={{ animation:'spin 1s linear infinite' }}/> Saving…</> : 'Save Changes'}
             </button>
           </div>
         </Modal>
@@ -489,15 +544,18 @@ export default function Services() {
 
       {/* Delete Confirmation Modal */}
       {deleteConfirm && (
-        <Modal title="Confirm Deletion" onClose={() => setDeleteConfirm(null)}>
+        <Modal title="Confirm Deletion" onClose={() => { setDeleteConfirm(null); setDeleteConfirmType(null); }}>
           <div style={{ padding:'1rem 0' }}>
-            <p style={{ color:'#475569', fontSize:'0.95rem', marginBottom:'0.5rem' }}>Are you sure you want to delete this service?</p>
+            <p style={{ color:'#475569', fontSize:'0.95rem', marginBottom:'0.5rem' }}>
+              Are you sure you want to delete this {deleteConfirmType === 'equipment' ? 'equipment' : 'service'}?
+            </p>
             <p style={{ color:'#94a3b8', fontSize:'0.9rem', margin:0 }}>This action cannot be undone.</p>
           </div>
           <div className="modal-footer">
-            <button className="btn-ghost" onClick={() => setDeleteConfirm(null)}>Cancel</button>
-            <button style={{ background:'#ef4444', color:'white', border:'none', padding:'0.5rem 1rem', borderRadius:7, fontWeight:600, cursor:'pointer', fontSize:'0.9rem' }} onClick={() => deleteSvc(deleteConfirm)}>
-              Delete Service
+            <button className="btn-ghost" onClick={() => { setDeleteConfirm(null); setDeleteConfirmType(null); }}>Cancel</button>
+            <button style={{ background:'#ef4444', color:'white', border:'none', padding:'0.5rem 1rem', borderRadius:7, fontWeight:600, cursor:'pointer', fontSize:'0.9rem' }} 
+              onClick={() => deleteConfirmType === 'equipment' ? deleteEq(deleteConfirm) : deleteSvc(deleteConfirm)}>
+              Delete {deleteConfirmType === 'equipment' ? 'Equipment' : 'Service'}
             </button>
           </div>
         </Modal>
