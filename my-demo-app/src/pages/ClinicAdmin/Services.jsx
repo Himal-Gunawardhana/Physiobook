@@ -48,7 +48,7 @@ export default function Services() {
   const [svcLoading,setSvcLoading]= useState(true);
   const [svcError,  setSvcError]  = useState('');
   const [svcModal,  setSvcModal]  = useState(null);
-  const [svcForm,   setSvcForm]   = useState({ name:'', duration:'', staff:'', equipment:'None', type:'Clinical' });
+  const [svcForm,   setSvcForm]   = useState({ name:'', duration:'', staff:'', equipment:'None', type:'Clinical', price:'' });
   const [svcSaving, setSvcSaving] = useState(false);
 
   // Packages
@@ -56,7 +56,7 @@ export default function Services() {
   const [pkgLoading,setPkgLoading]= useState(true);
   const [pkgError,  setPkgError]  = useState('');
   const [pkgModal,  setPkgModal]  = useState(null);
-  const [pkgForm,   setPkgForm]   = useState({ name:'', includes:'', base:'', discount:0, fast:false });
+  const [pkgForm,   setPkgForm]   = useState({ name:'', includes:'', description:'', base:'', discount:0, fast:false });
   const [pkgSaving, setPkgSaving] = useState(false);
 
   const [toast, setToast] = useState(null);
@@ -70,7 +70,7 @@ export default function Services() {
     if (!clinicId) return;
     setEqLoading(true); setEqError('');
     try {
-      const data = await api.get(`/clinics/${clinicId}/equipment`);
+      const data = await api.get(`/api/v1/clinics/${clinicId}/equipment`);
       setEquipment(Array.isArray(data) ? data : data?.equipment ?? []);
     }
     catch (err) { setEqError(err?.message || 'Failed to load equipment.'); }
@@ -82,7 +82,7 @@ export default function Services() {
     if (!clinicId) return;
     setSvcLoading(true); setSvcError('');
     try {
-      const data = await api.get(`/clinics/${clinicId}/services`);
+      const data = await api.get(`/api/v1/clinics/${clinicId}/services`);
       setServices(Array.isArray(data) ? data : data?.services ?? []);
     }
     catch (err) { setSvcError(err?.message || 'Failed to load services.'); }
@@ -94,7 +94,7 @@ export default function Services() {
     if (!clinicId) return;
     setPkgLoading(true); setPkgError('');
     try {
-      const data = await api.get(`/clinics/${clinicId}/packages`);
+      const data = await api.get(`/api/v1/clinics/${clinicId}/packages`);
       setPackages(Array.isArray(data) ? data : data?.packages ?? []);
     }
     catch (err) { setPkgError(err?.message || 'Failed to load packages.'); }
@@ -111,7 +111,13 @@ export default function Services() {
     if (!eqForm.name || !clinicId) return;
     setEqSaving(true);
     try {
-      const created = await api.post(`/clinics/${clinicId}/equipment`, { ...eqForm, qty: +eqForm.qty });
+      const payload = {
+        name: eqForm.name,
+        quantity: eqForm.qty ? +eqForm.qty : undefined,
+        is_portable: eqForm.portable || false,
+        is_active: eqForm.status || true
+      };
+      const created = await api.post(`/api/v1/clinics/${clinicId}/equipment`, payload);
       setEquipment(prev => [...prev, created]);
       setEqModal(null);
       showToast('Equipment added.');
@@ -124,11 +130,13 @@ export default function Services() {
     const target = equipment.find(e => e.id === id);
     if (!target) return;
     try {
-      const updated = await api.put(`/equipment/${id}`, { 
-        qty: +target.qty, 
-        status: target.status, 
-        portable: target.portable 
-      });
+      const payload = {
+        name: target.name,
+        quantity: target.qty ? +target.qty : undefined,
+        is_portable: target.portable || false,
+        is_active: target.status || true
+      };
+      const updated = await api.put(`/api/v1/clinics/${clinicId}/equipment/${id}`, payload);
       setEquipment(prev => prev.map(e => e.id === id ? updated : e));
       setEqModal(null);
       showToast('Equipment updated.');
@@ -138,7 +146,7 @@ export default function Services() {
 
   const deleteEq = async (id) => {
     try { 
-      await api.delete(`/clinics/${clinicId}/equipment/${id}`); 
+      await api.delete(`/api/v1/clinics/${clinicId}/equipment/${id}`); 
       setEquipment(prev => prev.filter(e => e.id !== id)); 
       setDeleteConfirm(null);
       showToast('Equipment removed.'); 
@@ -151,7 +159,15 @@ export default function Services() {
     if (!svcForm.name || !clinicId) return;
     setSvcSaving(true);
     try {
-      const created = await api.post(`/clinics/${clinicId}/services`, svcForm);
+      const payload = {
+        name: svcForm.name,
+        duration_minutes: svcForm.duration ? parseInt(svcForm.duration) : undefined,
+        type: svcForm.type,
+        required_staff: svcForm.staff || undefined,
+        required_equipment: svcForm.equipment === 'None' ? undefined : svcForm.equipment,
+        price: svcForm.price ? +svcForm.price : undefined
+      };
+      const created = await api.post(`/api/v1/clinics/${clinicId}/services`, payload);
       setServices(prev => [...prev, created]);
       setSvcModal(null);
       showToast('Service added.');
@@ -160,7 +176,12 @@ export default function Services() {
   };
 
   const deleteSvc = async (id) => {
-    try { await api.delete(`/clinics/${clinicId}/services/${id}`); setServices(prev => prev.filter(s => s.id !== id)); setDeleteConfirm(null); showToast('Service removed.'); }
+    try { 
+      await api.delete(`/api/v1/clinics/${clinicId}/services/${id}`); 
+      setServices(prev => prev.filter(s => s.id !== id)); 
+      setDeleteConfirm(null);
+      showToast('Service removed.'); 
+    }
     catch (err) { showToast(`Error: ${err?.message}`); }
   };
 
@@ -169,7 +190,15 @@ export default function Services() {
     const target = services.find(s => s.id === id);
     if (!target) return;
     try {
-      const updated = await api.put(`/services/${id}`, target);
+      const payload = {
+        name: target.name,
+        duration_minutes: target.duration ? parseInt(target.duration) : undefined,
+        type: target.type,
+        required_staff: target.required_staff || target.staff || undefined,
+        required_equipment: target.required_equipment || target.equipment || undefined,
+        price: target.price ? +target.price : undefined
+      };
+      const updated = await api.put(`/api/v1/clinics/${clinicId}/services/${id}`, payload);
       setServices(prev => prev.map(s => s.id === id ? updated : s));
       setSvcModal(null);
       showToast('Service updated.');
@@ -182,7 +211,15 @@ export default function Services() {
     if (!pkgForm.name || !clinicId) return;
     setPkgSaving(true);
     try {
-      const created = await api.post(`/clinics/${clinicId}/packages`, { ...pkgForm, base_price: +pkgForm.base, discount_percent: +pkgForm.discount });
+      const payload = {
+        name: pkgForm.name,
+        session_count: pkgForm.sessions ? +pkgForm.sessions : undefined,
+        price: pkgForm.base ? +pkgForm.base : undefined,
+        discount_percent: pkgForm.discount ? +pkgForm.discount : 0,
+        is_fast_track: pkgForm.fast || false,
+        description: pkgForm.description || pkgForm.includes || undefined
+      };
+      const created = await api.post(`/api/v1/clinics/${clinicId}/packages`, payload);
       setPackages(prev => [...prev, created]);
       setPkgModal(null);
       showToast('Package created.');
@@ -190,8 +227,34 @@ export default function Services() {
     finally { setPkgSaving(false); }
   };
 
+  const savePkgEdit = async (id) => {
+    setPkgSaving(true);
+    const target = packages.find(p => p.id === id);
+    if (!target) return;
+    try {
+      const payload = {
+        name: target.name,
+        session_count: target.sessions ? +target.sessions : undefined,
+        price: target.base ? +target.base : undefined,
+        discount_percent: target.discount ? +target.discount : 0,
+        is_fast_track: target.fast || false,
+        description: target.description || target.includes || undefined
+      };
+      const updated = await api.put(`/api/v1/clinics/${clinicId}/packages/${id}`, payload);
+      setPackages(prev => prev.map(p => p.id === id ? updated : p));
+      setPkgModal(null);
+      showToast('Package updated.');
+    } catch (err) { showToast(`Error: ${err?.message}`); }
+    finally { setPkgSaving(false); }
+  };
+
   const deletePkg = async (id) => {
-    try { await api.delete(`/clinics/${clinicId}/packages/${id}`); setPackages(prev => prev.filter(p => p.id !== id)); showToast('Package removed.'); }
+    try { 
+      await api.delete(`/api/v1/clinics/${clinicId}/packages/${id}`); 
+      setPackages(prev => prev.filter(p => p.id !== id)); 
+      setDeleteConfirm(null);
+      showToast('Package removed.'); 
+    }
     catch (err) { showToast(`Error: ${err?.message}`); }
   };
 
@@ -374,7 +437,14 @@ export default function Services() {
                         <div style={{ height:1, background:'#e2e8f0', margin:'0.25rem 0' }}/>
                         <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
                           <span style={{ fontWeight:700, fontSize:'1rem' }}>LKR {finalPrice(base, disc).toLocaleString()}</span>
-                          <button onClick={() => deletePkg(pkg.id)} style={{ background:'none', border:'none', cursor:'pointer', color:'#ef4444' }}><Trash2 size={15}/></button>
+                          <div style={{ display:'flex', gap:'0.5rem' }}>
+                            <button onClick={() => { setPkgForm({ name: pkg.name, includes: pkg.description || pkg.includes, description: pkg.description || pkg.includes, base: pkg.base_price || pkg.base, discount: pkg.discount_percent || pkg.discount, fast: pkg.is_fast_track || pkg.fast, sessions: pkg.session_count }); setPkgModal(pkg.id); }} style={{ display:'flex', alignItems:'center', gap:'0.35rem', padding:'0.4rem 0.75rem', background:'white', border:'1px solid #e2e8f0', borderRadius:7, cursor:'pointer', fontSize:'0.82rem', fontWeight:600, color:'#2563eb', transition:'all 0.2s' }} onMouseEnter={e => e.target.style.background='#eff6ff'} onMouseLeave={e => e.target.style.background='white'}>
+                              <Settings2 size={14}/> Edit
+                            </button>
+                            <button onClick={() => { setDeleteConfirm(pkg.id); setDeleteConfirmType('package'); }} style={{ background:'none', border:'none', cursor:'pointer', color:'#ef4444', padding:'0.5rem', transition:'all 0.2s', fontSize:'0.9rem' }} onMouseEnter={e => e.target.style.opacity='0.7'} onMouseLeave={e => e.target.style.opacity='1'}>
+                              <Trash2 size={15}/>
+                            </button>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -542,20 +612,56 @@ export default function Services() {
         </Modal>
       )}
 
+      {/* Edit Package Modal */}
+      {pkgModal && pkgModal !== 'add' && packages.find(p => p.id === pkgModal) && (
+        <Modal title={`Edit — ${packages.find(p => p.id === pkgModal)?.name}`} onClose={() => setPkgModal(null)}>
+          <div style={{ display:'flex', flexDirection:'column', gap:'1rem' }}>
+            <div><label className="form-label">Package Name</label>
+              <input className="form-input" placeholder="e.g. 3-Session Bundle" value={pkgForm.name} onChange={e => setPkgForm(p => ({...p,name:e.target.value}))}/></div>
+            <div><label className="form-label">Description</label>
+              <input className="form-input" placeholder="What's included" value={pkgForm.includes||pkgForm.description||''} onChange={e => setPkgForm(p => ({...p,includes:e.target.value,description:e.target.value}))}/></div>
+            <div style={{ display:'flex', gap:'1rem' }}>
+              <div style={{ flex:1 }}><label className="form-label">Sessions</label>
+                <input type="number" className="form-input" placeholder="5" min={1} value={pkgForm.sessions||''} onChange={e => setPkgForm(p => ({...p,sessions:e.target.value}))}/></div>
+              <div style={{ flex:1 }}><label className="form-label">Base Price (LKR)</label>
+                <input type="number" className="form-input" placeholder="25000" value={pkgForm.base} onChange={e => setPkgForm(p => ({...p,base:e.target.value}))}/></div>
+              <div style={{ flex:1 }}><label className="form-label">Discount %</label>
+                <input type="number" className="form-input" placeholder="15" min={0} max={100} value={pkgForm.discount} onChange={e => setPkgForm(p => ({...p,discount:e.target.value}))}/></div>
+            </div>
+            <div>
+              <label style={{ display:'flex', alignItems:'center', gap:'0.5rem', cursor:'pointer' }}>
+                <input type="checkbox" checked={pkgForm.fast} onChange={e => setPkgForm(p => ({...p,fast:e.target.checked}))}/>
+                <span className="form-label" style={{ margin:0 }}>⚡ Mark as Fast-Track (simple time-only booking for patients)</span>
+              </label>
+            </div>
+          </div>
+          <div className="modal-footer">
+            <button className="btn-ghost" onClick={() => setPkgModal(null)}>Cancel</button>
+            <button className="btn-primary" onClick={() => savePkgEdit(pkgModal)} disabled={pkgSaving}>
+              {pkgSaving ? <><Loader size={14} style={{ animation:'spin 1s linear infinite' }}/> Saving…</> : 'Save Changes'}
+            </button>
+          </div>
+        </Modal>
+      )}
+
       {/* Delete Confirmation Modal */}
       {deleteConfirm && (
         <Modal title="Confirm Deletion" onClose={() => { setDeleteConfirm(null); setDeleteConfirmType(null); }}>
           <div style={{ padding:'1rem 0' }}>
             <p style={{ color:'#475569', fontSize:'0.95rem', marginBottom:'0.5rem' }}>
-              Are you sure you want to delete this {deleteConfirmType === 'equipment' ? 'equipment' : 'service'}?
+              Are you sure you want to delete this {deleteConfirmType === 'equipment' ? 'equipment' : deleteConfirmType === 'package' ? 'package' : 'service'}?
             </p>
             <p style={{ color:'#94a3b8', fontSize:'0.9rem', margin:0 }}>This action cannot be undone.</p>
           </div>
           <div className="modal-footer">
             <button className="btn-ghost" onClick={() => { setDeleteConfirm(null); setDeleteConfirmType(null); }}>Cancel</button>
             <button style={{ background:'#ef4444', color:'white', border:'none', padding:'0.5rem 1rem', borderRadius:7, fontWeight:600, cursor:'pointer', fontSize:'0.9rem' }} 
-              onClick={() => deleteConfirmType === 'equipment' ? deleteEq(deleteConfirm) : deleteSvc(deleteConfirm)}>
-              Delete {deleteConfirmType === 'equipment' ? 'Equipment' : 'Service'}
+              onClick={() => {
+                if (deleteConfirmType === 'equipment') deleteEq(deleteConfirm);
+                else if (deleteConfirmType === 'package') deletePkg(deleteConfirm);
+                else deleteSvc(deleteConfirm);
+              }}>
+              Delete {deleteConfirmType === 'equipment' ? 'Equipment' : deleteConfirmType === 'package' ? 'Package' : 'Service'}
             </button>
           </div>
         </Modal>
