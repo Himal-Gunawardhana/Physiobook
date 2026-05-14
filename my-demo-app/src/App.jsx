@@ -124,32 +124,7 @@ function DashboardLayout({ role }) {
   const [clinicsLoading, setClinicsLoading] = useState(true);
   const [isSidebarOpen,  setIsSidebarOpen]  = useState(false);
 
-  if (!loading && !user) return <Navigate to={`/login/${role}`} replace />;
-
-  if (!loading && user) {
-    const expectedRoles = { clinic: 'clinic_admin', therapist: 'therapist', superadmin: 'super_admin', patient: 'patient' };
-    const expectedRole = expectedRoles[role];
-    if (expectedRole && user.role !== expectedRole) return <Navigate to={dashboardRoute || '/'} replace />;
-  }
-
-  if (loading) {
-    return (
-      <div style={{
-        minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        flexDirection: 'column',
-        background: 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)',
-        gap: '1.5rem'
-      }}>
-        <div style={{ width: 48, height: 48, border: '3px solid #e2e8f0', borderTopColor: '#2563eb', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
-        <div style={{ color: '#64748b', fontSize: '0.95rem', fontWeight: 500 }}>Restoring your session...</div>
-        <div style={{ color: '#94a3b8', fontSize: '0.85rem' }}>Please wait, we're verifying your credentials</div>
-      </div>
-    );
-  }
-
+  // ── Load clinics (MUST be before any conditional returns) ────────────────
   useEffect(() => {
     if (role !== 'clinic' || !user) { 
       setClinicsLoading(false); 
@@ -195,6 +170,33 @@ function DashboardLayout({ role }) {
       clearTimeout(timeoutId);
     };
   }, [role, user]);
+
+  // ── Now check conditions and return early if needed ─────────────────────
+  if (loading) {
+    return (
+      <div style={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        flexDirection: 'column',
+        background: 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)',
+        gap: '1.5rem'
+      }}>
+        <div style={{ width: 48, height: 48, border: '3px solid #e2e8f0', borderTopColor: '#2563eb', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+        <div style={{ color: '#64748b', fontSize: '0.95rem', fontWeight: 500 }}>Restoring your session...</div>
+        <div style={{ color: '#94a3b8', fontSize: '0.85rem' }}>Please wait, we're verifying your credentials</div>
+      </div>
+    );
+  }
+
+  if (!loading && !user) return <Navigate to={`/login/${role}`} replace />;
+
+  if (!loading && user) {
+    const expectedRoles = { clinic: 'clinic_admin', therapist: 'therapist', superadmin: 'super_admin', patient: 'patient' };
+    const expectedRole = expectedRoles[role];
+    if (expectedRole && user.role !== expectedRole) return <Navigate to={dashboardRoute || '/'} replace />;
+  }
 
   if (clinicsLoading) {
     return (
