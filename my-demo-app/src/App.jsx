@@ -151,45 +151,47 @@ function DashboardLayout({ role }) {
   }
 
   useEffect(() => {
-    if (role !== 'clinic' || !user) { setClinicsLoading(false); return; }
+    if (role !== 'clinic' || !user) { 
+      setClinicsLoading(false); 
+      return; 
+    }
+
     setClinicsLoading(true);
     console.log('[App] Loading clinics for user:', user?.email);
     
-    let isMounted = true;
+    let cancelled = false;
     let timeoutId;
 
-    const loadClinics = async () => {
+    (async () => {
       try {
         const data = await api.get('/clinics/mine');
         const list = Array.isArray(data) ? data : data?.clinics ?? [];
         console.log('[App] Loaded clinics:', list.length);
-        if (isMounted) {
+        
+        if (!cancelled) {
           setClinics(list);
           if (list.length > 0) setActiveClinic(list[0]);
         }
       } catch (err) { 
         console.error('[App] Failed to load clinics:', err.message);
-        /* no clinics yet */ 
       } finally { 
-        if (isMounted) {
+        if (!cancelled) {
           console.log('[App] Clinic loading complete');
           setClinicsLoading(false);
         }
       }
-    };
+    })();
 
     // Safety timeout: force stop loading after 10 seconds
     timeoutId = setTimeout(() => {
-      if (isMounted) {
-        console.warn('[App] Clinic loading timeout - forcing stop');
+      if (!cancelled) {
+        console.warn('[App] Clinic loading timeout');
         setClinicsLoading(false);
       }
     }, 10000);
 
-    loadClinics();
-
     return () => {
-      isMounted = false;
+      cancelled = true;
       clearTimeout(timeoutId);
     };
   }, [role, user]);

@@ -11,52 +11,45 @@ export const cacheManager = {
    */
   async initializeClean() {
     try {
-      console.log('[Cache] Initializing clean cache state...');
+      console.log('[Cache] Initializing...');
 
       // Clear all service worker caches
       if ('caches' in window) {
-        const cacheNames = await caches.keys();
-        console.log(`[Cache] Found ${cacheNames.length} cache(s):`, cacheNames);
-        
-        await Promise.all(
-          cacheNames.map(cacheName => {
-            console.log(`[Cache] Clearing cache: ${cacheName}`);
-            return caches.delete(cacheName);
-          })
-        );
-        console.log('[Cache] All service worker caches cleared');
+        try {
+          const cacheNames = await caches.keys();
+          console.log(`[Cache] Found ${cacheNames.length} cache(s)`);
+          
+          await Promise.all(
+            cacheNames.map(cacheName => {
+              console.log(`[Cache] Clearing cache: ${cacheName}`);
+              return caches.delete(cacheName);
+            })
+          );
+          console.log('[Cache] Service worker caches cleared');
+        } catch (cacheErr) {
+          console.warn('[Cache] Failed to clear caches:', cacheErr.message);
+        }
       }
 
       // Unregister old service workers
       if ('serviceWorker' in navigator) {
-        const registrations = await navigator.serviceWorker.getRegistrations();
-        console.log(`[Cache] Found ${registrations.length} service worker(s)`);
-        
-        for (const registration of registrations) {
-          console.log('[Cache] Unregistering service worker:', registration.scope);
-          await registration.unregister();
+        try {
+          const registrations = await navigator.serviceWorker.getRegistrations();
+          console.log(`[Cache] Found ${registrations.length} service worker(s)`);
+          
+          for (const registration of registrations) {
+            console.log('[Cache] Unregistering service worker');
+            await registration.unregister();
+          }
+        } catch (swErr) {
+          console.warn('[Cache] Failed to unregister service workers:', swErr.message);
         }
       }
 
-      // Clear potentially stale local storage
-      const keysToPreserve = ['theme', 'language', 'onboarded']; // Add any keys you want to keep
-      const keysToRemove = [];
-      
-      for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        if (!keysToPreserve.includes(key)) {
-          keysToRemove.push(key);
-        }
-      }
-      
-      keysToRemove.forEach(key => {
-        console.log(`[Cache] Clearing localStorage: ${key}`);
-        localStorage.removeItem(key);
-      });
-
+      // Don't clear localStorage - it might contain important session data
       console.log('[Cache] Initialization complete');
     } catch (err) {
-      console.error('[Cache] Initialization failed:', err);
+      console.error('[Cache] Initialization error:', err.message);
       // Don't throw — this shouldn't block app startup
     }
   },
