@@ -62,6 +62,8 @@ export default function Services() {
   const [toast, setToast] = useState(null);
   const showToast = (msg) => { setToast(msg); setTimeout(() => setToast(null), 3000); };
 
+  const [deleteConfirm, setDeleteConfirm] = useState(null);
+
   // Load equipment
   const loadEq = useCallback(async () => {
     if (!clinicId) return;
@@ -135,7 +137,7 @@ export default function Services() {
   };
 
   const deleteSvc = async (id) => {
-    try { await api.delete(`/clinics/${clinicId}/services/${id}`); setServices(prev => prev.filter(s => s.id !== id)); showToast('Service removed.'); }
+    try { await api.delete(`/clinics/${clinicId}/services/${id}`); setServices(prev => prev.filter(s => s.id !== id)); setDeleteConfirm(null); showToast('Service removed.'); }
     catch (err) { showToast(`Error: ${err?.message}`); }
   };
 
@@ -255,24 +257,42 @@ export default function Services() {
             ) : (
               <div style={{ display:'flex', flexDirection:'column', gap:'0.75rem' }}>
                 {services.map(svc => (
-                  <div key={svc.id} style={{ padding:'1rem 1.25rem', border:'1px solid #e2e8f0', borderRadius:10, background:'#fafafa', display:'flex', alignItems:'center', gap:'1rem', flexWrap:'wrap' }}>
-                    <div style={{ flex:1, minWidth:200 }}>
-                      <div style={{ display:'flex', alignItems:'center', gap:'0.5rem', marginBottom:'0.35rem', flexWrap:'wrap' }}>
-                        <strong style={{ fontSize:'0.97rem' }}>{svc.name}</strong>
-                        <span className={`badge ${svc.type==='External'?'badge-purple':'badge-blue'}`} style={{ fontSize:'0.7rem' }}>{svc.type}</span>
+                  <div key={svc.id} style={{ padding:'1.25rem', border:'1px solid #e2e8f0', borderRadius:10, background:'#fafafa', display:'flex', justifyContent:'space-between', alignItems:'flex-start', gap:'1rem', flexWrap:'wrap' }}>
+                    <div style={{ flex:1, minWidth:250 }}>
+                      <div style={{ display:'flex', alignItems:'center', gap:'0.75rem', marginBottom:'0.75rem', flexWrap:'wrap' }}>
+                        <strong style={{ fontSize:'1rem', color:'#1e293b' }}>{svc.name}</strong>
+                        <span className={`badge ${svc.type==='External'?'badge-purple':'badge-blue'}`} style={{ fontSize:'0.75rem' }}>{svc.type}</span>
                       </div>
-                      <div style={{ display:'flex', gap:'1rem', fontSize:'0.82rem', color:'#64748b', flexWrap:'wrap' }}>
-                        <span>⏱ {svc.duration}</span>
-                        <span>👤 {svc.required_staff || svc.staff || '—'}</span>
-                        <span>🔧 {svc.required_equipment || svc.equipment || 'None'}</span>
+                      <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(150px, 1fr))', gap:'0.75rem', fontSize:'0.9rem' }}>
+                        <div style={{ display:'flex', alignItems:'center', gap:'0.5rem', color:'#475569' }}>
+                          <span style={{ fontSize:'1rem' }}>⏱</span>
+                          <div>
+                            <div style={{ fontSize:'0.75rem', color:'#94a3b8' }}>Duration</div>
+                            <div style={{ fontWeight:500, color:'#1e293b' }}>{svc.duration || '—'}</div>
+                          </div>
+                        </div>
+                        <div style={{ display:'flex', alignItems:'center', gap:'0.5rem', color:'#475569' }}>
+                          <span style={{ fontSize:'1rem' }}>👤</span>
+                          <div>
+                            <div style={{ fontSize:'0.75rem', color:'#94a3b8' }}>Staff Required</div>
+                            <div style={{ fontWeight:500, color:'#1e293b' }}>{svc.required_staff || svc.staff || '—'}</div>
+                          </div>
+                        </div>
+                        <div style={{ display:'flex', alignItems:'center', gap:'0.5rem', color:'#475569' }}>
+                          <span style={{ fontSize:'1rem' }}>🔧</span>
+                          <div>
+                            <div style={{ fontSize:'0.75rem', color:'#94a3b8' }}>Equipment</div>
+                            <div style={{ fontWeight:500, color:'#1e293b' }}>{svc.required_equipment || svc.equipment || 'None'}</div>
+                          </div>
+                        </div>
                       </div>
                     </div>
                     <div style={{ display:'flex', gap:'0.5rem', flexShrink:0 }}>
-                      <button onClick={() => setSvcModal(svc.id)} style={{ display:'flex', alignItems:'center', gap:'0.35rem', padding:'0.4rem 0.75rem', background:'white', border:'1px solid #e2e8f0', borderRadius:7, cursor:'pointer', fontSize:'0.82rem', fontWeight:600 }}>
-                        <Settings2 size={13}/> Edit
+                      <button onClick={() => setSvcModal(svc.id)} style={{ display:'flex', alignItems:'center', gap:'0.35rem', padding:'0.5rem 0.85rem', background:'white', border:'1px solid #e2e8f0', borderRadius:7, cursor:'pointer', fontSize:'0.85rem', fontWeight:600, color:'#2563eb', transition:'all 0.2s' }} onMouseEnter={e => e.target.style.background='#eff6ff'} onMouseLeave={e => e.target.style.background='white'}>
+                        <Settings2 size={14}/> Edit
                       </button>
-                      <button onClick={() => deleteSvc(svc.id)} style={{ background:'none', border:'none', cursor:'pointer', color:'#ef4444', padding:'0.4rem' }}>
-                        <Trash2 size={15}/>
+                      <button onClick={() => setDeleteConfirm(svc.id)} style={{ background:'none', border:'none', cursor:'pointer', color:'#ef4444', padding:'0.5rem', transition:'all 0.2s', fontSize:'0.9rem' }} onMouseEnter={e => e.target.style.opacity='0.7'} onMouseLeave={e => e.target.style.opacity='1'}>
+                        <Trash2 size={16}/>
                       </button>
                     </div>
                   </div>
@@ -402,9 +422,23 @@ export default function Services() {
       {svcModal && svcModal !== 'add' && editSvcTarget && (
         <Modal title={`Edit — ${editSvcTarget.name}`} onClose={() => setSvcModal(null)}>
           <div style={{ display:'flex', flexDirection:'column', gap:'1rem' }}>
+            <div><label className="form-label">Service Name</label>
+              <input className="form-input" value={editSvcTarget.name||''}
+                onChange={e => setServices(prev => prev.map(s => s.id===svcModal?{...s,name:e.target.value}:s))}/></div>
+            <div style={{ display:'flex', gap:'1rem' }}>
+              <div style={{ flex:1 }}><label className="form-label">Type</label>
+                <select className="form-input" value={editSvcTarget.type||'Clinical'}
+                  onChange={e => setServices(prev => prev.map(s => s.id===svcModal?{...s,type:e.target.value}:s))}>
+                  <option>Clinical</option><option>External</option>
+                </select></div>
+              <div style={{ flex:1 }}><label className="form-label">Duration</label>
+                <input type="text" className="form-input" placeholder="e.g. 30 min" value={editSvcTarget.duration||''}
+                  onChange={e => setServices(prev => prev.map(s => s.id===svcModal?{...s,duration:e.target.value}:s))}/></div>
+            </div>
             <div><label className="form-label">Required Staff</label>
               <select className="form-input" value={editSvcTarget.required_staff||editSvcTarget.staff||''}
                 onChange={e => setServices(prev => prev.map(s => s.id===svcModal?{...s,required_staff:e.target.value}:s))}>
+                <option value="">Select staff type…</option>
                 <option>Physiotherapist</option><option>Doctor</option><option>Specialized Physio</option><option>Physio + Nurse</option>
               </select></div>
             <div><label className="form-label">Required Equipment</label>
@@ -413,14 +447,11 @@ export default function Services() {
                 <option value="None">None (Standard Room)</option>
                 {equipment.map(e => <option key={e.id}>{e.name}</option>)}
               </select></div>
-            <div><label className="form-label">Session Duration</label>
-              <input type="text" className="form-input" value={editSvcTarget.duration||''}
-                onChange={e => setServices(prev => prev.map(s => s.id===svcModal?{...s,duration:e.target.value}:s))}/></div>
           </div>
           <div className="modal-footer">
             <button className="btn-ghost" onClick={() => setSvcModal(null)}>Cancel</button>
             <button className="btn-primary" onClick={() => saveSvcEdit(svcModal)} disabled={svcSaving}>
-              {svcSaving ? <><Loader size={14} style={{ animation:'spin 1s linear infinite' }}/> Saving…</> : 'Save Requirements'}
+              {svcSaving ? <><Loader size={14} style={{ animation:'spin 1s linear infinite' }}/> Saving…</> : 'Save Changes'}
             </button>
           </div>
         </Modal>
@@ -450,7 +481,23 @@ export default function Services() {
           <div className="modal-footer">
             <button className="btn-ghost" onClick={() => setPkgModal(null)}>Cancel</button>
             <button className="btn-primary" onClick={addPkg} disabled={pkgSaving}>
-              {pkgSaving ? <><Loader size={14} style={{ animation:'spin 1s linear infinite' }}/> Saving…</> : 'Create Package'}
+              {pkgSaving ? <><Loader size={14} style={{ animation:'spin 1s linear infinite' }}/> Creating…</> : 'Create Package'}
+            </button>
+          </div>
+        </Modal>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {deleteConfirm && (
+        <Modal title="Confirm Deletion" onClose={() => setDeleteConfirm(null)}>
+          <div style={{ padding:'1rem 0' }}>
+            <p style={{ color:'#475569', fontSize:'0.95rem', marginBottom:'0.5rem' }}>Are you sure you want to delete this service?</p>
+            <p style={{ color:'#94a3b8', fontSize:'0.9rem', margin:0 }}>This action cannot be undone.</p>
+          </div>
+          <div className="modal-footer">
+            <button className="btn-ghost" onClick={() => setDeleteConfirm(null)}>Cancel</button>
+            <button style={{ background:'#ef4444', color:'white', border:'none', padding:'0.5rem 1rem', borderRadius:7, fontWeight:600, cursor:'pointer', fontSize:'0.9rem' }} onClick={() => deleteSvc(deleteConfirm)}>
+              Delete Service
             </button>
           </div>
         </Modal>
