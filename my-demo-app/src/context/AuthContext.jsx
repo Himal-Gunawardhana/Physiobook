@@ -31,6 +31,7 @@ export function AuthProvider({ children }) {
           method:      'POST',
           credentials: 'include',
           headers:     { 'Content-Type': 'application/json' },
+          timeout:     8000,
         });
 
         if (!refreshRes.ok) {
@@ -54,11 +55,12 @@ export function AuthProvider({ children }) {
         const userData = await api.get('/users/me');
         
         if (!cancelled) {
-          console.log('[Auth] User restored:', userData?.email);
+          console.log('[Auth] User restored successfully:', userData?.email);
           setUser(userData);
+          setLoading(false); // Success - stop loading
         }
       } catch (err) {
-        console.error('[Auth] Session restore failed:', err.message);
+        console.error('[Auth] Session restore error:', err.message);
         
         // Retry up to maxRetries times with exponential backoff
         if (retryCount < maxRetries) {
@@ -68,19 +70,15 @@ export function AuthProvider({ children }) {
           
           if (!cancelled) {
             setTimeout(attemptSessionRestore, delay);
-            return;
+            return; // Don't set loading to false yet
           }
-        }
-
-        // After all retries exhausted, mark as logged out
-        if (!cancelled) {
-          console.log('[Auth] Session restore failed after retries, user logged out');
-          setUser(null);
-        }
-      } finally {
-        // Only set loading to false once we're done with all retries
-        if (retryCount >= maxRetries || !cancelled) {
-          if (!cancelled) setLoading(false);
+        } else {
+          // All retries exhausted - give up
+          if (!cancelled) {
+            console.log('[Auth] Session restore failed after all retries');
+            setUser(null);
+            setLoading(false); // Stop loading - user is logged out
+          }
         }
       }
     };

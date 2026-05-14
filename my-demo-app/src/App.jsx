@@ -153,21 +153,62 @@ function DashboardLayout({ role }) {
   useEffect(() => {
     if (role !== 'clinic' || !user) { setClinicsLoading(false); return; }
     setClinicsLoading(true);
-    (async () => {
+    console.log('[App] Loading clinics for user:', user?.email);
+    
+    let isMounted = true;
+    let timeoutId;
+
+    const loadClinics = async () => {
       try {
         const data = await api.get('/clinics/mine');
         const list = Array.isArray(data) ? data : data?.clinics ?? [];
-        setClinics(list);
-        if (list.length > 0) setActiveClinic(list[0]);
-      } catch { /* no clinics yet */ } finally { setClinicsLoading(false); }
-    })();
+        console.log('[App] Loaded clinics:', list.length);
+        if (isMounted) {
+          setClinics(list);
+          if (list.length > 0) setActiveClinic(list[0]);
+        }
+      } catch (err) { 
+        console.error('[App] Failed to load clinics:', err.message);
+        /* no clinics yet */ 
+      } finally { 
+        if (isMounted) {
+          console.log('[App] Clinic loading complete');
+          setClinicsLoading(false);
+        }
+      }
+    };
+
+    // Safety timeout: force stop loading after 10 seconds
+    timeoutId = setTimeout(() => {
+      if (isMounted) {
+        console.warn('[App] Clinic loading timeout - forcing stop');
+        setClinicsLoading(false);
+      }
+    }, 10000);
+
+    loadClinics();
+
+    return () => {
+      isMounted = false;
+      clearTimeout(timeoutId);
+    };
   }, [role, user]);
 
   if (clinicsLoading) {
     return (
-      <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1rem', color: '#64748b' }}>
-        <div style={{ width: 36, height: 36, border: '3px solid #e2e8f0', borderTopColor: '#2563eb', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
-        <span>Loading your clinic…</span>
+      <div style={{
+        minHeight: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: '1rem',
+        color: '#64748b',
+        background: 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)',
+      }}>
+        <div style={{ width: 40, height: 40, border: '3px solid #e2e8f0', borderTopColor: '#2563eb', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+        <div style={{ fontSize: '0.95rem', fontWeight: 500 }}>Loading your clinic…</div>
+        <div style={{ fontSize: '0.85rem', color: '#94a3b8' }}>Fetching clinic details</div>
       </div>
     );
   }

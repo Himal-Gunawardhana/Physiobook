@@ -39,6 +39,7 @@ async function apiFetch(endpoint, options = {}, retry = true) {
 
   let res;
   try {
+    console.log(`[API] ${options.method || 'GET'} ${endpoint}`);
     res = await fetch(`${BASE}${endpoint}`, {
       ...options,
       headers,
@@ -87,7 +88,7 @@ async function apiFetch(endpoint, options = {}, retry = true) {
         tokenStore.set(newToken);
         return apiFetch(endpoint, options, false); // retry once
       } else {
-        console.error('[API] No token in refresh response');
+        console.error('[API] No token in refresh response:', json);
         tokenStore.clear();
         window.dispatchEvent(new Event('auth:logout'));
         throw { success: false, error: 'SESSION_EXPIRED', message: 'Session expired. Please log in again.' };
@@ -103,6 +104,7 @@ async function apiFetch(endpoint, options = {}, retry = true) {
 
   const json = await res.json();
   if (!res.ok) {
+    console.error(`[API] ${endpoint} returned ${res.status}:`, json);
     // Throw the backend error object so callers can inspect it
     // Enhance error with a message property for easier access
     const error = json.error || json;
@@ -111,6 +113,7 @@ async function apiFetch(endpoint, options = {}, retry = true) {
   }
 
   // Backend wraps all success in { success:true, data: ... }
+  console.log(`[API] ${endpoint} success`);
   return json.data ?? json;
 }
 
