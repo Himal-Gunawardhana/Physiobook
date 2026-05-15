@@ -13,7 +13,7 @@ const ROLE_CONFIG = {
 export default function Login() {
   const { role }    = useParams();
   const navigate    = useNavigate();
-  const { login }   = useAuth();
+  const { login, logout: logoutFn }   = useAuth();
 
   const cfg  = ROLE_CONFIG[role] || ROLE_CONFIG.patient;
   const Icon = cfg.Icon;
@@ -52,6 +52,23 @@ export default function Login() {
         throw new Error('User role not returned from server');
       }
       
+      // ── ROLE MISMATCH CHECK (frontend safety net) ──────────────────
+      // If the user logged in from the wrong portal, block it immediately
+      if (backendRole !== cfg.backendRole) {
+        // Logout immediately so they don't stay authenticated on wrong portal
+        try { await logoutFn(); } catch (_) {}
+
+        const ROLE_LABELS = { patient: 'Patient', clinic_admin: 'Clinic Admin', therapist: 'Physiotherapist', super_admin: 'Super Admin' };
+        const ROLE_PORTALS = { patient: '/login/patient', clinic_admin: '/login/clinic', therapist: '/login/therapist', super_admin: '/login/superadmin' };
+        const actualLabel = ROLE_LABELS[backendRole] || backendRole;
+        const portal = ROLE_PORTALS[backendRole] || '/';
+
+        setRoleMismatch({ label: actualLabel, portal });
+        setError(`This account is registered as a ${actualLabel}. Please sign in from the ${actualLabel} portal.`);
+        setLoading(false);
+        return;
+      }
+
       // Validate role is one of the expected values
       const validRoles = ['patient', 'clinic_admin', 'therapist', 'super_admin'];
       if (!validRoles.includes(backendRole)) {
@@ -73,7 +90,7 @@ export default function Login() {
       }
     } catch (err) {
       const msg = err?.error?.message || err?.message || 'Login failed. Check your credentials.';
-      // Check for role mismatch — show helpful redirect
+      // Check for role mismatch from backend
       const correctPortal = err?.error?.correctPortal || err?.correctPortal;
       const actualRole = err?.error?.actualRole || err?.actualRole;
       if (correctPortal && actualRole) {
