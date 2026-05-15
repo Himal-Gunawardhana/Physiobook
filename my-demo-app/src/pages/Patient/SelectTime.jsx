@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Star, ArrowLeft, ArrowRight, Zap, Calendar, Loader, AlertCircle } from 'lucide-react';
+import { Star, ArrowLeft, ArrowRight, Zap, Calendar, Loader, AlertCircle, User } from 'lucide-react';
 import api from '../../lib/api';
 
 const MODES = [
@@ -39,18 +39,24 @@ export default function SelectTime() {
   const canContinue   = slot && !homeBlocked;
   const duration      = service.duration_minutes || 30;
 
-  // Load therapists
+  // Min/Max dates for the date picker
+  const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate() + 1);
+  const maxDate  = new Date(); maxDate.setDate(maxDate.getDate() + 60);
+  const minDateStr = tomorrow.toISOString().split('T')[0];
+  const maxDateStr = maxDate.toISOString().split('T')[0];
+
+  // Load therapists from clinic staff
   useEffect(() => {
     if (!clinicId) return;
     setLoadingTherapists(true);
     api.get(`/clinics/${clinicId}/staff`).then(data => {
       const list = (Array.isArray(data) ? data : data?.rows ?? [])
-        .filter(t => t.role_in_clinic === 'therapist' && t.status === 'available');
+        .filter(t => t.role_in_clinic === 'therapist' || t.role_in_clinic === 'senior_therapist');
       setTherapists(list);
     }).catch(() => setTherapists([])).finally(() => setLoadingTherapists(false));
   }, [clinicId]);
 
-  // Load available slots when date changes
+  // Load available slots when date or therapist changes
   useEffect(() => {
     if (!clinicId || !selectedDate) return;
     setLoadingSlots(true); setSlot(null); setError('');
@@ -86,87 +92,85 @@ export default function SelectTime() {
     }, therapistId === 'auto' ? 800 : 0);
   };
 
-  // Date options (next 14 days)
-  const dateOptions = [];
-  for (let i = 1; i <= 14; i++) {
-    const d = new Date(); d.setDate(d.getDate() + i);
-    dateOptions.push(d.toISOString().split('T')[0]);
-  }
   const formatDate = (d) => {
     const dt = new Date(d + 'T00:00:00');
-    return dt.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+    return dt.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
   };
   const formatSlot = (s) => {
+    if (!s) return '';
     const [h, m] = s.split(':').map(Number);
     const ap = h >= 12 ? 'PM' : 'AM';
     return `${((h % 12) || 12).toString().padStart(2, '0')}:${m.toString().padStart(2, '0')} ${ap}`;
   };
 
   return (
-    <div className="patient-page">
+    <div className="patient-page" style={{ overflow: 'hidden' }}>
       <header className="patient-header">
-        <Link to={clinicSlug ? `/book?${clinicSlug}` : '/book'} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#64748b', fontSize: '0.9rem' }}>
+        <Link to={clinicSlug ? `/book?${clinicSlug}` : '/book'} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#64748b', fontSize: '0.9rem', textDecoration: 'none' }}>
           <ArrowLeft size={16} /> Back
         </Link>
-        <span className="patient-header-logo">Book Appointment</span>
+        <span className="patient-header-logo" style={{ color: primaryColor }}>Book Appointment</span>
         <div />
       </header>
 
-      <main className="patient-main">
+      <main className="patient-main" style={{ maxWidth: 920, overflow: 'visible' }}>
         {/* Service banner */}
-        <div className="booking-banner" style={{ background: isFastTrack ? `linear-gradient(135deg, #0369a1, #0284c7)` : `linear-gradient(135deg, ${primaryColor}cc, ${primaryColor})` }}>
+        <div className="booking-banner" style={{ background: isFastTrack ? 'linear-gradient(135deg, #0369a1, #0284c7)' : `linear-gradient(135deg, ${primaryColor}cc, ${primaryColor})`, borderRadius: 14, padding: '1.25rem 1.5rem', color: '#fff', display: 'flex', alignItems: 'center', gap: '0.85rem', marginBottom: '1.75rem' }}>
           {isFastTrack && <Zap size={24} color="#fbbf24" />}
           <div>
-            <div style={{ fontSize: '0.8rem', opacity: 0.8, marginBottom: '0.2rem' }}>Booking for</div>
-            <div style={{ fontSize: '1.15rem', fontWeight: 700 }}>{service.name || 'Service'}</div>
-            {isFastTrack && <div style={{ fontSize: '0.82rem', opacity: 0.85, marginTop: '0.15rem' }}>Express booking — just pick a time slot below.</div>}
-            {requiresEquip && !isFastTrack && <div style={{ fontSize: '0.8rem', opacity: 0.85, marginTop: '0.2rem' }}>⚠ Requires {service.requires_equipment}</div>}
+            <div style={{ fontSize: '0.78rem', opacity: 0.8, marginBottom: '0.15rem' }}>Booking for</div>
+            <div style={{ fontSize: '1.1rem', fontWeight: 700 }}>{service.name || 'Service'}</div>
+            {service.price > 0 && <div style={{ fontSize: '0.82rem', opacity: 0.85, marginTop: '0.1rem' }}>LKR {Number(service.price).toLocaleString()} · {duration} min</div>}
+            {isFastTrack && <div style={{ fontSize: '0.8rem', opacity: 0.85, marginTop: '0.1rem' }}>Express booking — pick a date and time below.</div>}
+            {requiresEquip && !isFastTrack && <div style={{ fontSize: '0.8rem', opacity: 0.85, marginTop: '0.15rem' }}>⚠ Requires {service.requires_equipment}</div>}
           </div>
         </div>
 
-        <div className="booking-layout">
-          {/* Left — options */}
-          <div className="booking-left">
+        {/* 2-column layout */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', alignItems: 'start' }}>
 
-            {/* Date Selection */}
+          {/* LEFT COLUMN */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', minWidth: 0 }}>
+
+            {/* Date Picker */}
             <div>
-              <h3 style={{ fontSize: '0.97rem', fontWeight: 700, marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: 6 }}>
-                <Calendar size={15} /> Select Date
+              <h3 style={{ fontSize: '0.92rem', fontWeight: 700, marginBottom: '0.6rem', display: 'flex', alignItems: 'center', gap: 6, color: '#0f172a' }}>
+                <Calendar size={15} color={primaryColor} /> Select Date
               </h3>
-              <div style={{ display: 'flex', gap: '0.5rem', overflowX: 'auto', paddingBottom: '0.5rem' }}>
-                {dateOptions.map(d => (
-                  <button key={d} onClick={() => setSelectedDate(d)}
-                    style={{ padding: '0.5rem 0.85rem', borderRadius: 8, border: selectedDate === d ? `2px solid ${primaryColor}` : '1px solid #e2e8f0',
-                      background: selectedDate === d ? `${primaryColor}10` : '#fff', color: selectedDate === d ? primaryColor : '#475569',
-                      fontSize: '0.8rem', fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap', transition: 'all 0.15s', flexShrink: 0 }}>
-                    {formatDate(d)}
-                  </button>
-                ))}
-              </div>
+              <input type="date" value={selectedDate}
+                min={minDateStr} max={maxDateStr}
+                onChange={e => setSelectedDate(e.target.value)}
+                style={{ width: '100%', padding: '0.7rem 0.9rem', borderRadius: 10, border: `1.5px solid ${primaryColor}40`, background: '#fff', color: '#0f172a', fontSize: '0.92rem', fontWeight: 600, fontFamily: 'inherit', outline: 'none', cursor: 'pointer', boxSizing: 'border-box' }}
+                onFocus={e => e.target.style.borderColor = primaryColor}
+                onBlur={e => e.target.style.borderColor = `${primaryColor}40`} />
+              {selectedDate && (
+                <div style={{ marginTop: '0.4rem', fontSize: '0.82rem', color: '#64748b' }}>
+                  📅 {formatDate(selectedDate)}
+                </div>
+              )}
             </div>
 
             {/* Visit Mode */}
             {!isFastTrack && (
               <div>
-                <h3 style={{ fontSize: '0.97rem', fontWeight: 700, marginBottom: '0.75rem' }}>Select Visit Mode</h3>
-                <div className="mode-grid">
+                <h3 style={{ fontSize: '0.92rem', fontWeight: 700, marginBottom: '0.6rem', color: '#0f172a' }}>Select Visit Mode</h3>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.6rem' }}>
                   {MODES.map(m => (
-                    <button key={m.id} className={`mode-btn ${mode === m.id ? 'selected' : ''}`} onClick={() => setMode(m.id)}
-                      style={mode === m.id ? { borderColor: primaryColor, background: `${primaryColor}08` } : {}}>
-                      <div style={{ fontSize: '1.1rem', marginBottom: '0.2rem' }}>{m.label.split(' ')[0]}</div>
-                      <div style={{ fontSize: '0.78rem', fontWeight: 500 }}>{m.label.split(' ').slice(1).join(' ')}</div>
-                      <div style={{ fontSize: '0.72rem', opacity: 0.7 }}>{m.desc}</div>
+                    <button key={m.id} onClick={() => setMode(m.id)}
+                      style={{ padding: '0.7rem 0.4rem', borderRadius: 10, border: mode === m.id ? `2px solid ${primaryColor}` : '1.5px solid #e2e8f0', background: mode === m.id ? `${primaryColor}08` : '#fff', color: mode === m.id ? primaryColor : '#64748b', fontWeight: 600, fontSize: '0.82rem', textAlign: 'center', cursor: 'pointer', transition: 'all 0.15s' }}>
+                      <div style={{ fontSize: '1.1rem', marginBottom: '0.15rem' }}>{m.label.split(' ')[0]}</div>
+                      <div style={{ fontSize: '0.72rem' }}>{m.desc}</div>
                     </button>
                   ))}
                 </div>
                 {mode === 'home' && requiresEquip && (
-                  <div style={{ marginTop: '0.875rem', background: '#fef2f2', border: '1px solid #fca5a5', borderRadius: 10, padding: '1rem' }}>
-                    <p style={{ fontSize: '0.88rem', color: '#991b1b', marginBottom: '0.6rem' }}>
-                      <strong>Important:</strong> This service requires <strong>{service.requires_equipment}</strong>. Home visits are only available if you already own this equipment.
+                  <div style={{ marginTop: '0.75rem', background: '#fef2f2', border: '1px solid #fca5a5', borderRadius: 10, padding: '0.85rem' }}>
+                    <p style={{ fontSize: '0.82rem', color: '#991b1b', marginBottom: '0.5rem', margin: 0 }}>
+                      <strong>Important:</strong> Requires <strong>{service.requires_equipment}</strong>.
                     </p>
-                    <label style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', cursor: 'pointer' }}>
+                    <label style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', cursor: 'pointer', marginTop: '0.4rem' }}>
                       <input type="checkbox" checked={hasEquip} onChange={e => setHasEquip(e.target.checked)} style={{ marginTop: 2 }} />
-                      <span style={{ fontSize: '0.85rem', color: '#7f1d1d' }}>I confirm I have an operational <strong>{service.requires_equipment}</strong> at my home.</span>
+                      <span style={{ fontSize: '0.8rem', color: '#7f1d1d' }}>I confirm I have this equipment at home.</span>
                     </label>
                   </div>
                 )}
@@ -176,33 +180,36 @@ export default function SelectTime() {
             {/* Therapist Selection */}
             {!isFastTrack && (
               <div>
-                <h3 style={{ fontSize: '0.97rem', fontWeight: 700, marginBottom: '0.75rem' }}>Choose Therapist</h3>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
-                  <div className={`therapist-card-select ${therapistId === 'auto' ? 'selected' : ''}`}
-                    onClick={() => setTherapistId('auto')}
-                    style={{ borderColor: therapistId === 'auto' ? primaryColor : '#bfdbfe' }}>
-                    <div style={{ fontWeight: 700, color: primaryColor, marginBottom: '0.2rem' }}>✨ Auto-Assign Best Match</div>
-                    <div style={{ fontSize: '0.82rem', color: '#64748b' }}>We'll pair you with the highest-rated available specialist.</div>
+                <h3 style={{ fontSize: '0.92rem', fontWeight: 700, marginBottom: '0.6rem', color: '#0f172a' }}>Choose Therapist</h3>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', maxHeight: 300, overflowY: 'auto' }}>
+                  {/* Auto-assign option */}
+                  <div onClick={() => setTherapistId('auto')}
+                    style={{ padding: '0.75rem 1rem', borderRadius: 10, border: therapistId === 'auto' ? `2px solid ${primaryColor}` : '1.5px solid #e2e8f0', background: therapistId === 'auto' ? `${primaryColor}08` : '#fff', cursor: 'pointer', transition: 'all 0.15s' }}>
+                    <div style={{ fontWeight: 700, color: primaryColor, fontSize: '0.88rem', marginBottom: '0.15rem' }}>✨ Auto-Assign Best Match</div>
+                    <div style={{ fontSize: '0.78rem', color: '#64748b' }}>Highest-rated available specialist</div>
                   </div>
+
                   {loadingTherapists ? (
-                    <div style={{ textAlign: 'center', padding: '1rem', color: '#94a3b8' }}><Loader size={18} style={{ animation: 'spin 1s linear infinite' }} /></div>
+                    <div style={{ textAlign: 'center', padding: '1rem', color: '#94a3b8' }}>
+                      <Loader size={18} style={{ animation: 'spin 1s linear infinite' }} />
+                    </div>
+                  ) : therapists.length === 0 ? (
+                    <div style={{ textAlign: 'center', padding: '0.75rem', color: '#94a3b8', fontSize: '0.82rem' }}>
+                      No therapists found for this clinic.
+                    </div>
                   ) : therapists.map(t => (
-                    <div key={t.id}
-                      className={`therapist-card-select ${therapistId === t.id ? 'selected' : ''}`}
-                      onClick={() => setTherapistId(t.id)}
-                      style={{ cursor: 'pointer' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <div>
-                          <div style={{ fontWeight: 700, fontSize: '0.95rem' }}>{t.first_name} {t.last_name}</div>
-                          <div style={{ fontSize: '0.82rem', color: '#64748b', marginBottom: '0.3rem' }}>{t.specialization || 'General'}</div>
-                          <span style={{ background: '#e0f2fe', color: '#0369a1', padding: '0.1rem 0.45rem', borderRadius: 4, fontSize: '0.72rem', fontWeight: 600 }}>
+                    <div key={t.id} onClick={() => setTherapistId(t.id)}
+                      style={{ padding: '0.75rem 1rem', borderRadius: 10, border: therapistId === t.id ? `2px solid ${primaryColor}` : '1.5px solid #e2e8f0', background: therapistId === t.id ? `${primaryColor}08` : '#fff', cursor: 'pointer', transition: 'all 0.15s' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                        <div style={{ minWidth: 0, flex: 1 }}>
+                          <div style={{ fontWeight: 700, fontSize: '0.9rem', color: '#0f172a' }}>{t.first_name} {t.last_name}</div>
+                          <div style={{ fontSize: '0.78rem', color: '#64748b', marginBottom: '0.2rem' }}>{t.specialization || 'General Physiotherapy'}</div>
+                          <span style={{ display: 'inline-block', background: '#e0f2fe', color: '#0369a1', padding: '0.1rem 0.4rem', borderRadius: 4, fontSize: '0.7rem', fontWeight: 600 }}>
                             {t.experience_years || 0} yrs exp
                           </span>
                         </div>
-                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.3rem' }}>
-                          <span style={{ display: 'flex', alignItems: 'center', gap: '0.2rem', color: '#f59e0b', fontWeight: 700, fontSize: '0.9rem' }}>
-                            <Star size={13} fill="#f59e0b" /> {Number(t.rating || 0).toFixed(1)}
-                          </span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.2rem', color: '#f59e0b', fontWeight: 700, fontSize: '0.85rem', flexShrink: 0 }}>
+                          <Star size={12} fill="#f59e0b" /> {Number(t.rating || 0).toFixed(1)}
                         </div>
                       </div>
                     </div>
@@ -212,59 +219,61 @@ export default function SelectTime() {
             )}
           </div>
 
-          {/* Right — time slots */}
-          <div className="booking-right">
-            <h3 style={{ fontSize: '0.97rem', fontWeight: 700, marginBottom: '0.75rem' }}>
-              {isFastTrack ? '⚡ Select Your Time' : 'Select Time Slot'}
+          {/* RIGHT COLUMN — Time Slots */}
+          <div style={{ minWidth: 0 }}>
+            <h3 style={{ fontSize: '0.92rem', fontWeight: 700, marginBottom: '0.6rem', color: '#0f172a' }}>
+              {isFastTrack ? '⚡ Select Your Time' : 'Available Time Slots'}
             </h3>
 
             {loadingSlots ? (
-              <div style={{ textAlign: 'center', padding: '2rem', color: '#94a3b8' }}>
+              <div style={{ textAlign: 'center', padding: '2.5rem 1rem', color: '#94a3b8' }}>
                 <Loader size={22} style={{ animation: 'spin 1s linear infinite' }} />
-                <p style={{ fontSize: '0.85rem', marginTop: '0.5rem' }}>Loading available slots...</p>
+                <p style={{ fontSize: '0.82rem', marginTop: '0.5rem' }}>Loading available slots...</p>
               </div>
             ) : error ? (
               <div style={{ textAlign: 'center', padding: '2rem', color: '#ef4444' }}>
-                <AlertCircle size={24} style={{ marginBottom: '0.5rem' }} />
-                <p style={{ fontSize: '0.85rem' }}>{error}</p>
+                <AlertCircle size={22} style={{ marginBottom: '0.5rem' }} />
+                <p style={{ fontSize: '0.82rem' }}>{error}</p>
               </div>
             ) : slots.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '2rem', color: '#94a3b8' }}>
-                <p style={{ fontSize: '0.88rem', marginBottom: '0.25rem' }}>No available slots for this date.</p>
-                <p style={{ fontSize: '0.8rem' }}>Try selecting a different date or therapist.</p>
+              <div style={{ textAlign: 'center', padding: '2.5rem 1rem', color: '#94a3b8', background: '#f8fafc', borderRadius: 12, border: '1px dashed #e2e8f0' }}>
+                <Calendar size={28} style={{ marginBottom: '0.5rem', opacity: 0.5 }} />
+                <p style={{ fontSize: '0.88rem', margin: '0 0 0.25rem', fontWeight: 600 }}>No slots available</p>
+                <p style={{ fontSize: '0.78rem', margin: 0 }}>Try a different date or therapist.</p>
               </div>
             ) : (
-              <div className="time-grid">
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))', gap: '0.5rem' }}>
                 {slots.map(s => (
-                  <button key={s}
-                    className={`time-slot ${slot === s ? 'selected' : ''}`}
-                    onClick={() => setSlot(s)}
-                    style={slot === s ? { borderColor: primaryColor, background: `${primaryColor}10`, color: primaryColor } : {}}>
+                  <button key={s} onClick={() => setSlot(s)}
+                    style={{ padding: '0.65rem 0.4rem', borderRadius: 8, border: slot === s ? `2px solid ${primaryColor}` : '1.5px solid #e2e8f0', background: slot === s ? primaryColor : '#fff', color: slot === s ? '#fff' : '#0f172a', fontWeight: 600, fontSize: '0.85rem', textAlign: 'center', cursor: 'pointer', transition: 'all 0.15s' }}>
                     {formatSlot(s)}
                   </button>
                 ))}
               </div>
             )}
 
+            {/* Booking Summary */}
             {slot && (
-              <div style={{ marginTop: '1.5rem' }}>
-                <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 10, padding: '1rem', marginBottom: '1rem', fontSize: '0.88rem' }}>
-                  <div style={{ fontWeight: 600, marginBottom: '0.4rem' }}>Booking Summary</div>
-                  <div style={{ color: '#475569' }}>📅 {formatDate(selectedDate)} · {formatSlot(slot)} · {isFastTrack ? 'Clinic Visit' : (mode.charAt(0).toUpperCase() + mode.slice(1))}</div>
-                  <div style={{ color: '#475569' }}>👤 {therapistId === 'auto' ? 'Auto-assigning best therapist…' : `${therapists.find(t => t.id === therapistId)?.first_name} ${therapists.find(t => t.id === therapistId)?.last_name}`}</div>
-                  {service.price > 0 && <div style={{ color: '#475569' }}>💰 LKR {Number(service.price).toLocaleString()}</div>}
+              <div style={{ marginTop: '1.25rem' }}>
+                <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 12, padding: '1rem', marginBottom: '0.85rem', fontSize: '0.85rem' }}>
+                  <div style={{ fontWeight: 700, marginBottom: '0.5rem', color: '#0f172a' }}>Booking Summary</div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', color: '#475569' }}>
+                    <div>📅 {formatDate(selectedDate)}</div>
+                    <div>🕐 {formatSlot(slot)} · {duration} min</div>
+                    <div>📍 {isFastTrack ? 'Clinic Visit' : { clinic: 'Clinic Visit', home: 'Home Visit', online: 'Online Call' }[mode]}</div>
+                    <div>👤 {therapistId === 'auto' ? 'Auto-assigning best therapist…' : `${therapists.find(t => t.id === therapistId)?.first_name} ${therapists.find(t => t.id === therapistId)?.last_name}`}</div>
+                    {service.price > 0 && <div>💰 LKR {Number(service.price).toLocaleString()}</div>}
+                  </div>
                 </div>
 
                 {homeBlocked && (
-                  <div style={{ background: '#fef2f2', border: '1px solid #fca5a5', borderRadius: 8, padding: '0.75rem', marginBottom: '1rem', fontSize: '0.83rem', color: '#991b1b' }}>
-                    ⛔ Please confirm you have the required equipment to enable Home Visit booking.
+                  <div style={{ background: '#fef2f2', border: '1px solid #fca5a5', borderRadius: 8, padding: '0.7rem', marginBottom: '0.85rem', fontSize: '0.8rem', color: '#991b1b' }}>
+                    ⛔ Please confirm you have the required equipment.
                   </div>
                 )}
 
-                <button className="btn-primary" onClick={handleContinue} disabled={!canContinue || allocating}
-                  style={{ width: '100%', justifyContent: 'center', padding: '0.875rem', fontSize: '1rem',
-                    background: (!canContinue || allocating) ? '#94a3b8' : primaryColor,
-                    cursor: (!canContinue || allocating) ? 'not-allowed' : 'pointer' }}>
+                <button onClick={handleContinue} disabled={!canContinue || allocating}
+                  style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', padding: '0.85rem', border: 'none', borderRadius: 12, fontSize: '0.95rem', fontWeight: 700, color: '#fff', background: (!canContinue || allocating) ? '#94a3b8' : primaryColor, cursor: (!canContinue || allocating) ? 'not-allowed' : 'pointer', transition: 'all 0.2s' }}>
                   {allocating ? '⚡ Allocating best match…' : <>Continue to Checkout <ArrowRight size={16} /></>}
                 </button>
               </div>
@@ -272,6 +281,15 @@ export default function SelectTime() {
           </div>
         </div>
       </main>
+
+      {/* Responsive: stack columns on mobile */}
+      <style>{`
+        @media (max-width: 700px) {
+          .patient-main > div:last-child {
+            grid-template-columns: 1fr !important;
+          }
+        }
+      `}</style>
     </div>
   );
 }
