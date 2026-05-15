@@ -71,7 +71,9 @@ export default function Services() {
     setEqLoading(true); setEqError('');
     try {
       const data = await api.get(`/api/v1/clinics/${clinicId}/equipment`);
-      setEquipment(Array.isArray(data) ? data : data?.equipment ?? []);
+      const list = Array.isArray(data) ? data : data?.equipment ?? [];
+      // Only show active (non-soft-deleted) equipment
+      setEquipment(list.filter(e => e.is_active !== false));
     }
     catch (err) { setEqError(err?.message || 'Failed to load equipment.'); }
     finally { setEqLoading(false); }
@@ -115,7 +117,7 @@ export default function Services() {
         name: eqForm.name,
         quantity: eqForm.qty ? +eqForm.qty : undefined,
         is_portable: eqForm.portable || false,
-        is_active: eqForm.status || true
+        status_equipment: eqForm.status_equipment || 'active'
       };
       const created = await api.post(`/api/v1/clinics/${clinicId}/equipment`, payload);
       setEquipment(prev => [...prev, created]);
@@ -131,10 +133,10 @@ export default function Services() {
     if (!target) return;
     try {
       const payload = {
-        name: target.name,
-        quantity: target.qty ? +target.qty : undefined,
-        is_portable: target.portable || false,
-        is_active: target.status || true
+        name: eqForm.name ?? target.name,
+        quantity: eqForm.qty ? +eqForm.qty : (target.qty ? +target.qty : undefined),
+        is_portable: eqForm.portable ?? target.portable ?? false,
+        status_equipment: eqForm.status_equipment ?? target.status_equipment ?? 'active'
       };
       const updated = await api.put(`/api/v1/clinics/${clinicId}/equipment/${id}`, payload);
       setEquipment(prev => prev.map(e => e.id === id ? updated : e));
@@ -291,7 +293,7 @@ export default function Services() {
           <div className="section-header-row">
             <h2 style={{ fontSize:'1.05rem', margin:0 }}>Clinic Equipment Inventory</h2>
             <button className="btn-primary" style={{ fontSize:'0.85rem', padding:'0.5rem 1rem' }}
-              onClick={() => { setEqForm({ name:'', qty:1, status:'Active', portable:false }); setEqModal('add'); }}>
+              onClick={() => { setEqForm({ name:'', qty:1, status_equipment:'active', portable:false }); setEqModal('add'); }}>
               <Plus size={14}/> Add Equipment
             </button>
           </div>
@@ -308,9 +310,9 @@ export default function Services() {
                         <td style={{ fontWeight:600 }}>{eq.name}</td>
                         <td>{eq.qty || eq.quantity} unit{(eq.qty||eq.quantity)>1?'s':''}</td>
                         <td><span className={`badge ${eq.portable?'badge-purple':'badge-blue'}`}>{eq.portable?'🏠 Portable':'🏥 Clinic Only'}</span></td>
-                        <td><span className={`badge ${eq.status==='Active'?'badge-green':'badge-amber'}`}>{eq.status}</span></td>
+                        <td><span className={`badge ${eq.status_equipment==='active'?'badge-green':eq.status_equipment==='need maintenance'?'badge-amber':'badge-red'}`}>{eq.status_equipment === 'active' ? '✅ Active' : eq.status_equipment === 'need maintenance' ? '🔧 Needs Maintenance' : '⛔ Inactive'}</span></td>
                         <td style={{ display:'flex', gap:'0.5rem' }}>
-                          <button onClick={() => { setEqForm({ ...eq, qty:eq.qty||eq.quantity }); setEqModal(eq.id); }} style={{ display:'flex', alignItems:'center', gap:'0.35rem', padding:'0.4rem 0.75rem', background:'white', border:'1px solid #e2e8f0', borderRadius:7, cursor:'pointer', fontSize:'0.82rem', fontWeight:600 }}>
+                          <button onClick={() => { setEqForm({ ...eq, qty:eq.qty||eq.quantity, status_equipment:eq.status_equipment||'active' }); setEqModal(eq.id); }} style={{ display:'flex', alignItems:'center', gap:'0.35rem', padding:'0.4rem 0.75rem', background:'white', border:'1px solid #e2e8f0', borderRadius:7, cursor:'pointer', fontSize:'0.82rem', fontWeight:600 }}>
                             <Settings2 size={13}/> Edit
                           </button>
                           <button onClick={() => { setDeleteConfirm(eq.id); setDeleteConfirmType('equipment'); }} style={{ background:'none', border:'none', cursor:'pointer', color:'#ef4444', padding:'0.4rem' }}>
@@ -466,8 +468,8 @@ export default function Services() {
               <div style={{ flex:1 }}><label className="form-label">Quantity</label>
                 <input type="number" className="form-input" min={1} value={eqForm.qty} onChange={e => setEqForm(p => ({...p,qty:e.target.value}))}/></div>
               <div style={{ flex:1 }}><label className="form-label">Status</label>
-                <select className="form-input" value={eqForm.status} onChange={e => setEqForm(p => ({...p,status:e.target.value}))}>
-                  <option>Active</option><option>Needs Maintenance</option><option>Inactive</option>
+                <select className="form-input" value={eqForm.status_equipment} onChange={e => setEqForm(p => ({...p,status_equipment:e.target.value}))}>
+                  <option value="active">Active</option><option value="need maintenance">Needs Maintenance</option><option value="inactive">Inactive</option>
                 </select></div>
             </div>
             <div><label className="form-label">Portability</label>
@@ -492,8 +494,8 @@ export default function Services() {
               <input type="number" className="form-input" min={1} value={eqForm.qty} 
                 onChange={e => setEqForm(p => ({...p,qty:e.target.value}))}/></div>
             <div><label className="form-label">Status</label>
-              <select className="form-input" value={eqForm.status} onChange={e => setEqForm(p => ({...p,status:e.target.value}))}>
-                <option>Active</option><option>Needs Maintenance</option><option>Inactive</option>
+              <select className="form-input" value={eqForm.status_equipment} onChange={e => setEqForm(p => ({...p,status_equipment:e.target.value}))}>
+                <option value="active">Active</option><option value="need maintenance">Needs Maintenance</option><option value="inactive">Inactive</option>
               </select></div>
             <div><label className="form-label">Portability</label>
               <select className="form-input" value={String(eqForm.portable)} onChange={e => setEqForm(p => ({...p,portable:e.target.value==='true'}))}>
