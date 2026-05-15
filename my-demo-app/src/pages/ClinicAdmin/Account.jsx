@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  User, Shield, Bell, LogOut, Edit2, Save,
+  User, Shield, Bell, LogOut, Edit2, Save, Building2,
   Eye, EyeOff, Trash2, AlertTriangle, CheckCircle, X, Loader, AlertCircle
 } from 'lucide-react';
 import api from '../../lib/api';
@@ -113,27 +113,51 @@ export default function Account() {
   const [pwdError,         setPwdError]         = useState('');
   const [pwdSuccess,       setPwdSuccess]       = useState('');
   const [pwdSaving,        setPwdSaving]        = useState(false);
+  const [profileSaving,    setProfileSaving]    = useState(false);
 
   // 2FA state
-  const [tfaStep,     setTfaStep]     = useState(false); // true = code entry mode
+  const [tfaStep,     setTfaStep]     = useState(false);
   const [tfaCode,     setTfaCode]     = useState('');
   const [tfaError,    setTfaError]    = useState('');
   const [tfaSending,  setTfaSending]  = useState(false);
 
+  // Clinic state
+  const [clinicInfo,   setClinicInfo]   = useState({ name: '', city: '', phone: '', address: '' });
+  const [clinicLogo,   setClinicLogo]   = useState(null);
+  const [logoFile,     setLogoFile]     = useState(null);
+  const [clinicSaving, setClinicSaving] = useState(false);
+
   const showToast = (msg) => { setToast(msg); setTimeout(() => setToast(''), 3000); };
 
-  // Load profile and team
+  // Load profile, team, and clinic
   useEffect(() => {
     const load = async () => {
       setLoading(true);
       setError('');
       try {
-        const [profileData, teamData] = await Promise.all([
-          api.get('/users/me'),
-          api.get('/clinic/team').catch(() => [])
-        ]);
+        const profileData = await api.get('/users/me');
         setProfile(profileData);
-        setTeam(Array.isArray(teamData) ? teamData : teamData?.team ?? []);
+
+        // Load team (may fail if no team endpoint)
+        try {
+          const teamData = await api.get('/clinic/team');
+          setTeam(Array.isArray(teamData) ? teamData : teamData?.team ?? []);
+        } catch (_) { setTeam([]); }
+
+        // Load clinic info using clinicId from profile
+        const clinicId = profileData.clinic_id;
+        if (clinicId) {
+          try {
+            const cData = await api.get(`/clinics/${clinicId}`);
+            setClinicInfo({
+              name:    cData.name || '',
+              city:    cData.city || '',
+              phone:   cData.phone || '',
+              address: cData.address || '',
+            });
+            if (cData.logo_url) setClinicLogo(cData.logo_url);
+          } catch (_) {}
+        }
       } catch (err) {
         setError(err?.message || 'Failed to load account information.');
       } finally {
@@ -281,17 +305,64 @@ export default function Account() {
     }
   };
 
+  // ── Profile Save (user data) ──────────────────────────────────────────
   const handleProfileUpdate = async () => {
+    setProfileSaving(true);
     try {
       await api.put('/users/me', {
-        firstName: profile.firstName,
-        lastName: profile.lastName,
-        email: profile.email
+        firstName: profile.first_name,
+        lastName: profile.last_name,
+        phone: profile.phone || null,
       });
       showToast('Profile updated successfully!');
       setEditProfile(false);
     } catch (err) {
-      showToast(`Error: ${err?.message || 'Failed to update profile.'}`);
+      showToast(`Error: ${err?.error?.message || err?.message || 'Failed to update profile.'}`);
+    } finally {
+      setProfileSaving(false);
+    }
+  };
+
+  // ── Logo upload handler ───────────────────────────────────────────────
+  const handleLogoUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) {
+      showToast('Error: Logo must be under 2MB.');
+      return;
+    }
+    setLogoFile(file);
+    const reader = new FileReader();
+    reader.onload = (ev) => setClinicLogo(ev.target.result);
+    reader.readAsDataURL(file);
+  };
+
+  // ── Clinic Save (clinic data under clinicId) ──────────────────────────
+  const handleClinicSave = async () => {
+    setClinicSaving(true);
+    try {
+      const clinicId = profile?.clinic_id;
+      if (!clinicId) { showToast('Error: No clinic linked to your account.'); setClinicSaving(false); return; }
+
+      const payload = {
+        name: clinicInfo.name,
+        city: clinicInfo.city,
+        phone: clinicInfo.phone,
+        address: clinicInfo.address,
+      };
+
+      // If a new logo file was selected, convert to base64 data URL and send as logoUrl
+      if (logoFile) {
+        payload.logoUrl = clinicLogo; // base64 data URL from reader
+      }
+
+      await api.put(`/clinics/${clinicId}`, payload);
+      showToast('Clinic info saved!');
+      setLogoFile(null); // clear pending file
+    } catch (err) {
+      showToast(`Error: ${err?.error?.message || err?.message || 'Failed to save clinic info.'}`);
+    } finally {
+      setClinicSaving(false);
     }
   };
 
@@ -342,35 +413,40 @@ export default function Account() {
 
             {/* Avatar */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem' }}>
-              <div style={{ width: 64, height: 64, borderRadius: '50%', background: '#bfdbfe', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', fontWeight: 700, color: '#1e40af', flexShrink: 0 }}>
-                {profile.firstName?.[0]}{profile.lastName?.[0]}
+              <div style={{ width: 64, height: 64, borderRadius: '50%', background: '#bfdbfe', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', fontWeight: 700, color: '#1e40af', flexShrink: 0, overflow: 'hidden' }}>
+                {profile.avatar_url
+                  ? <img src={profile.avatar_url} alt="avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  : <>{profile.first_name?.[0]}{profile.last_name?.[0]}</>
+                }
               </div>
               <div>
-                <div style={{ fontWeight: 700, fontSize: '1.05rem' }}>{profile.firstName} {profile.lastName}</div>
+                <div style={{ fontWeight: 700, fontSize: '1.05rem' }}>{profile.first_name} {profile.last_name}</div>
                 <span className="badge badge-purple">{profile.role === 'clinic_admin' ? 'Clinic Admin' : profile.role}</span>
               </div>
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              <div>
-                <label className="form-label">First Name</label>
-                <input 
-                  className="form-input" 
-                  value={profile.firstName || ''} 
-                  onChange={e => setProfile({ ...profile, firstName: e.target.value })}
-                  disabled={!editProfile} 
-                  style={{ opacity: editProfile ? 1 : 0.7 }} 
-                />
-              </div>
-              <div>
-                <label className="form-label">Last Name</label>
-                <input 
-                  className="form-input" 
-                  value={profile.lastName || ''} 
-                  onChange={e => setProfile({ ...profile, lastName: e.target.value })}
-                  disabled={!editProfile} 
-                  style={{ opacity: editProfile ? 1 : 0.7 }} 
-                />
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                <div>
+                  <label className="form-label">First Name</label>
+                  <input 
+                    className="form-input" 
+                    value={profile.first_name || ''} 
+                    onChange={e => setProfile({ ...profile, first_name: e.target.value })}
+                    disabled={!editProfile} 
+                    style={{ opacity: editProfile ? 1 : 0.7 }} 
+                  />
+                </div>
+                <div>
+                  <label className="form-label">Last Name</label>
+                  <input 
+                    className="form-input" 
+                    value={profile.last_name || ''} 
+                    onChange={e => setProfile({ ...profile, last_name: e.target.value })}
+                    disabled={!editProfile} 
+                    style={{ opacity: editProfile ? 1 : 0.7 }} 
+                  />
+                </div>
               </div>
               <div>
                 <label className="form-label">Email Address</label>
@@ -378,15 +454,26 @@ export default function Account() {
                   type="email" 
                   className="form-input" 
                   value={profile.email || ''} 
-                  onChange={e => setProfile({ ...profile, email: e.target.value })}
+                  disabled
+                  style={{ opacity: 0.6, cursor: 'not-allowed' }} 
+                />
+                <span style={{ fontSize: '0.75rem', color: '#94a3b8', marginTop: 2, display: 'block' }}>Email cannot be changed</span>
+              </div>
+              <div>
+                <label className="form-label">Phone</label>
+                <input 
+                  className="form-input" 
+                  value={profile.phone || ''} 
+                  onChange={e => setProfile({ ...profile, phone: e.target.value })}
                   disabled={!editProfile} 
-                  style={{ opacity: editProfile ? 1 : 0.7 }} 
+                  style={{ opacity: editProfile ? 1 : 0.7 }}
+                  placeholder="+94 7X XXX XXXX"
                 />
               </div>
               {editProfile && (
                 <div style={{ display: 'flex', gap: '0.75rem' }}>
-                  <button className="btn-primary" onClick={handleProfileUpdate} style={{ flex: 1, justifyContent: 'center' }}>
-                    <Save size={14} /> Save Changes
+                  <button className="btn-primary" onClick={handleProfileUpdate} disabled={profileSaving} style={{ flex: 1, justifyContent: 'center' }}>
+                    {profileSaving ? <><Loader size={14} style={{ animation: 'spin 1s linear infinite' }} /> Saving...</> : <><Save size={14} /> Save Changes</>}
                   </button>
                   <button className="btn-ghost" onClick={() => setEditProfile(false)} style={{ flex: 1, justifyContent: 'center' }}>
                     Cancel
@@ -396,6 +483,86 @@ export default function Account() {
             </div>
           </div>
         )}
+
+        {/* Clinic Logo & Info Card */}
+        <div className="card">
+          <h2 style={{ fontSize: '0.97rem', fontWeight: 700, marginBottom: '1.25rem', paddingBottom: '0.875rem', borderBottom: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <Building2 size={16} /> Clinic Profile
+          </h2>
+
+          {/* Logo Upload */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', marginBottom: '1.5rem' }}>
+            <div style={{ width: 80, height: 80, borderRadius: 14, border: '2px dashed #cbd5e1', background: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0, position: 'relative' }}>
+              {clinicLogo ? (
+                <img src={clinicLogo} alt="Clinic Logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              ) : (
+                <Building2 size={28} color="#94a3b8" />
+              )}
+            </div>
+            <div>
+              <div style={{ fontWeight: 600, fontSize: '0.9rem', marginBottom: '0.4rem' }}>Clinic Logo</div>
+              <div style={{ fontSize: '0.78rem', color: '#64748b', marginBottom: '0.5rem' }}>PNG, JPG or SVG. Max 2MB.</div>
+              <label style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', padding: '0.4rem 0.85rem', background: '#eff6ff', color: '#2563eb', border: '1px solid #bfdbfe', borderRadius: 8, fontSize: '0.82rem', fontWeight: 600, cursor: 'pointer' }}>
+                <Edit2 size={12} /> Upload
+                <input
+                  type="file"
+                  accept="image/png,image/jpeg,image/svg+xml,image/webp"
+                  style={{ display: 'none' }}
+                  onChange={handleLogoUpload}
+                />
+              </label>
+              {clinicLogo && (
+                <button
+                  onClick={() => { setClinicLogo(null); setLogoFile(null); }}
+                  style={{ marginLeft: '0.5rem', background: 'none', border: 'none', color: '#ef4444', fontSize: '0.8rem', cursor: 'pointer', fontWeight: 600 }}
+                >
+                  Remove
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Clinic Fields */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.875rem' }}>
+            <div>
+              <label className="form-label">Clinic Name</label>
+              <input
+                className="form-input"
+                value={clinicInfo.name || ''}
+                onChange={e => setClinicInfo({ ...clinicInfo, name: e.target.value })}
+              />
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+              <div>
+                <label className="form-label">City</label>
+                <input
+                  className="form-input"
+                  value={clinicInfo.city || ''}
+                  onChange={e => setClinicInfo({ ...clinicInfo, city: e.target.value })}
+                />
+              </div>
+              <div>
+                <label className="form-label">Phone</label>
+                <input
+                  className="form-input"
+                  value={clinicInfo.phone || ''}
+                  onChange={e => setClinicInfo({ ...clinicInfo, phone: e.target.value })}
+                />
+              </div>
+            </div>
+            <div>
+              <label className="form-label">Address</label>
+              <input
+                className="form-input"
+                value={clinicInfo.address || ''}
+                onChange={e => setClinicInfo({ ...clinicInfo, address: e.target.value })}
+              />
+            </div>
+            <button className="btn-primary" onClick={handleClinicSave} disabled={clinicSaving} style={{ width: '100%', justifyContent: 'center' }}>
+              {clinicSaving ? <><Loader size={14} style={{ animation: 'spin 1s linear infinite' }} /> Saving...</> : <><Save size={14} /> Save Clinic Info</>}
+            </button>
+          </div>
+        </div>
 
         {/* Security Card */}
         <div className="card">
