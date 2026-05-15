@@ -70,7 +70,7 @@ export default function Services() {
     if (!clinicId) return;
     setEqLoading(true); setEqError('');
     try {
-      const data = await api.get(`/api/v1/clinics/${clinicId}/equipment`);
+      const data = await api.get(`/clinics/${clinicId}/equipment`);
       const list = Array.isArray(data) ? data : data?.equipment ?? [];
       // Only show active (non-soft-deleted) equipment
       setEquipment(list.filter(e => e.is_active !== false));
@@ -84,7 +84,7 @@ export default function Services() {
     if (!clinicId) return;
     setSvcLoading(true); setSvcError('');
     try {
-      const data = await api.get(`/api/v1/clinics/${clinicId}/services`);
+      const data = await api.get(`/clinics/${clinicId}/services`);
       setServices(Array.isArray(data) ? data : data?.services ?? []);
     }
     catch (err) { setSvcError(err?.message || 'Failed to load services.'); }
@@ -96,7 +96,7 @@ export default function Services() {
     if (!clinicId) return;
     setPkgLoading(true); setPkgError('');
     try {
-      const data = await api.get(`/api/v1/clinics/${clinicId}/packages`);
+      const data = await api.get(`/clinics/${clinicId}/packages`);
       setPackages(Array.isArray(data) ? data : data?.packages ?? []);
     }
     catch (err) { setPkgError(err?.message || 'Failed to load packages.'); }
@@ -119,7 +119,7 @@ export default function Services() {
         is_portable: eqForm.portable || false,
         status_equipment: eqForm.status_equipment || 'active'
       };
-      const created = await api.post(`/api/v1/clinics/${clinicId}/equipment`, payload);
+      const created = await api.post(`/clinics/${clinicId}/equipment`, payload);
       setEquipment(prev => [...prev, created]);
       setEqModal(null);
       showToast('Equipment added.');
@@ -138,7 +138,7 @@ export default function Services() {
         is_portable: eqForm.portable ?? target.portable ?? false,
         status_equipment: eqForm.status_equipment ?? target.status_equipment ?? 'active'
       };
-      const updated = await api.put(`/api/v1/clinics/${clinicId}/equipment/${id}`, payload);
+      const updated = await api.put(`/clinics/${clinicId}/equipment/${id}`, payload);
       setEquipment(prev => prev.map(e => e.id === id ? updated : e));
       setEqModal(null);
       showToast('Equipment updated.');
@@ -148,7 +148,7 @@ export default function Services() {
 
   const deleteEq = async (id) => {
     try { 
-      await api.delete(`/api/v1/clinics/${clinicId}/equipment/${id}`); 
+      await api.delete(`/clinics/${clinicId}/equipment/${id}`); 
       setEquipment(prev => prev.filter(e => e.id !== id)); 
       setDeleteConfirm(null);
       showToast('Equipment removed.'); 
@@ -169,7 +169,7 @@ export default function Services() {
         required_equipment: svcForm.equipment === 'None' ? undefined : svcForm.equipment,
         price: svcForm.price ? +svcForm.price : undefined
       };
-      const created = await api.post(`/api/v1/clinics/${clinicId}/services`, payload);
+      const created = await api.post(`/clinics/${clinicId}/services`, payload);
       setServices(prev => [...prev, created]);
       setSvcModal(null);
       showToast('Service added.');
@@ -179,7 +179,7 @@ export default function Services() {
 
   const deleteSvc = async (id) => {
     try { 
-      await api.delete(`/api/v1/clinics/${clinicId}/services/${id}`); 
+      await api.delete(`/clinics/${clinicId}/services/${id}`); 
       setServices(prev => prev.filter(s => s.id !== id)); 
       setDeleteConfirm(null);
       showToast('Service removed.'); 
@@ -200,7 +200,7 @@ export default function Services() {
         required_equipment: target.required_equipment || target.equipment || undefined,
         price: target.price ? +target.price : undefined
       };
-      const updated = await api.put(`/api/v1/clinics/${clinicId}/services/${id}`, payload);
+      const updated = await api.put(`/clinics/${clinicId}/services/${id}`, payload);
       setServices(prev => prev.map(s => s.id === id ? updated : s));
       setSvcModal(null);
       showToast('Service updated.');
@@ -221,7 +221,7 @@ export default function Services() {
         is_fast_track: pkgForm.fast || false,
         description: pkgForm.description || pkgForm.includes || undefined
       };
-      const created = await api.post(`/api/v1/clinics/${clinicId}/packages`, payload);
+      const created = await api.post(`/clinics/${clinicId}/packages`, payload);
       setPackages(prev => [...prev, created]);
       setPkgModal(null);
       showToast('Package created.');
@@ -242,7 +242,7 @@ export default function Services() {
         is_fast_track: target.fast || false,
         description: target.description || target.includes || undefined
       };
-      const updated = await api.put(`/api/v1/clinics/${clinicId}/packages/${id}`, payload);
+      const updated = await api.put(`/clinics/${clinicId}/packages/${id}`, payload);
       setPackages(prev => prev.map(p => p.id === id ? updated : p));
       setPkgModal(null);
       showToast('Package updated.');
@@ -252,7 +252,7 @@ export default function Services() {
 
   const deletePkg = async (id) => {
     try { 
-      await api.delete(`/api/v1/clinics/${clinicId}/packages/${id}`); 
+      await api.delete(`/clinics/${clinicId}/packages/${id}`); 
       setPackages(prev => prev.filter(p => p.id !== id)); 
       setDeleteConfirm(null);
       showToast('Package removed.'); 
