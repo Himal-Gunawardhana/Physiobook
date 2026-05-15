@@ -22,7 +22,7 @@ function StatusBadge({ status }) {
 function Modal({ title, onClose, children, wide }) {
   return (
     <div className="modal-backdrop" onClick={e => { if (e.target === e.currentTarget) onClose(); }}>
-      <div className="modal-box" style={wide ? { maxWidth: 560 } : {}}>
+      <div className="modal-box" style={{ ...(wide ? { maxWidth: 560 } : {}), overflow: 'visible' }}>
         <div className="modal-header">
           <h3 className="modal-title">{title}</h3>
           <button className="modal-close" onClick={onClose}><X size={18}/></button>
@@ -145,11 +145,14 @@ export default function StaffManagement() {
   const handleConfirmAdd = async () => {
     setAdding(true);
     try {
-      // POST /staff/onboarding/confirm  → links therapist user to clinic
-      const created = await api.post('/staff/onboarding/confirm', {
+      // POST /staff — directly add an existing user to the clinic
+      const created = await api.post('/staff', {
         email: searchEmail.trim(),
-        specialization: addSpec,
-        experience_years: addExp ? +addExp : undefined,
+        firstName: searchResult?.firstName || '',
+        lastName: searchResult?.lastName || '',
+        roleInClinic: 'therapist',
+        specialization: addSpec || undefined,
+        experienceYears: addExp ? +addExp : undefined,
       });
       setStaff(prev => [...prev, created]);
       closeWizard();
