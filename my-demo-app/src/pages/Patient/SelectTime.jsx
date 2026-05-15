@@ -28,10 +28,9 @@ export default function SelectTime() {
     return d.toISOString().split('T')[0];
   });
 
-  const [therapists, setTherapists] = useState([]);
+  const [therapists, setTherapists] = useState(location.state?.therapists || []);
   const [slots, setSlots] = useState([]);
   const [loadingSlots, setLoadingSlots] = useState(false);
-  const [loadingTherapists, setLoadingTherapists] = useState(false);
   const [error, setError] = useState('');
 
   const requiresEquip = service.requires_equipment && service.requires_equipment !== 'None';
@@ -44,17 +43,6 @@ export default function SelectTime() {
   const maxDate  = new Date(); maxDate.setDate(maxDate.getDate() + 60);
   const minDateStr = tomorrow.toISOString().split('T')[0];
   const maxDateStr = maxDate.toISOString().split('T')[0];
-
-  // Load therapists from clinic staff
-  useEffect(() => {
-    if (!clinicId) return;
-    setLoadingTherapists(true);
-    api.get(`/clinics/${clinicId}/staff`).then(data => {
-      const list = (Array.isArray(data) ? data : data?.rows ?? [])
-        .filter(t => t.role_in_clinic === 'therapist' || t.role_in_clinic === 'senior_therapist');
-      setTherapists(list);
-    }).catch(() => setTherapists([])).finally(() => setLoadingTherapists(false));
-  }, [clinicId]);
 
   // Load available slots when date or therapist changes
   useEffect(() => {
@@ -189,11 +177,7 @@ export default function SelectTime() {
                     <div style={{ fontSize: '0.78rem', color: '#64748b' }}>Highest-rated available specialist</div>
                   </div>
 
-                  {loadingTherapists ? (
-                    <div style={{ textAlign: 'center', padding: '1rem', color: '#94a3b8' }}>
-                      <Loader size={18} style={{ animation: 'spin 1s linear infinite' }} />
-                    </div>
-                  ) : therapists.length === 0 ? (
+                  {therapists.length === 0 ? (
                     <div style={{ textAlign: 'center', padding: '0.75rem', color: '#94a3b8', fontSize: '0.82rem' }}>
                       No therapists found for this clinic.
                     </div>

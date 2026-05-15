@@ -49,6 +49,7 @@ export default function ClinicLanding() {
   const [portalConfig, setPortalConfig] = useState(null);
   const [services,     setServices]     = useState([]);
   const [packages,     setPackages]     = useState([]);
+  const [therapists,   setTherapists]   = useState([]);
   const [loading,      setLoading]      = useState(true);
   const [error,        setError]        = useState('');
 
@@ -87,6 +88,7 @@ export default function ClinicLanding() {
         setPortalConfig(data.portalConfig || {});
         setServices(data.services || []);
         setPackages(data.packages || []);
+        setTherapists(data.therapists || []);
       } catch (err) {
         if (cancelled) return;
         setError(err?.message || 'Failed to load clinic');
@@ -186,7 +188,7 @@ export default function ClinicLanding() {
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexShrink: 0 }}>
                   {showPrices && <span style={{ fontWeight: 800, fontSize: '1.05rem', color: primaryColor }}>LKR {Number(pkg.price).toLocaleString()}</span>}
-                  <Link to="/book/time" state={{ service: pkg, isFastTrack: true, clinicId: clinic?.id, clinicSlug: clinic?.slug, primaryColor }}
+                  <Link to="/book/time" state={{ service: pkg, isFastTrack: true, clinicId: clinic?.id, clinicSlug: clinic?.slug, primaryColor, therapists }}
                     className="btn-primary" style={{ padding: '0.55rem 1rem', fontSize: '0.87rem', background: primaryColor, textDecoration: 'none' }}>
                     ⚡ Quick Book <ArrowRight size={14} />
                   </Link>
@@ -228,7 +230,7 @@ export default function ClinicLanding() {
                         <div style={{ fontSize: '0.72rem', color: '#94a3b8' }}>per session</div>
                       </div>
                     )}
-                    <Link to="/book/time" state={{ service: s, clinicId: clinic?.id, clinicSlug: clinic?.slug, primaryColor }}
+                    <Link to="/book/time" state={{ service: s, clinicId: clinic?.id, clinicSlug: clinic?.slug, primaryColor, therapists }}
                       className="btn-primary" style={{ padding: '0.55rem 1rem', fontSize: '0.87rem', background: primaryColor, textDecoration: 'none' }}>
                       Book <ArrowRight size={14} />
                     </Link>
@@ -257,7 +259,7 @@ export default function ClinicLanding() {
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexShrink: 0 }}>
                     {showPrices && <span style={{ fontWeight: 800, fontSize: '1.05rem', color: '#0f172a' }}>LKR {Number(p.price).toLocaleString()}</span>}
-                    <Link to="/book/time" state={{ service: p, clinicId: clinic?.id, clinicSlug: clinic?.slug, primaryColor }}
+                    <Link to="/book/time" state={{ service: p, clinicId: clinic?.id, clinicSlug: clinic?.slug, primaryColor, therapists }}
                       className="btn-primary" style={{ padding: '0.55rem 1rem', fontSize: '0.87rem', background: primaryColor, textDecoration: 'none' }}>
                       Select <ArrowRight size={14} />
                     </Link>
