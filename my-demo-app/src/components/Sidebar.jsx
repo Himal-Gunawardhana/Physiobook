@@ -4,7 +4,7 @@ import {
   Building2, Users, Settings, Activity,
   Calendar, MessageSquare, PieChart, ShieldCheck,
   Package, X, LogOut, CreditCard, Globe, UserCircle,
-  FileText,
+  FileText, Star,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
@@ -46,9 +46,11 @@ export default function Sidebar({ role, activeClinic, setActiveClinic, clinics, 
       {
         label: 'Navigation',
         items: [
-          { name: 'My Schedule',   path: '/therapist',       icon: Calendar,      end: true },
-          { name: 'Session Notes', path: '/therapist/notes', icon: FileText },
-          { name: 'Patient Chats', path: '/therapist/chat',  icon: MessageSquare },
+          { name: 'My Schedule',   path: '/therapist',         icon: Calendar,      end: true },
+          { name: 'My Profile',    path: '/therapist/profile', icon: UserCircle },
+          { name: 'Session Notes', path: '/therapist/notes',   icon: FileText },
+          { name: 'Patient Chats', path: '/therapist/chat',    icon: MessageSquare },
+          { name: 'My Reviews',    path: '/therapist/reviews', icon: Star },
         ],
       },
     ];

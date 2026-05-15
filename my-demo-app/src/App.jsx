@@ -34,6 +34,8 @@ import ClinicAdminAccount    from './pages/ClinicAdmin/Account';
 import TherapistSchedule     from './pages/Therapist/Schedule';
 import TherapistChat         from './pages/Therapist/PatientChat';
 import TherapistSessionNotes from './pages/Therapist/SessionNotes';
+import TherapistProfile      from './pages/Therapist/Profile';
+import TherapistReviews      from './pages/Therapist/Reviews';
 
 // Super Admin
 import SuperAdminOverview      from './pages/SuperAdmin/Overview';
@@ -278,9 +280,11 @@ export default function App() {
 
         {/* Therapist */}
         <Route path="/therapist" element={<DashboardLayout role="therapist" />}>
-          <Route index        element={<TherapistSchedule />} />
-          <Route path="chat"  element={<TherapistChat />} />
-          <Route path="notes" element={<TherapistSessionNotes />} />
+          <Route index          element={<TherapistSchedule />} />
+          <Route path="profile" element={<TherapistProfile />} />
+          <Route path="reviews" element={<TherapistReviews />} />
+          <Route path="chat"    element={<TherapistChat />} />
+          <Route path="notes"   element={<TherapistSessionNotes />} />
         </Route>
 
         {/* Super Admin (also accessible via /admin shortcut) */}
