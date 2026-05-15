@@ -256,7 +256,7 @@ export default function StaffManagement() {
     }
   };
 
-  function WizardContent() {
+  const renderWizard = () => {
     /* Step 1 */
     if (wizStep === 1) {
       const isExistingTherapist = searchResult?.exists && searchResult?.role === 'therapist';
@@ -582,7 +582,7 @@ export default function StaffManagement() {
       {/* Onboarding Wizard */}
       {wizardOpen && (
         <Modal title="Onboard Physiotherapist" onClose={closeWizard} wide>
-          <WizardContent/>
+          {renderWizard()}
         </Modal>
       )}
 
