@@ -13,8 +13,19 @@ const PRESET_THEMES = [
 ];
 
 /* ── Live preview ─────────────────────────────────────────────────────────── */
-function BookingPagePreview({ config }) {
-  const { clinicName, tagline, primaryColor, bgColor, phone, address, showRatings, showPrices, heroMessage } = config;
+function BookingPagePreview({ config, services = [], packages = [] }) {
+  const { clinicName, tagline, primaryColor, bgColor, phone, address, showRatings, showPrices, showFastTrack, heroMessage } = config;
+
+  // Split packages: fast-track vs regular
+  const fastTrackPkgs = packages.filter(p => p.is_fast_track && p.is_active !== false);
+  const regularPkgs   = packages.filter(p => !p.is_fast_track && p.is_active !== false);
+  const activeServices = services.filter(s => s.is_active !== false);
+
+  const formatDuration = (mins) => {
+    if (!mins) return '';
+    return mins >= 60 ? `${Math.floor(mins/60)}h${mins%60 ? ` ${mins%60}m` : ''}` : `${mins} min`;
+  };
+
   return (
     <div style={{ border: '1px solid #e2e8f0', borderRadius: 12, overflow: 'hidden', fontFamily: 'Inter, sans-serif', fontSize: '13px', boxShadow: '0 4px 20px rgba(0,0,0,0.08)' }}>
       <div style={{ background: primaryColor || '#2563eb', color: 'white', padding: '0.75rem 1.25rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -30,29 +41,82 @@ function BookingPagePreview({ config }) {
         </h2>
         <p style={{ color: '#64748b', fontSize: '0.8rem', margin: 0 }}>{tagline || 'Book your physiotherapy appointment online.'}</p>
       </div>
-      <div style={{ padding: '1rem', background: '#f8fafc', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-        {[
-          { name: 'Initial Assessment', price: 3500, dur: '45 min' },
-          { name: 'Follow-up Session',  price: 2200, dur: '30 min' },
-        ].map(s => (
-          <div key={s.name} style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: 8, padding: '0.6rem 0.875rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={{ padding: '1rem', background: '#f8fafc', display: 'flex', flexDirection: 'column', gap: '0.5rem', maxHeight: 380, overflowY: 'auto' }}>
+
+        {/* Fast-Track Packages — always on top */}
+        {showFastTrack && fastTrackPkgs.map(pkg => (
+          <div key={pkg.id} style={{ background: `${(primaryColor||'#2563eb')}12`, border: `1.5px solid ${(primaryColor||'#2563eb')}40`, borderRadius: 8, padding: '0.6rem 0.875rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div>
-              <div style={{ fontWeight: 700, fontSize: '0.82rem' }}>{s.name}</div>
-              <div style={{ fontSize: '0.72rem', color: '#94a3b8' }}><Clock size={9} style={{ marginRight: 2, marginBottom: -1 }}/>{s.dur}</div>
+              <div style={{ fontWeight: 700, fontSize: '0.82rem', color: primaryColor || '#2563eb' }}>⚡ {pkg.name}</div>
+              <div style={{ fontSize: '0.72rem', color: '#94a3b8' }}>
+                {pkg.session_count} session{pkg.session_count > 1 ? 's' : ''}
+                {pkg.discount_percent > 0 && <> · <span style={{ color: '#10b981', fontWeight: 600 }}>{pkg.discount_percent}% off</span></>}
+              </div>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              {showPrices && <span style={{ fontSize: '0.82rem', fontWeight: 700, color: '#0f172a' }}>LKR {s.price.toLocaleString()}</span>}
+              {showPrices && <span style={{ fontSize: '0.82rem', fontWeight: 700, color: primaryColor || '#2563eb' }}>LKR {Number(pkg.price).toLocaleString()}</span>}
+              <span style={{ background: primaryColor || '#2563eb', color: 'white', padding: '0.25rem 0.5rem', borderRadius: 5, fontSize: '0.7rem', fontWeight: 600 }}>Quick Book</span>
+            </div>
+          </div>
+        ))}
+
+        {/* Fallback fast-track if none defined but toggle is on */}
+        {showFastTrack && fastTrackPkgs.length === 0 && (
+          <div style={{ background: `${(primaryColor||'#2563eb')}12`, border: `1.5px solid ${(primaryColor||'#2563eb')}40`, borderRadius: 8, padding: '0.6rem 0.875rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div>
+              <div style={{ fontWeight: 700, fontSize: '0.82rem', color: primaryColor || '#2563eb' }}>⚡ Fast-Track Walk-in</div>
+              <div style={{ fontSize: '0.72rem', color: '#94a3b8' }}>Express booking — choose time only</div>
+            </div>
+            <span style={{ background: primaryColor || '#2563eb', color: 'white', padding: '0.25rem 0.5rem', borderRadius: 5, fontSize: '0.7rem', fontWeight: 600 }}>Quick Book</span>
+          </div>
+        )}
+
+        {/* Services */}
+        {activeServices.length > 0 && (
+          <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em', padding: '0.35rem 0 0.1rem', marginTop: activeServices.length > 0 && (showFastTrack) ? '0.25rem' : 0 }}>Services</div>
+        )}
+        {activeServices.map(s => (
+          <div key={s.id} style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: 8, padding: '0.6rem 0.875rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div>
+              <div style={{ fontWeight: 700, fontSize: '0.82rem' }}>{s.name}</div>
+              <div style={{ fontSize: '0.72rem', color: '#94a3b8' }}>
+                {s.duration_minutes && <><Clock size={9} style={{ marginRight: 2, marginBottom: -1 }}/>{formatDuration(s.duration_minutes)}</>}
+                {s.description && <> · {s.description.length > 40 ? s.description.slice(0,40) + '…' : s.description}</>}
+              </div>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              {showPrices && s.price > 0 && <span style={{ fontSize: '0.82rem', fontWeight: 700, color: '#0f172a' }}>LKR {Number(s.price).toLocaleString()}</span>}
               <span style={{ background: primaryColor || '#2563eb', color: 'white', padding: '0.25rem 0.5rem', borderRadius: 5, fontSize: '0.7rem', fontWeight: 600 }}>Book</span>
             </div>
           </div>
         ))}
-        <div style={{ background: `${(primaryColor||'#2563eb')}12`, border: `1.5px solid ${(primaryColor||'#2563eb')}40`, borderRadius: 8, padding: '0.6rem 0.875rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div>
-            <div style={{ fontWeight: 700, fontSize: '0.82rem', color: primaryColor || '#2563eb' }}>⚡ Fast-Track Walk-in</div>
-            <div style={{ fontSize: '0.72rem', color: '#94a3b8' }}>Express booking — choose time only</div>
+
+        {/* Regular Packages */}
+        {regularPkgs.length > 0 && (
+          <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em', padding: '0.35rem 0 0.1rem', marginTop: '0.25rem' }}>Packages</div>
+        )}
+        {regularPkgs.map(pkg => (
+          <div key={pkg.id} style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: 8, padding: '0.6rem 0.875rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div>
+              <div style={{ fontWeight: 700, fontSize: '0.82rem' }}>{pkg.name}</div>
+              <div style={{ fontSize: '0.72rem', color: '#94a3b8' }}>
+                {pkg.session_count} session{pkg.session_count > 1 ? 's' : ''}
+                {pkg.discount_percent > 0 && <> · <span style={{ color: '#10b981', fontWeight: 600 }}>{pkg.discount_percent}% off</span></>}
+              </div>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              {showPrices && <span style={{ fontSize: '0.82rem', fontWeight: 700, color: '#0f172a' }}>LKR {Number(pkg.price).toLocaleString()}</span>}
+              <span style={{ background: primaryColor || '#2563eb', color: 'white', padding: '0.25rem 0.5rem', borderRadius: 5, fontSize: '0.7rem', fontWeight: 600 }}>Book</span>
+            </div>
           </div>
-          <span style={{ background: primaryColor || '#2563eb', color: 'white', padding: '0.25rem 0.5rem', borderRadius: 5, fontSize: '0.7rem', fontWeight: 600 }}>Quick Book</span>
-        </div>
+        ))}
+
+        {/* Empty state */}
+        {activeServices.length === 0 && regularPkgs.length === 0 && fastTrackPkgs.length === 0 && (
+          <div style={{ textAlign: 'center', padding: '1.5rem 0.5rem', color: '#94a3b8', fontSize: '0.8rem' }}>
+            No services or packages yet. Add them in the Services tab.
+          </div>
+        )}
       </div>
       {showRatings && (
         <div style={{ padding: '0.625rem 1.25rem', background: 'white', borderTop: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.72rem', color: '#64748b' }}>
@@ -103,6 +167,8 @@ export default function BookingPage() {
   const [saved,    setSaved]    = useState(false);
   const [error,    setError]    = useState('');
   const [toast,    setToast]    = useState('');
+  const [services, setServices] = useState([]);
+  const [packages, setPackages] = useState([]);
 
   const showToast = (msg) => { setToast(msg); setTimeout(() => setToast(''), 3000); };
   const update = (key, val) => setConfig(prev => ({ ...prev, [key]: val }));
@@ -117,6 +183,13 @@ export default function BookingPage() {
       const portalData = await api.get(`/clinics/${clinicId}/portal-config`);
       // Load clinic basic info (name, address, phone)
       const clinicData = await api.get(`/clinics/${clinicId}`);
+      // Load real services & packages
+      const [svcData, pkgData] = await Promise.all([
+        api.get(`/clinics/${clinicId}/services`).catch(() => []),
+        api.get(`/clinics/${clinicId}/packages`).catch(() => []),
+      ]);
+      setServices(Array.isArray(svcData) ? svcData : svcData?.services ?? []);
+      setPackages(Array.isArray(pkgData) ? pkgData : pkgData?.packages ?? []);
 
       setConfig(prev => ({
         ...prev,
@@ -357,7 +430,7 @@ export default function BookingPage() {
             </h3>
             <span style={{ fontSize: '0.78rem', color: '#94a3b8' }}>Updates as you type</span>
           </div>
-          <BookingPagePreview config={config} />
+          <BookingPagePreview config={config} services={services} packages={packages} />
           {slug && (
             <div style={{ marginTop: '1rem', padding: '0.875rem', background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 10, fontSize: '0.82rem', color: '#166534' }}>
               ✅ Live at: <strong>physiobook.itselfcare.com/book?clinic={clinicId}</strong>
