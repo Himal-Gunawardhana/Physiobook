@@ -126,22 +126,6 @@ export default function StaffManagement() {
   };
   const closeWizard = () => setWizardOpen(false);
 
-  /* Step 1 – search by email */
-  const handleSearch = async (e) => {
-    e.preventDefault();
-    if (!searchEmail.trim()) return;
-    setSearching(true); setSearchResult(null); setSearchError('');
-    try {
-      // POST /staff/onboarding/lookup  → { found, isTherapist, userId?, invitePending? }
-      const data = await api.post('/staff/onboarding/lookup', { email: searchEmail.trim() });
-      setSearchResult(data);
-    } catch (err) {
-      setSearchError(err?.message || 'Search failed. Try again.');
-    } finally {
-      setSearching(false);
-    }
-  };
-
   /* Step 2 – send invite email */
   const handleSendInvite = async () => {
     setSending(true);
@@ -204,26 +188,150 @@ export default function StaffManagement() {
     ? (staff.reduce((a, s) => a + Number(s.rating || 0), 0) / staff.length).toFixed(1) : '—';
 
   /* ── Wizard modal content ──────────────────────────────────────── */
+
+  // Live email search state
+  const [suggestions,    setSuggestions]    = useState([]);
+  const [showDropdown,   setShowDropdown]   = useState(false);
+  const [searchTimer,    setSearchTimer]    = useState(null);
+  const [selectedUser,   setSelectedUser]   = useState(null); // full user from suggestion
+
+  const handleEmailChange = (val) => {
+    setSearchEmail(val);
+    setSearchResult(null);
+    setSearchError('');
+    setSelectedUser(null);
+
+    // Clear previous timer
+    if (searchTimer) clearTimeout(searchTimer);
+
+    if (val.trim().length < 3) {
+      setSuggestions([]);
+      setShowDropdown(false);
+      return;
+    }
+
+    // Debounce: search after 300ms of no typing
+    const timer = setTimeout(async () => {
+      try {
+        const results = await api.get(`/staff/onboarding/search?q=${encodeURIComponent(val.trim())}`);
+        setSuggestions(Array.isArray(results) ? results : []);
+        setShowDropdown(true);
+      } catch {
+        setSuggestions([]);
+      }
+    }, 300);
+    setSearchTimer(timer);
+  };
+
+  const selectSuggestion = (user) => {
+    setSearchEmail(user.fullEmail);
+    setSelectedUser(user);
+    setShowDropdown(false);
+    setSuggestions([]);
+    // Auto-lookup
+    setSearchResult({
+      exists: true,
+      userId: user.userId,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.fullEmail,
+      role: user.role,
+      avatarUrl: user.avatarUrl,
+      isActive: true,
+    });
+  };
+
+  // Direct lookup for typed email (when user presses Enter or Search)
+  const handleSearch = async (e) => {
+    e.preventDefault();
+    if (!searchEmail.trim()) return;
+    setSearching(true); setSearchResult(null); setSearchError(''); setShowDropdown(false);
+    try {
+      const data = await api.post('/staff/onboarding/lookup', { email: searchEmail.trim() });
+      setSearchResult(data);
+    } catch (err) {
+      setSearchError(err?.message || 'Search failed. Try again.');
+    } finally {
+      setSearching(false);
+    }
+  };
+
   function WizardContent() {
     /* Step 1 */
     if (wizStep === 1) {
+      const isExistingTherapist = searchResult?.exists && searchResult?.role === 'therapist';
+      const isExistingOther = searchResult?.exists && searchResult?.role !== 'therapist';
+      const isNotFound = searchResult && !searchResult.exists;
+
       return (
         <>
           <StepBar step={1}/>
           <p style={{ fontSize:'0.9rem', color:'#64748b', marginBottom:'1.25rem' }}>
-            Enter the physiotherapist's email address to look them up. If they're already registered
-            as a therapist you can add them directly; otherwise we'll send an invite.
+            Start typing the physiotherapist's email to search. If they're already on the platform
+            you can add them directly; otherwise we'll send an invite.
           </p>
-          <form onSubmit={handleSearch} style={{ display:'flex', gap:'0.5rem', marginBottom:'1rem' }}>
-            <input
-              type="email" className="form-input" placeholder="therapist@example.com"
-              value={searchEmail} onChange={e => setSearchEmail(e.target.value)} required
-              style={{ flex:1 }}
-            />
-            <button type="submit" className="btn-primary" disabled={searching} style={{ whiteSpace:'nowrap' }}>
-              {searching ? <Loader size={15} style={{ animation:'spin 1s linear infinite' }}/> : <><Search size={15}/> Search</>}
-            </button>
-          </form>
+
+          {/* Search with live dropdown */}
+          <div style={{ position:'relative', marginBottom:'1rem' }}>
+            <form onSubmit={handleSearch} style={{ display:'flex', gap:'0.5rem' }}>
+              <div style={{ flex:1, position:'relative' }}>
+                <input
+                  type="email" className="form-input" placeholder="Start typing email..."
+                  value={searchEmail}
+                  onChange={e => handleEmailChange(e.target.value)}
+                  onFocus={() => suggestions.length > 0 && setShowDropdown(true)}
+                  onBlur={() => setTimeout(() => setShowDropdown(false), 200)}
+                  autoComplete="off"
+                  style={{ width:'100%' }}
+                />
+
+                {/* Dropdown suggestions */}
+                {showDropdown && suggestions.length > 0 && (
+                  <div style={{
+                    position:'absolute', top:'100%', left:0, right:0, zIndex:100,
+                    background:'#fff', border:'1px solid #e2e8f0', borderRadius:10,
+                    boxShadow:'0 8px 32px rgba(0,0,0,0.12)', marginTop:4,
+                    maxHeight:240, overflowY:'auto',
+                  }}>
+                    {suggestions.map((user, i) => (
+                      <button
+                        key={user.userId || i}
+                        type="button"
+                        onMouseDown={() => selectSuggestion(user)}
+                        style={{
+                          display:'flex', alignItems:'center', gap:'0.75rem',
+                          width:'100%', padding:'0.75rem 1rem', background:'transparent',
+                          border:'none', cursor:'pointer', textAlign:'left',
+                          borderBottom: i < suggestions.length - 1 ? '1px solid #f1f5f9' : 'none',
+                          transition:'background 0.15s',
+                        }}
+                        onMouseOver={e => e.currentTarget.style.background = '#f8fafc'}
+                        onMouseOut={e => e.currentTarget.style.background = 'transparent'}
+                      >
+                        <div style={{ width:36, height:36, borderRadius:'50%', background:'linear-gradient(135deg, #dbeafe, #e0e7ff)', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, fontSize:'0.8rem', fontWeight:700, color:'#4338ca' }}>
+                          {(user.firstName?.[0] || '').toUpperCase()}{(user.lastName?.[0] || '').toUpperCase()}
+                        </div>
+                        <div style={{ flex:1, minWidth:0 }}>
+                          <div style={{ fontWeight:600, fontSize:'0.88rem', color:'#0f172a' }}>
+                            {user.firstName} {user.lastName}
+                          </div>
+                          <div style={{ fontSize:'0.78rem', color:'#94a3b8' }}>
+                            {user.email} · {user.role}
+                          </div>
+                        </div>
+                        <span style={{ padding:'0.15rem 0.5rem', borderRadius:12, fontSize:'0.7rem', fontWeight:600, background: user.role === 'therapist' ? '#dcfce7' : '#f0f9ff', color: user.role === 'therapist' ? '#166534' : '#1d4ed8' }}>
+                          {user.role === 'therapist' ? 'Therapist' : 'Patient'}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <button type="submit" className="btn-primary" disabled={searching} style={{ whiteSpace:'nowrap' }}>
+                {searching ? <Loader size={15} style={{ animation:'spin 1s linear infinite' }}/> : <><Search size={15}/> Search</>}
+              </button>
+            </form>
+          </div>
 
           {searchError && (
             <div style={{ background:'#fef2f2', border:'1px solid #fca5a5', borderRadius:8, padding:'0.75rem 1rem', color:'#991b1b', fontSize:'0.875rem', display:'flex', gap:'0.5rem', alignItems:'center' }}>
@@ -231,63 +339,61 @@ export default function StaffManagement() {
             </div>
           )}
 
-          {searchResult && (
-            <div style={{ marginTop:'0.5rem' }}>
-              {searchResult.found && searchResult.isTherapist ? (
-                /* User exists and is already a therapist — go straight to step 3 */
-                <div style={{ background:'#f0fdf4', border:'1px solid #86efac', borderRadius:12, padding:'1rem 1.25rem' }}>
-                  <div style={{ display:'flex', alignItems:'center', gap:'0.6rem', marginBottom:'0.5rem' }}>
-                    <UserCheck size={18} color="#16a34a"/>
-                    <span style={{ fontWeight:700, color:'#16a34a' }}>Registered Physiotherapist Found</span>
-                  </div>
-                  <p style={{ fontSize:'0.87rem', color:'#15803d', margin:0 }}>
-                    <strong>{searchResult.user?.firstName} {searchResult.user?.lastName}</strong> ({searchEmail}) is already
-                    registered as a physiotherapist. You can add them directly to your clinic.
-                  </p>
-                  <div className="modal-footer" style={{ paddingTop:'1rem', paddingBottom:0 }}>
-                    <button className="btn-ghost" onClick={closeWizard}>Cancel</button>
-                    <button className="btn-primary" onClick={() => setWizStep(3)}>
-                      Add to Clinic →
-                    </button>
-                  </div>
-                </div>
-              ) : searchResult.found && !searchResult.isTherapist ? (
-                /* User exists but not a therapist */
-                <div style={{ background:'#fffbeb', border:'1px solid #fde68a', borderRadius:12, padding:'1rem 1.25rem' }}>
-                  <div style={{ display:'flex', alignItems:'center', gap:'0.6rem', marginBottom:'0.5rem' }}>
-                    <AlertCircle size={18} color="#d97706"/>
-                    <span style={{ fontWeight:700, color:'#d97706' }}>Account Exists — Not a Therapist</span>
-                  </div>
-                  <p style={{ fontSize:'0.87rem', color:'#92400e', margin:0 }}>
-                    This email is registered but not as a physiotherapist. Send them an onboarding
-                    invite so they can re-register with the correct role.
-                  </p>
-                  <div className="modal-footer" style={{ paddingTop:'1rem', paddingBottom:0 }}>
-                    <button className="btn-ghost" onClick={closeWizard}>Cancel</button>
-                    <button className="btn-primary" style={{ background:'#d97706' }} onClick={() => setWizStep(2)}>
-                      <Send size={14}/> Send Invite →
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                /* Not found at all */
-                <div style={{ background:'#eff6ff', border:'1px solid #bfdbfe', borderRadius:12, padding:'1rem 1.25rem' }}>
-                  <div style={{ display:'flex', alignItems:'center', gap:'0.6rem', marginBottom:'0.5rem' }}>
-                    <Mail size={18} color="#2563eb"/>
-                    <span style={{ fontWeight:700, color:'#1d4ed8' }}>No Account Found</span>
-                  </div>
-                  <p style={{ fontSize:'0.87rem', color:'#1e40af', margin:0 }}>
-                    <strong>{searchEmail}</strong> doesn't have a Physiobook account yet. Send them an
-                    onboarding invite to sign up as a physiotherapist.
-                  </p>
-                  <div className="modal-footer" style={{ paddingTop:'1rem', paddingBottom:0 }}>
-                    <button className="btn-ghost" onClick={closeWizard}>Cancel</button>
-                    <button className="btn-primary" onClick={() => setWizStep(2)}>
-                      <Send size={14}/> Send Invite →
-                    </button>
-                  </div>
-                </div>
-              )}
+          {/* Results */}
+          {isExistingTherapist && (
+            <div style={{ background:'#f0fdf4', border:'1px solid #86efac', borderRadius:12, padding:'1rem 1.25rem', marginTop:'0.5rem' }}>
+              <div style={{ display:'flex', alignItems:'center', gap:'0.6rem', marginBottom:'0.5rem' }}>
+                <UserCheck size={18} color="#16a34a"/>
+                <span style={{ fontWeight:700, color:'#16a34a' }}>Registered Physiotherapist Found</span>
+              </div>
+              <p style={{ fontSize:'0.87rem', color:'#15803d', margin:0 }}>
+                <strong>{searchResult.firstName} {searchResult.lastName}</strong> ({searchEmail}) is already
+                registered as a physiotherapist. You can add them directly to your clinic.
+              </p>
+              <div className="modal-footer" style={{ paddingTop:'1rem', paddingBottom:0 }}>
+                <button className="btn-ghost" onClick={closeWizard}>Cancel</button>
+                <button className="btn-primary" onClick={() => setWizStep(3)}>
+                  Add to Clinic →
+                </button>
+              </div>
+            </div>
+          )}
+
+          {isExistingOther && (
+            <div style={{ background:'#fffbeb', border:'1px solid #fde68a', borderRadius:12, padding:'1rem 1.25rem', marginTop:'0.5rem' }}>
+              <div style={{ display:'flex', alignItems:'center', gap:'0.6rem', marginBottom:'0.5rem' }}>
+                <AlertCircle size={18} color="#d97706"/>
+                <span style={{ fontWeight:700, color:'#d97706' }}>Account Exists — Not a Therapist</span>
+              </div>
+              <p style={{ fontSize:'0.87rem', color:'#92400e', margin:0 }}>
+                This email is registered but not as a physiotherapist. Send them an onboarding
+                invite so they can join as a therapist.
+              </p>
+              <div className="modal-footer" style={{ paddingTop:'1rem', paddingBottom:0 }}>
+                <button className="btn-ghost" onClick={closeWizard}>Cancel</button>
+                <button className="btn-primary" style={{ background:'#d97706' }} onClick={() => setWizStep(2)}>
+                  <Send size={14}/> Send Invite →
+                </button>
+              </div>
+            </div>
+          )}
+
+          {isNotFound && (
+            <div style={{ background:'#eff6ff', border:'1px solid #bfdbfe', borderRadius:12, padding:'1rem 1.25rem', marginTop:'0.5rem' }}>
+              <div style={{ display:'flex', alignItems:'center', gap:'0.6rem', marginBottom:'0.5rem' }}>
+                <Mail size={18} color="#2563eb"/>
+                <span style={{ fontWeight:700, color:'#1d4ed8' }}>No Account Found</span>
+              </div>
+              <p style={{ fontSize:'0.87rem', color:'#1e40af', margin:0 }}>
+                <strong>{searchEmail}</strong> doesn't have a Physiobook account yet. Send them an
+                onboarding invite to sign up as a physiotherapist.
+              </p>
+              <div className="modal-footer" style={{ paddingTop:'1rem', paddingBottom:0 }}>
+                <button className="btn-ghost" onClick={closeWizard}>Cancel</button>
+                <button className="btn-primary" onClick={() => setWizStep(2)}>
+                  <Send size={14}/> Send Invite →
+                </button>
+              </div>
             </div>
           )}
         </>
