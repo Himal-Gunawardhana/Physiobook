@@ -6,7 +6,16 @@ import {
 } from 'lucide-react';
 import api from '../../lib/api';
 
-const ROLES = ['Owner', 'Manager', 'Receptionist', 'View Only'];
+// Maps backend role_in_clinic → display label
+const ROLE_MAP = {
+  clinic_admin: 'Owner',
+  manager: 'Manager',
+  receptionist: 'Receptionist',
+  view_only: 'View Only',
+  therapist: 'Therapist',
+};
+const ROLE_DISPLAY = (r) => ROLE_MAP[r] || r;
+const ASSIGNABLE_ROLES = ['manager', 'receptionist', 'view_only'];
 
 function ConfirmModal({ title, message, danger, onConfirm, onClose }) {
   return (
@@ -32,20 +41,22 @@ function ConfirmModal({ title, message, danger, onConfirm, onClose }) {
 }
 
 function InviteModal({ onClose, onInvite }) {
-  const [name, setName] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
-  const [role, setRole] = useState('Receptionist');
+  const [role, setRole] = useState('receptionist');
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
 
   const handleInvite = async () => {
-    if (!name.trim() || !email.trim()) return;
+    if (!firstName.trim() || !lastName.trim() || !email.trim()) return;
     setSaving(true);
+    setError('');
     try {
-      await onInvite(name, email, role);
-      setName('');
-      setEmail('');
-      setRole('Receptionist');
+      await onInvite({ firstName: firstName.trim(), lastName: lastName.trim(), email: email.trim(), roleInClinic: role });
       onClose();
+    } catch (err) {
+      setError(err?.error?.message || err?.message || 'Failed to send invitation.');
     } finally {
       setSaving(false);
     }
@@ -59,9 +70,20 @@ function InviteModal({ onClose, onInvite }) {
           <button className="modal-close" onClick={onClose}><X size={18}/></button>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          <div>
-            <label className="form-label">Full Name</label>
-            <input className="form-input" placeholder="e.g. Nimasha Perera" value={name} onChange={e => setName(e.target.value)} />
+          {error && (
+            <div style={{ background: '#fee2e2', border: '1px solid #fca5a5', borderRadius: 8, padding: '0.65rem', color: '#991b1b', fontSize: '0.82rem' }}>
+              {error}
+            </div>
+          )}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+            <div>
+              <label className="form-label">First Name</label>
+              <input className="form-input" placeholder="e.g. Nimasha" value={firstName} onChange={e => setFirstName(e.target.value)} />
+            </div>
+            <div>
+              <label className="form-label">Last Name</label>
+              <input className="form-input" placeholder="e.g. Perera" value={lastName} onChange={e => setLastName(e.target.value)} />
+            </div>
           </div>
           <div>
             <label className="form-label">Email Address</label>
@@ -70,17 +92,22 @@ function InviteModal({ onClose, onInvite }) {
           <div>
             <label className="form-label">Assign Role</label>
             <select className="form-input" value={role} onChange={e => setRole(e.target.value)}>
-              {ROLES.filter(r => r !== 'Owner').map(r => <option key={r}>{r}</option>)}
+              {ASSIGNABLE_ROLES.map(r => <option key={r} value={r}>{ROLE_DISPLAY(r)}</option>)}
             </select>
+            <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: 4 }}>
+              {role === 'manager' && '• Full access to settings, team management, and bookings'}
+              {role === 'receptionist' && '• Can manage bookings, view patients, handle check-ins'}
+              {role === 'view_only' && '• Read-only access to dashboard and reports'}
+            </div>
           </div>
           <div style={{ background: '#f0f9ff', border: '1px solid #bae6fd', borderRadius: 8, padding: '0.75rem', fontSize: '0.82rem', color: '#0369a1' }}>
-            📧 An invitation email will be sent to this address with a secure setup link.
+            📧 An invitation email with login credentials will be sent to this address.
           </div>
         </div>
         <div className="modal-footer">
           <button className="btn-ghost" onClick={onClose}>Cancel</button>
-          <button className="btn-primary" onClick={handleInvite} disabled={!name.trim() || !email.trim() || saving}>
-            {saving ? <>Saving...</> : 'Send Invitation'}
+          <button className="btn-primary" onClick={handleInvite} disabled={!firstName.trim() || !lastName.trim() || !email.trim() || saving}>
+            {saving ? <>Sending...</> : 'Send Invitation'}
           </button>
         </div>
       </div>
@@ -138,15 +165,14 @@ export default function Account() {
         const profileData = await api.get('/users/me');
         setProfile(profileData);
 
-        // Load team (may fail if no team endpoint)
-        try {
-          const teamData = await api.get('/clinic/team');
-          setTeam(Array.isArray(teamData) ? teamData : teamData?.team ?? []);
-        } catch (_) { setTeam([]); }
-
-        // Load clinic info using clinicId from profile
+        // Load team using the proper staff endpoint
         const clinicId = profileData.clinic_id;
         if (clinicId) {
+          try {
+            const staffData = await api.get(`/clinics/${clinicId}/staff`);
+            setTeam(Array.isArray(staffData) ? staffData : staffData?.rows ?? []);
+          } catch (_) { setTeam([]); }
+
           try {
             const cData = await api.get(`/clinics/${clinicId}`);
             setClinicInfo({
@@ -174,38 +200,56 @@ export default function Account() {
     navigate('/');
   };
 
-  const removeUser = async (id) => {
+  const removeUser = async (staffId) => {
+    const clinicId = profile?.clinic_id;
+    if (!clinicId) return;
     try {
-      await api.delete(`/clinic/team/${id}`);
-      setTeam(prev => prev.filter(u => u.id !== id));
+      await api.delete(`/clinics/${clinicId}/staff/${staffId}`);
+      setTeam(prev => prev.filter(u => u.id !== staffId));
       showToast('User removed successfully.');
     } catch (err) {
-      showToast(`Error: ${err?.message || 'Failed to remove user.'}`);
+      showToast(`Error: ${err?.error?.message || err?.message || 'Failed to remove user.'}`);
     }
     setConfirm(null);
   };
 
-  const toggleStatus = async (id) => {
+  const toggleStatus = async (staffId) => {
+    const clinicId = profile?.clinic_id;
+    if (!clinicId) return;
     try {
-      const user = team.find(u => u.id === id);
-      const newStatus = user?.status === 'Active' ? 'Inactive' : 'Active';
-      await api.patch(`/clinic/team/${id}`, { status: newStatus });
-      setTeam(prev => prev.map(u => u.id === id ? { ...u, status: newStatus } : u));
-      showToast(`User ${newStatus.toLowerCase()}.`);
+      const user = team.find(u => u.id === staffId);
+      const newStatus = user?.status === 'available' ? 'on_leave' : 'available';
+      await api.put(`/clinics/${clinicId}/staff/${staffId}`, { status: newStatus });
+      setTeam(prev => prev.map(u => u.id === staffId ? { ...u, status: newStatus } : u));
+      showToast(`User ${newStatus === 'available' ? 'activated' : 'deactivated'}.`);
     } catch (err) {
-      showToast(`Error: ${err?.message || 'Failed to update status.'}`);
+      showToast(`Error: ${err?.error?.message || err?.message || 'Failed to update status.'}`);
     }
   };
 
-  const inviteUser = async (name, email, role) => {
+  const updateMemberRole = async (staffId, newRole) => {
+    const clinicId = profile?.clinic_id;
+    if (!clinicId) return;
     try {
-      await api.post('/clinic/team/invite', { name, email, role });
-      setTeam(prev => [...prev, { id: Date.now(), name, email, role, status: 'Pending', lastLogin: 'Never' }]);
-      showToast('Invitation sent!');
+      await api.put(`/clinics/${clinicId}/staff/${staffId}`, { roleInClinic: newRole });
+      setTeam(prev => prev.map(u => u.id === staffId ? { ...u, role_in_clinic: newRole } : u));
+      showToast(`Role updated to ${ROLE_DISPLAY(newRole)}.`);
     } catch (err) {
-      showToast(`Error: ${err?.message || 'Failed to send invitation.'}`);
-      throw err;
+      showToast(`Error: ${err?.error?.message || err?.message || 'Failed to update role.'}`);
     }
+  };
+
+  const inviteUser = async (data) => {
+    const clinicId = profile?.clinic_id;
+    if (!clinicId) throw Object.assign(new Error('No clinic linked to your account'), {});
+    const result = await api.post(`/clinics/${clinicId}/staff`, data);
+    // Reload team list from backend
+    try {
+      const staffData = await api.get(`/clinics/${clinicId}/staff`);
+      setTeam(Array.isArray(staffData) ? staffData : staffData?.rows ?? []);
+    } catch (_) {}
+    showToast('Invitation sent!');
+    return result;
   };
 
   const handlePasswordChange = async () => {
@@ -682,59 +726,62 @@ export default function Account() {
                   <th>User</th>
                   <th>Role</th>
                   <th>Status</th>
-                  <th>Last Login</th>
                   <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {team.map(u => (
-                  <tr key={u.id}>
-                    <td>
-                      <div style={{ fontWeight: 600 }}>{u.name}</div>
-                      <div style={{ fontSize: '0.78rem', color: '#94a3b8' }}>{u.email}</div>
-                    </td>
-                    <td>
-                      {u.role === 'Owner' ? (
-                        <span className="badge badge-purple">{u.role}</span>
-                      ) : (
-                        <select
-                          defaultValue={u.role}
-                          className="form-input"
-                          style={{ padding: '0.3rem 0.5rem', fontSize: '0.82rem', width: 'auto', minWidth: 120 }}
-                          onChange={e => setTeam(prev => prev.map(x => x.id === u.id ? { ...x, role: e.target.value } : x))}
-                          disabled={u.role === 'Owner'}
-                        >
-                          {ROLES.filter(r => r !== 'Owner').map(r => <option key={r}>{r}</option>)}
-                        </select>
-                      )}
-                    </td>
-                    <td>
-                      <span className={`badge ${u.status === 'Active' ? 'badge-green' : u.status === 'Pending' ? 'badge-amber' : 'badge-red'}`}>
-                        {u.status}
-                      </span>
-                    </td>
-                    <td style={{ fontSize: '0.85rem', color: '#64748b' }}>{u.lastLogin || 'Never'}</td>
-                    <td>
-                      {u.role !== 'Owner' && (
-                        <div style={{ display: 'flex', gap: '0.5rem' }}>
-                          <button
-                            onClick={() => toggleStatus(u.id)}
-                            className="btn-ghost"
-                            style={{ padding: '0.3rem 0.6rem', fontSize: '0.78rem' }}
+                {team.map(u => {
+                  const isOwner = u.role_in_clinic === 'clinic_admin';
+                  const statusLabel = u.status === 'available' ? 'Active' : u.status === 'on_leave' ? 'On Leave' : u.status === 'in_session' ? 'In Session' : u.status;
+                  const statusClass = u.status === 'available' ? 'badge-green' : u.status === 'in_session' ? 'badge-amber' : 'badge-red';
+                  return (
+                    <tr key={u.id}>
+                      <td>
+                        <div style={{ fontWeight: 600 }}>{u.first_name} {u.last_name}</div>
+                        <div style={{ fontSize: '0.78rem', color: '#94a3b8' }}>{u.email}</div>
+                      </td>
+                      <td>
+                        {isOwner ? (
+                          <span className="badge badge-purple">Owner</span>
+                        ) : (
+                          <select
+                            value={u.role_in_clinic || 'view_only'}
+                            className="form-input"
+                            style={{ padding: '0.3rem 0.5rem', fontSize: '0.82rem', width: 'auto', minWidth: 120 }}
+                            onChange={e => updateMemberRole(u.id, e.target.value)}
                           >
-                            {u.status === 'Active' ? 'Deactivate' : 'Activate'}
-                          </button>
-                          <button
-                            onClick={() => setConfirm({ type: 'remove', data: u })}
-                            style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#ef4444', padding: '0.3rem' }}
-                          >
-                            <Trash2 size={15} />
-                          </button>
-                        </div>
-                      )}
-                    </td>
-                  </tr>
-                ))}
+                            {ASSIGNABLE_ROLES.map(r => <option key={r} value={r}>{ROLE_DISPLAY(r)}</option>)}
+                            {u.role_in_clinic === 'therapist' && <option value="therapist">Therapist</option>}
+                          </select>
+                        )}
+                      </td>
+                      <td>
+                        <span className={`badge ${statusClass}`}>
+                          {statusLabel}
+                        </span>
+                      </td>
+                      <td>
+                        {!isOwner && (
+                          <div style={{ display: 'flex', gap: '0.5rem' }}>
+                            <button
+                              onClick={() => toggleStatus(u.id)}
+                              className="btn-ghost"
+                              style={{ padding: '0.3rem 0.6rem', fontSize: '0.78rem' }}
+                            >
+                              {u.status === 'available' ? 'Deactivate' : 'Activate'}
+                            </button>
+                            <button
+                              onClick={() => setConfirm({ type: 'remove', data: u })}
+                              style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#ef4444', padding: '0.3rem' }}
+                            >
+                              <Trash2 size={15} />
+                            </button>
+                          </div>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
@@ -762,7 +809,7 @@ export default function Account() {
       {confirm?.type === 'remove' && (
         <ConfirmModal
           title="Remove User"
-          message={`Remove ${confirm.data.name} from this clinic? They will lose all access immediately.`}
+          message={`Remove ${confirm.data.first_name} ${confirm.data.last_name} from this clinic? They will lose all access immediately.`}
           danger
           onConfirm={() => { removeUser(confirm.data.id); setConfirm(null); }}
           onClose={() => setConfirm(null)}
