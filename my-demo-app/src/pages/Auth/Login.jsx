@@ -23,6 +23,7 @@ export default function Login() {
   const [showPwd,   setShowPwd]   = useState(false);
   const [loading,   setLoading]   = useState(false);
   const [error,     setError]     = useState('');
+  const [roleMismatch, setRoleMismatch] = useState(null); // { label, portal }
 
   const [needs2FA,      setNeeds2FA]      = useState(false);
   const [partialToken,  setPartialToken]  = useState('');
@@ -32,9 +33,10 @@ export default function Login() {
   const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
+    setRoleMismatch(null);
     setLoading(true);
     try {
-      const result = await login(email, password);
+      const result = await login(email, password, cfg.backendRole);
       if (result.requiresTwoFa) {
         setPartialToken(result.partialToken);
         setNeeds2FA(true);
@@ -70,7 +72,15 @@ export default function Login() {
         navigate(dest);
       }
     } catch (err) {
-      setError(err?.error?.message || err?.message || 'Login failed. Check your credentials.');
+      const msg = err?.error?.message || err?.message || 'Login failed. Check your credentials.';
+      // Check for role mismatch — show helpful redirect
+      const correctPortal = err?.error?.correctPortal || err?.correctPortal;
+      const actualRole = err?.error?.actualRole || err?.actualRole;
+      if (correctPortal && actualRole) {
+        const ROLE_LABELS = { patient: 'Patient', clinic_admin: 'Clinic Admin', therapist: 'Physiotherapist', super_admin: 'Super Admin' };
+        setRoleMismatch({ label: ROLE_LABELS[actualRole] || actualRole, portal: correctPortal });
+      }
+      setError(msg);
       setLoading(false);
     }
   };
@@ -173,6 +183,21 @@ export default function Login() {
                 </div>
 
                 {error && <ErrorBox msg={error} />}
+
+                {roleMismatch && (
+                  <div style={{ background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: 10, padding: '0.875rem 1rem', textAlign: 'center' }}>
+                    <p style={{ fontSize: '0.85rem', color: '#1e40af', margin: '0 0 0.75rem', fontWeight: 500 }}>
+                      This account belongs to the <strong>{roleMismatch.label}</strong> portal.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => navigate(roleMismatch.portal)}
+                      style={{ background: '#2563eb', color: '#fff', border: 'none', borderRadius: 8, padding: '0.6rem 1.5rem', fontWeight: 700, fontSize: '0.88rem', cursor: 'pointer' }}
+                    >
+                      Go to {roleMismatch.label} Login →
+                    </button>
+                  </div>
+                )}
 
                 <SubmitBtn loading={loading} label={`Sign In as ${cfg.label}`} color={cfg.color} />
 
