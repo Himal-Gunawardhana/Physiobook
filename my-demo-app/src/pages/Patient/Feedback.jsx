@@ -1,13 +1,18 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Star, CheckCircle, Activity } from 'lucide-react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { Star, CheckCircle, Activity, Loader, AlertCircle } from 'lucide-react';
+import api from '../../lib/api';
 
 export default function Feedback() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const bookingId = location.state?.bookingId;
   const [clinicRating, setClinicRating] = useState(0);
   const [therapistRating, setTherapistRating] = useState(0);
   const [comment, setComment] = useState('');
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const RatingStars = ({ value, onChange, label }) => (
     <div style={{ marginBottom: '1.25rem' }}>
@@ -80,12 +85,23 @@ export default function Feedback() {
           </div>
 
           <button
-            onClick={() => { if (clinicRating && therapistRating) setSubmitted(true); }}
-            disabled={!clinicRating || !therapistRating}
-            style={{ width: '100%', padding: '0.9rem', background: (!clinicRating || !therapistRating) ? '#cbd5e1' : '#2563eb', color: '#fff', border: 'none', borderRadius: 12, fontWeight: 700, fontSize: '0.95rem', cursor: (!clinicRating || !therapistRating) ? 'not-allowed' : 'pointer', transition: 'all 0.2s' }}
+            onClick={async () => {
+              if (!clinicRating || !therapistRating) return;
+              if (!bookingId) { setError('Missing booking reference.'); return; }
+              setLoading(true); setError('');
+              try {
+                await api.post('/feedback', { bookingId, rating: therapistRating, comment: comment.trim() || null });
+                setSubmitted(true);
+              } catch (err) {
+                setError(err?.error?.message || err?.message || 'Failed to submit feedback.');
+              } finally { setLoading(false); }
+            }}
+            disabled={!clinicRating || !therapistRating || loading}
+            style={{ width: '100%', padding: '0.9rem', background: (!clinicRating || !therapistRating || loading) ? '#cbd5e1' : '#2563eb', color: '#fff', border: 'none', borderRadius: 12, fontWeight: 700, fontSize: '0.95rem', cursor: (!clinicRating || !therapistRating || loading) ? 'not-allowed' : 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
           >
-            Submit Feedback
+            {loading ? <><Loader size={15} style={{ animation: 'spin 1s linear infinite' }} /> Submitting...</> : 'Submit Feedback'}
           </button>
+          {error && <p style={{ textAlign: 'center', marginTop: '0.5rem', fontSize: '0.82rem', color: '#ef4444' }}>{error}</p>}
           <p style={{ textAlign: 'center', marginTop: '0.75rem', fontSize: '0.82rem', color: '#94a3b8' }}>Please rate both clinic and therapist to submit.</p>
         </div>
       </div>

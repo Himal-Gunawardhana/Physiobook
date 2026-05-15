@@ -37,7 +37,17 @@ export default function BookingGate() {
         });
       }
       setDone(true);
-      setTimeout(() => navigate('/book/time', { state: nextState }), 1000);
+      // Check if there's a pending booking from checkout
+      const pendingRaw = sessionStorage.getItem('pendingBooking');
+      if (pendingRaw) {
+        const pendingState = JSON.parse(pendingRaw);
+        sessionStorage.removeItem('pendingBooking');
+        setTimeout(() => navigate('/book/checkout', { state: pendingState }), 1000);
+      } else if (nextState?.returnTo) {
+        setTimeout(() => navigate(nextState.returnTo, { state: nextState.bookingState || nextState }), 1000);
+      } else {
+        setTimeout(() => navigate('/book/time', { state: nextState }), 1000);
+      }
     } catch (err) {
       setError(err?.error?.message || err?.message || 'Something went wrong. Please try again.');
       setLoading(false);

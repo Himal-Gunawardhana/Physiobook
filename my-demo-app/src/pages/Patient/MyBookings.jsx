@@ -33,7 +33,7 @@ export default function MyBookings() {
       try {
         const data = await api.get('/bookings/my?limit=50');
         if (cancelled) return;
-        const rows = Array.isArray(data) ? data : data?.bookings ?? [];
+        const rows = Array.isArray(data) ? data : data?.rows ?? data?.bookings ?? [];
         setBookings(rows);
       } catch (err) {
         if (!cancelled) setError(err?.message || 'Failed to load bookings.');
@@ -129,9 +129,9 @@ export default function MyBookings() {
                     </span>
                   </div>
                   <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
-                    <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', color: '#64748b', fontSize: '0.83rem' }}><Calendar size={13} />{formatDate(b.booked_date)}</span>
-                    <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', color: '#64748b', fontSize: '0.83rem' }}><Clock size={13} />{formatTime(b.booked_time)}</span>
-                    {b.amount && <span style={{ fontWeight: 700, color: '#0f172a', fontSize: '0.83rem' }}>LKR {Number(b.amount).toLocaleString()}</span>}
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', color: '#64748b', fontSize: '0.83rem' }}><Calendar size={13} />{formatDate(b.appointment_date || b.booked_date)}</span>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', color: '#64748b', fontSize: '0.83rem' }}><Clock size={13} />{formatTime(b.appointment_time || b.booked_time)}</span>
+                    {(b.total_price > 0 || b.amount > 0) && <span style={{ fontWeight: 700, color: '#0f172a', fontSize: '0.83rem' }}>LKR {Number(b.total_price || b.amount).toLocaleString()}</span>}
                   </div>
                   <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
                     {(b.status === 'confirmed' || b.status === 'completed') && (
