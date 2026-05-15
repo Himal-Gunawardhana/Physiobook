@@ -111,7 +111,14 @@ export default function Account() {
   const [newPwd,           setNewPwd]           = useState('');
   const [confirmPwd,       setConfirmPwd]       = useState('');
   const [pwdError,         setPwdError]         = useState('');
+  const [pwdSuccess,       setPwdSuccess]       = useState('');
   const [pwdSaving,        setPwdSaving]        = useState(false);
+
+  // 2FA state
+  const [tfaStep,     setTfaStep]     = useState(false); // true = code entry mode
+  const [tfaCode,     setTfaCode]     = useState('');
+  const [tfaError,    setTfaError]    = useState('');
+  const [tfaSending,  setTfaSending]  = useState(false);
 
   const showToast = (msg) => { setToast(msg); setTimeout(() => setToast(''), 3000); };
 
@@ -123,7 +130,7 @@ export default function Account() {
       try {
         const [profileData, teamData] = await Promise.all([
           api.get('/users/me'),
-          api.get('/clinic/team')
+          api.get('/clinic/team').catch(() => [])
         ]);
         setProfile(profileData);
         setTeam(Array.isArray(teamData) ? teamData : teamData?.team ?? []);
@@ -179,6 +186,7 @@ export default function Account() {
 
   const handlePasswordChange = async () => {
     setPwdError('');
+    setPwdSuccess('');
     
     if (!currentPwd.trim() || !newPwd.trim() || !confirmPwd.trim()) {
       setPwdError('All password fields are required.');
@@ -219,11 +227,57 @@ export default function Account() {
       setCurrentPwd('');
       setNewPwd('');
       setConfirmPwd('');
+      setPwdSuccess('Password updated successfully!');
       showToast('Password updated successfully!');
     } catch (err) {
-      setPwdError(err?.message || 'Failed to update password.');
+      setPwdError(err?.error?.message || err?.message || 'Failed to update password.');
     } finally {
       setPwdSaving(false);
+    }
+  };
+
+  // 2FA handlers
+  const handleSend2faCode = async () => {
+    setTfaSending(true);
+    setTfaError('');
+    try {
+      await api.post('/auth/2fa/send-code');
+      setTfaStep(true);
+    } catch (err) {
+      setTfaError(err?.error?.message || err?.message || 'Failed to send code.');
+    } finally {
+      setTfaSending(false);
+    }
+  };
+
+  const handleVerify2fa = async () => {
+    setTfaSending(true);
+    setTfaError('');
+    try {
+      await api.post('/auth/2fa/verify-email', { code: tfaCode });
+      setProfile(prev => ({ ...prev, two_fa_enabled: true }));
+      setTfaStep(false);
+      setTfaCode('');
+      showToast('Two-factor authentication enabled!');
+    } catch (err) {
+      setTfaError(err?.error?.message || err?.message || 'Invalid code.');
+    } finally {
+      setTfaSending(false);
+    }
+  };
+
+  const handleDisable2fa = async () => {
+    if (!window.confirm('Are you sure you want to disable two-factor authentication?')) return;
+    setTfaSending(true);
+    setTfaError('');
+    try {
+      await api.post('/auth/2fa/disable');
+      setProfile(prev => ({ ...prev, two_fa_enabled: false }));
+      showToast('Two-factor authentication disabled.');
+    } catch (err) {
+      setTfaError(err?.error?.message || err?.message || 'Failed to disable 2FA.');
+    } finally {
+      setTfaSending(false);
     }
   };
 
@@ -354,6 +408,11 @@ export default function Account() {
                 {pwdError}
               </div>
             )}
+            {pwdSuccess && (
+              <div style={{ background: '#f0fdf4', border: '1px solid #86efac', borderRadius: 8, padding: '0.75rem', color: '#166534', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                <CheckCircle size={14} /> {pwdSuccess}
+              </div>
+            )}
             <div>
               <label className="form-label">Current Password</label>
               <div style={{ position: 'relative' }}>
@@ -396,14 +455,89 @@ export default function Account() {
               onClick={handlePasswordChange}
               disabled={pwdSaving}
             >
-              {pwdSaving ? 'Updating...' : 'Update Password'}
+              {pwdSaving ? <><Loader size={14} style={{ animation: 'spin 1s linear infinite' }} /> Updating...</> : 'Update Password'}
             </button>
           </div>
 
+          {/* 2FA Section */}
           <div style={{ borderTop: '1px solid #e2e8f0', paddingTop: '1.25rem' }}>
-            <div style={{ fontSize: '0.88rem', fontWeight: 600, color: '#0f172a', marginBottom: '0.5rem' }}>Two-Factor Authentication</div>
-            <div style={{ fontSize: '0.82rem', color: '#64748b', marginBottom: '0.875rem' }}>Add an extra layer of security to your account with 2FA.</div>
-            <button className="btn-ghost" style={{ width: '100%', justifyContent: 'center', borderColor: '#10b981', color: '#16a34a' }}>Enable 2FA</button>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+              <div style={{ fontSize: '0.88rem', fontWeight: 600, color: '#0f172a' }}>Two-Factor Authentication</div>
+              {profile?.two_fa_enabled && (
+                <span style={{ background: '#dcfce7', color: '#166534', padding: '0.2rem 0.6rem', borderRadius: 99, fontSize: '0.75rem', fontWeight: 700 }}>
+                  ✓ Enabled
+                </span>
+              )}
+            </div>
+            <div style={{ fontSize: '0.82rem', color: '#64748b', marginBottom: '0.875rem' }}>
+              {profile?.two_fa_enabled
+                ? 'Your account is protected with email-based 2FA. A verification code will be sent to your email on each login.'
+                : 'Add an extra layer of security. We\'ll send a verification code to your email when you log in.'}
+            </div>
+
+            {/* 2FA Error/Success */}
+            {tfaError && (
+              <div style={{ background: '#fee2e2', border: '1px solid #fca5a5', borderRadius: 8, padding: '0.65rem', color: '#991b1b', fontSize: '0.82rem', marginBottom: '0.75rem' }}>
+                {tfaError}
+              </div>
+            )}
+
+            {!profile?.two_fa_enabled ? (
+              <>
+                {!tfaStep ? (
+                  <button
+                    className="btn-ghost"
+                    style={{ width: '100%', justifyContent: 'center', borderColor: '#10b981', color: '#16a34a' }}
+                    onClick={handleSend2faCode}
+                    disabled={tfaSending}
+                  >
+                    {tfaSending ? <><Loader size={14} style={{ animation: 'spin 1s linear infinite' }} /> Sending code...</> : <><Shield size={14} /> Enable 2FA via Email</>}
+                  </button>
+                ) : (
+                  <div style={{ background: '#f0f9ff', border: '1px solid #bae6fd', borderRadius: 10, padding: '1rem' }}>
+                    <p style={{ fontSize: '0.85rem', color: '#0369a1', margin: '0 0 0.75rem', fontWeight: 500 }}>
+                      📧 A 6-digit code was sent to <strong>{profile?.email}</strong>. Enter it below:
+                    </p>
+                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        maxLength={6}
+                        placeholder="000000"
+                        value={tfaCode}
+                        onChange={e => setTfaCode(e.target.value.replace(/\D/g, ''))}
+                        className="form-input"
+                        style={{ flex: 1, textAlign: 'center', fontSize: '1.3rem', letterSpacing: '0.3em', fontWeight: 700 }}
+                        autoFocus
+                      />
+                      <button
+                        className="btn-primary"
+                        onClick={handleVerify2fa}
+                        disabled={tfaCode.length !== 6 || tfaSending}
+                        style={{ whiteSpace: 'nowrap' }}
+                      >
+                        {tfaSending ? <Loader size={14} style={{ animation: 'spin 1s linear infinite' }} /> : 'Verify'}
+                      </button>
+                    </div>
+                    <button
+                      onClick={() => { setTfaStep(false); setTfaCode(''); setTfaError(''); }}
+                      style={{ background: 'none', border: 'none', color: '#64748b', fontSize: '0.8rem', cursor: 'pointer', marginTop: '0.5rem' }}
+                    >
+                      ← Cancel
+                    </button>
+                  </div>
+                )}
+              </>
+            ) : (
+              <button
+                className="btn-ghost"
+                style={{ width: '100%', justifyContent: 'center', borderColor: '#fca5a5', color: '#ef4444' }}
+                onClick={handleDisable2fa}
+                disabled={tfaSending}
+              >
+                {tfaSending ? <><Loader size={14} style={{ animation: 'spin 1s linear infinite' }} /> Disabling...</> : 'Disable 2FA'}
+              </button>
+            )}
           </div>
         </div>
 
