@@ -48,7 +48,7 @@ export default function Services() {
   const [svcLoading,setSvcLoading]= useState(true);
   const [svcError,  setSvcError]  = useState('');
   const [svcModal,  setSvcModal]  = useState(null);
-  const [svcForm,   setSvcForm]   = useState({ name:'', duration:'', staff:'', equipment:'None', type:'Clinical', price:'' });
+  const [svcForm,   setSvcForm]   = useState({ name:'', description:'', duration:'', staff:'', equipment:'None', type:'Clinical', price:'' });
   const [svcSaving, setSvcSaving] = useState(false);
 
   // Packages
@@ -56,7 +56,7 @@ export default function Services() {
   const [pkgLoading,setPkgLoading]= useState(true);
   const [pkgError,  setPkgError]  = useState('');
   const [pkgModal,  setPkgModal]  = useState(null);
-  const [pkgForm,   setPkgForm]   = useState({ name:'', includes:'', description:'', base:'', discount:0, fast:false });
+  const [pkgForm,   setPkgForm]   = useState({ name:'', includes:'', description:'', base:'', discount:0, fast:false, sessions:1 });
   const [pkgSaving, setPkgSaving] = useState(false);
 
   const [toast, setToast] = useState(null);
@@ -85,7 +85,8 @@ export default function Services() {
     setSvcLoading(true); setSvcError('');
     try {
       const data = await api.get(`/clinics/${clinicId}/services`);
-      setServices(Array.isArray(data) ? data : data?.services ?? []);
+      const list = Array.isArray(data) ? data : data?.services ?? [];
+      setServices(list.filter(s => s.is_active !== false));
     }
     catch (err) { setSvcError(err?.message || 'Failed to load services.'); }
     finally { setSvcLoading(false); }
@@ -163,11 +164,10 @@ export default function Services() {
     try {
       const payload = {
         name: svcForm.name,
+        description: svcForm.description || undefined,
         duration_minutes: svcForm.duration ? parseInt(svcForm.duration) : undefined,
-        type: svcForm.type,
-        required_staff: svcForm.staff || undefined,
-        required_equipment: svcForm.equipment === 'None' ? undefined : svcForm.equipment,
-        price: svcForm.price ? +svcForm.price : undefined
+        price: svcForm.price ? +svcForm.price : undefined,
+        requires_equipment: svcForm.equipment === 'None' ? undefined : svcForm.equipment,
       };
       const created = await api.post(`/clinics/${clinicId}/services`, payload);
       setServices(prev => [...prev, created]);
@@ -194,11 +194,10 @@ export default function Services() {
     try {
       const payload = {
         name: target.name,
-        duration_minutes: target.duration ? parseInt(target.duration) : undefined,
-        type: target.type,
-        required_staff: target.required_staff || target.staff || undefined,
-        required_equipment: target.required_equipment || target.equipment || undefined,
-        price: target.price ? +target.price : undefined
+        description: target.description || undefined,
+        duration_minutes: target.duration_minutes ? parseInt(target.duration_minutes) : undefined,
+        price: target.price ? +target.price : undefined,
+        requires_equipment: (target.requires_equipment === 'None' ? undefined : target.requires_equipment) || undefined,
       };
       const updated = await api.put(`/clinics/${clinicId}/services/${id}`, payload);
       setServices(prev => prev.map(s => s.id === id ? updated : s));
@@ -231,16 +230,14 @@ export default function Services() {
 
   const savePkgEdit = async (id) => {
     setPkgSaving(true);
-    const target = packages.find(p => p.id === id);
-    if (!target) return;
     try {
       const payload = {
-        name: target.name,
-        session_count: target.sessions ? +target.sessions : undefined,
-        price: target.base ? +target.base : undefined,
-        discount_percent: target.discount ? +target.discount : 0,
-        is_fast_track: target.fast || false,
-        description: target.description || target.includes || undefined
+        name: pkgForm.name,
+        session_count: pkgForm.sessions ? +pkgForm.sessions : undefined,
+        price: pkgForm.base ? +pkgForm.base : undefined,
+        discount_percent: pkgForm.discount ? +pkgForm.discount : 0,
+        is_fast_track: pkgForm.fast || false,
+        description: pkgForm.description || pkgForm.includes || undefined
       };
       const updated = await api.put(`/clinics/${clinicId}/packages/${id}`, payload);
       setPackages(prev => prev.map(p => p.id === id ? updated : p));
@@ -342,7 +339,7 @@ export default function Services() {
               <p style={{ color:'#64748b', fontSize:'0.875rem', margin:0 }}>Map each service to its required staff and equipment.</p>
             </div>
             <button className="btn-primary" style={{ fontSize:'0.85rem', padding:'0.5rem 1rem', flexShrink:0 }}
-              onClick={() => { setSvcForm({ name:'', duration:'', staff:'', equipment:'None', type:'Clinical' }); setSvcModal('add'); }}>
+              onClick={() => { setSvcForm({ name:'', description:'', duration:'', staff:'', equipment:'None', type:'Clinical', price:'' }); setSvcModal('add'); }}>
               <Plus size={14}/> Add Service
             </button>
           </div>
@@ -356,28 +353,29 @@ export default function Services() {
                     <div style={{ flex:1, minWidth:250 }}>
                       <div style={{ display:'flex', alignItems:'center', gap:'0.75rem', marginBottom:'0.75rem', flexWrap:'wrap' }}>
                         <strong style={{ fontSize:'1rem', color:'#1e293b' }}>{svc.name}</strong>
-                        <span className={`badge ${svc.type==='External'?'badge-purple':'badge-blue'}`} style={{ fontSize:'0.75rem' }}>{svc.type}</span>
+                        {svc.price && <span className='badge badge-green' style={{ fontSize:'0.75rem' }}>LKR {Number(svc.price).toLocaleString()}</span>}
                       </div>
+                      {svc.description && <p style={{ margin:'0 0 0.5rem', fontSize:'0.85rem', color:'#64748b' }}>{svc.description}</p>}
                       <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(150px, 1fr))', gap:'0.75rem', fontSize:'0.9rem' }}>
                         <div style={{ display:'flex', alignItems:'center', gap:'0.5rem', color:'#475569' }}>
                           <span style={{ fontSize:'1rem' }}>⏱</span>
                           <div>
                             <div style={{ fontSize:'0.75rem', color:'#94a3b8' }}>Duration</div>
-                            <div style={{ fontWeight:500, color:'#1e293b' }}>{svc.duration || '—'}</div>
-                          </div>
-                        </div>
-                        <div style={{ display:'flex', alignItems:'center', gap:'0.5rem', color:'#475569' }}>
-                          <span style={{ fontSize:'1rem' }}>👤</span>
-                          <div>
-                            <div style={{ fontSize:'0.75rem', color:'#94a3b8' }}>Staff Required</div>
-                            <div style={{ fontWeight:500, color:'#1e293b' }}>{svc.required_staff || svc.staff || '—'}</div>
+                            <div style={{ fontWeight:500, color:'#1e293b' }}>{svc.duration_minutes ? `${svc.duration_minutes} min` : '—'}</div>
                           </div>
                         </div>
                         <div style={{ display:'flex', alignItems:'center', gap:'0.5rem', color:'#475569' }}>
                           <span style={{ fontSize:'1rem' }}>🔧</span>
                           <div>
                             <div style={{ fontSize:'0.75rem', color:'#94a3b8' }}>Equipment</div>
-                            <div style={{ fontWeight:500, color:'#1e293b' }}>{svc.required_equipment || svc.equipment || 'None'}</div>
+                            <div style={{ fontWeight:500, color:'#1e293b' }}>{svc.requires_equipment || 'None'}</div>
+                          </div>
+                        </div>
+                        <div style={{ display:'flex', alignItems:'center', gap:'0.5rem', color:'#475569' }}>
+                          <span style={{ fontSize:'1rem' }}>💰</span>
+                          <div>
+                            <div style={{ fontSize:'0.75rem', color:'#94a3b8' }}>Currency</div>
+                            <div style={{ fontWeight:500, color:'#1e293b' }}>{svc.currency || 'LKR'}</div>
                           </div>
                         </div>
                       </div>
@@ -407,7 +405,7 @@ export default function Services() {
               <p style={{ color:'#64748b', fontSize:'0.875rem', margin:0 }}>Packages marked ⚡ Fast-Track appear on the patient portal as a simplified booking option.</p>
             </div>
             <button className="btn-primary" style={{ fontSize:'0.85rem', padding:'0.5rem 1rem', flexShrink:0 }}
-              onClick={() => { setPkgForm({ name:'', includes:'', base:'', discount:0, fast:false }); setPkgModal('add'); }}>
+              onClick={() => { setPkgForm({ name:'', includes:'', description:'', base:'', discount:0, fast:false, sessions:1 }); setPkgModal('add'); }}>
               <Plus size={14}/> New Package
             </button>
           </div>
@@ -417,18 +415,24 @@ export default function Services() {
             ) : (
               <div className="package-grid">
                 {packages.map(pkg => {
-                  const base = pkg.base_price || pkg.base || 0;
-                  const disc = pkg.discount_percent || pkg.discount || 0;
+                  const isFast = pkg.is_fast_track || pkg.fast;
+                  const base = Number(pkg.price || pkg.base_price || pkg.base || 0);
+                  const disc = Number(pkg.discount_percent || pkg.discount || 0);
+                  const sessions = pkg.session_count || 1;
                   return (
-                    <div key={pkg.id} style={{ border:`2px solid ${pkg.fast||pkg.is_fast_track?'#bae6fd':'#e2e8f0'}`, borderRadius:14, overflow:'hidden', background:'white', boxShadow:'0 1px 4px rgba(0,0,0,0.05)' }}>
-                      <div style={{ padding:'1.25rem', background: pkg.fast||pkg.is_fast_track?'#f0f9ff':'#f8fafc', borderBottom:'1px solid #e2e8f0' }}>
+                    <div key={pkg.id} style={{ border:`2px solid ${isFast?'#38bdf8':'#e2e8f0'}`, borderRadius:14, overflow:'hidden', background: isFast ? 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)' : 'white', boxShadow: isFast ? '0 4px 16px rgba(56,189,248,0.15)' : '0 1px 4px rgba(0,0,0,0.05)', position:'relative' }}>
+                      {isFast && <div style={{ position:'absolute', top:12, right:12, background:'linear-gradient(135deg, #0ea5e9, #2563eb)', color:'white', padding:'0.25rem 0.65rem', borderRadius:20, fontSize:'0.72rem', fontWeight:700, letterSpacing:'0.03em', boxShadow:'0 2px 8px rgba(14,165,233,0.3)' }}>⚡ FAST-TRACK</div>}
+                      <div style={{ padding:'1.25rem', background: isFast ? 'transparent' : '#f8fafc', borderBottom:'1px solid #e2e8f0' }}>
                         <h3 style={{ margin:'0 0 0.3rem', fontSize:'1rem' }}>{pkg.name}</h3>
                         <p style={{ margin:0, fontSize:'0.82rem', color:'#64748b' }}>{pkg.description || pkg.includes}</p>
+                        <div style={{ marginTop:'0.5rem', display:'flex', gap:'0.5rem' }}>
+                          <span className='badge badge-blue' style={{ fontSize:'0.72rem' }}>{sessions} session{sessions > 1 ? 's' : ''}</span>
+                        </div>
                       </div>
                       <div style={{ padding:'1.25rem', display:'flex', flexDirection:'column', gap:'0.5rem' }}>
                         <div style={{ display:'flex', justifyContent:'space-between', fontSize:'0.88rem', color:'#64748b' }}>
                           <span>Base Price</span>
-                          <span style={{ textDecoration: disc>0?'line-through':'none' }}>LKR {Number(base).toLocaleString()}</span>
+                          <span style={{ textDecoration: disc>0?'line-through':'none' }}>LKR {base.toLocaleString()}</span>
                         </div>
                         {disc > 0 && (
                           <div style={{ display:'flex', justifyContent:'space-between', fontSize:'0.88rem' }}>
@@ -438,9 +442,9 @@ export default function Services() {
                         )}
                         <div style={{ height:1, background:'#e2e8f0', margin:'0.25rem 0' }}/>
                         <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
-                          <span style={{ fontWeight:700, fontSize:'1rem' }}>LKR {finalPrice(base, disc).toLocaleString()}</span>
+                          <span style={{ fontWeight:700, fontSize:'1.05rem', color: isFast ? '#0369a1' : '#1e293b' }}>LKR {finalPrice(base, disc).toLocaleString()}</span>
                           <div style={{ display:'flex', gap:'0.5rem' }}>
-                            <button onClick={() => { setPkgForm({ name: pkg.name, includes: pkg.description || pkg.includes, description: pkg.description || pkg.includes, base: pkg.base_price || pkg.base, discount: pkg.discount_percent || pkg.discount, fast: pkg.is_fast_track || pkg.fast, sessions: pkg.session_count }); setPkgModal(pkg.id); }} style={{ display:'flex', alignItems:'center', gap:'0.35rem', padding:'0.4rem 0.75rem', background:'white', border:'1px solid #e2e8f0', borderRadius:7, cursor:'pointer', fontSize:'0.82rem', fontWeight:600, color:'#2563eb', transition:'all 0.2s' }} onMouseEnter={e => e.target.style.background='#eff6ff'} onMouseLeave={e => e.target.style.background='white'}>
+                            <button onClick={() => { setPkgForm({ name: pkg.name, includes: pkg.description || pkg.includes, description: pkg.description || pkg.includes, base: base, discount: disc, fast: isFast, sessions: sessions }); setPkgModal(pkg.id); }} style={{ display:'flex', alignItems:'center', gap:'0.35rem', padding:'0.4rem 0.75rem', background:'white', border:'1px solid #e2e8f0', borderRadius:7, cursor:'pointer', fontSize:'0.82rem', fontWeight:600, color:'#2563eb', transition:'all 0.2s' }} onMouseEnter={e => e.target.style.background='#eff6ff'} onMouseLeave={e => e.target.style.background='white'}>
                               <Settings2 size={14}/> Edit
                             </button>
                             <button onClick={() => { setDeleteConfirm(pkg.id); setDeleteConfirmType('package'); }} style={{ background:'none', border:'none', cursor:'pointer', color:'#ef4444', padding:'0.5rem', transition:'all 0.2s', fontSize:'0.9rem' }} onMouseEnter={e => e.target.style.opacity='0.7'} onMouseLeave={e => e.target.style.opacity='1'}>
@@ -517,19 +521,14 @@ export default function Services() {
           <div style={{ display:'flex', flexDirection:'column', gap:'1rem' }}>
             <div><label className="form-label">Service Name</label>
               <input className="form-input" placeholder="e.g. Laser Therapy" value={svcForm.name} onChange={e => setSvcForm(p => ({...p,name:e.target.value}))}/></div>
+            <div><label className="form-label">Description</label>
+              <input className="form-input" placeholder="e.g. Standard 45-minute therapy session" value={svcForm.description} onChange={e => setSvcForm(p => ({...p,description:e.target.value}))}/></div>
             <div style={{ display:'flex', gap:'1rem' }}>
-              <div style={{ flex:1 }}><label className="form-label">Duration</label>
-                <input className="form-input" placeholder="30 min" value={svcForm.duration} onChange={e => setSvcForm(p => ({...p,duration:e.target.value}))}/></div>
-              <div style={{ flex:1 }}><label className="form-label">Type</label>
-                <select className="form-input" value={svcForm.type} onChange={e => setSvcForm(p => ({...p,type:e.target.value}))}>
-                  <option>Clinical</option><option>External</option>
-                </select></div>
+              <div style={{ flex:1 }}><label className="form-label">Duration (minutes)</label>
+                <input type="number" className="form-input" placeholder="45" min={1} value={svcForm.duration} onChange={e => setSvcForm(p => ({...p,duration:e.target.value}))}/></div>
+              <div style={{ flex:1 }}><label className="form-label">Price (LKR)</label>
+                <input type="number" className="form-input" placeholder="3500" min={0} value={svcForm.price} onChange={e => setSvcForm(p => ({...p,price:e.target.value}))}/></div>
             </div>
-            <div><label className="form-label">Required Staff</label>
-              <select className="form-input" value={svcForm.staff} onChange={e => setSvcForm(p => ({...p,staff:e.target.value}))}>
-                <option value="">Select staff type…</option>
-                <option>Physiotherapist</option><option>Doctor</option><option>Specialized Physio</option><option>Physio + Nurse</option>
-              </select></div>
             <div><label className="form-label">Required Equipment</label>
               <select className="form-input" value={svcForm.equipment} onChange={e => setSvcForm(p => ({...p,equipment:e.target.value}))}>
                 <option value="None">None (Standard Room)</option>
@@ -552,25 +551,20 @@ export default function Services() {
             <div><label className="form-label">Service Name</label>
               <input className="form-input" value={editSvcTarget.name||''}
                 onChange={e => setServices(prev => prev.map(s => s.id===svcModal?{...s,name:e.target.value}:s))}/></div>
+            <div><label className="form-label">Description</label>
+              <input className="form-input" placeholder="Brief description" value={editSvcTarget.description||''}
+                onChange={e => setServices(prev => prev.map(s => s.id===svcModal?{...s,description:e.target.value}:s))}/></div>
             <div style={{ display:'flex', gap:'1rem' }}>
-              <div style={{ flex:1 }}><label className="form-label">Type</label>
-                <select className="form-input" value={editSvcTarget.type||'Clinical'}
-                  onChange={e => setServices(prev => prev.map(s => s.id===svcModal?{...s,type:e.target.value}:s))}>
-                  <option>Clinical</option><option>External</option>
-                </select></div>
-              <div style={{ flex:1 }}><label className="form-label">Duration</label>
-                <input type="text" className="form-input" placeholder="e.g. 30 min" value={editSvcTarget.duration||''}
-                  onChange={e => setServices(prev => prev.map(s => s.id===svcModal?{...s,duration:e.target.value}:s))}/></div>
+              <div style={{ flex:1 }}><label className="form-label">Duration (minutes)</label>
+                <input type="number" className="form-input" placeholder="45" min={1} value={editSvcTarget.duration_minutes||''}
+                  onChange={e => setServices(prev => prev.map(s => s.id===svcModal?{...s,duration_minutes:e.target.value}:s))}/></div>
+              <div style={{ flex:1 }}><label className="form-label">Price (LKR)</label>
+                <input type="number" className="form-input" placeholder="3500" min={0} value={editSvcTarget.price||''}
+                  onChange={e => setServices(prev => prev.map(s => s.id===svcModal?{...s,price:e.target.value}:s))}/></div>
             </div>
-            <div><label className="form-label">Required Staff</label>
-              <select className="form-input" value={editSvcTarget.required_staff||editSvcTarget.staff||''}
-                onChange={e => setServices(prev => prev.map(s => s.id===svcModal?{...s,required_staff:e.target.value}:s))}>
-                <option value="">Select staff type…</option>
-                <option>Physiotherapist</option><option>Doctor</option><option>Specialized Physio</option><option>Physio + Nurse</option>
-              </select></div>
             <div><label className="form-label">Required Equipment</label>
-              <select className="form-input" value={editSvcTarget.required_equipment||editSvcTarget.equipment||'None'}
-                onChange={e => setServices(prev => prev.map(s => s.id===svcModal?{...s,required_equipment:e.target.value}:s))}>
+              <select className="form-input" value={editSvcTarget.requires_equipment||'None'}
+                onChange={e => setServices(prev => prev.map(s => s.id===svcModal?{...s,requires_equipment:e.target.value}:s))}>
                 <option value="None">None (Standard Room)</option>
                 {equipment.map(e => <option key={e.id}>{e.name}</option>)}
               </select></div>
@@ -593,6 +587,8 @@ export default function Services() {
             <div><label className="form-label">What's Included</label>
               <input className="form-input" placeholder="e.g. 10 Post-Natal Sessions" value={pkgForm.includes} onChange={e => setPkgForm(p => ({...p,includes:e.target.value}))}/></div>
             <div style={{ display:'flex', gap:'1rem' }}>
+              <div style={{ flex:1 }}><label className="form-label">Sessions</label>
+                <input type="number" className="form-input" placeholder="5" min={1} value={pkgForm.sessions} onChange={e => setPkgForm(p => ({...p,sessions:e.target.value}))}/></div>
               <div style={{ flex:1 }}><label className="form-label">Base Price (LKR)</label>
                 <input type="number" className="form-input" placeholder="25000" value={pkgForm.base} onChange={e => setPkgForm(p => ({...p,base:e.target.value}))}/></div>
               <div style={{ flex:1 }}><label className="form-label">Discount %</label>
