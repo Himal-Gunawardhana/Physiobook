@@ -161,8 +161,8 @@ export default function Login() {
 
           {needs2FA ? (
             <>
-              <h2 style={{ fontSize: '1.75rem', fontWeight: 800, color: '#0f172a', marginBottom: '0.4rem' }}>Two-Factor Auth</h2>
-              <p style={{ color: '#64748b', marginBottom: '2rem' }}>Enter the 6-digit code from your authenticator app.</p>
+              <h2 style={{ fontSize: '1.75rem', fontWeight: 800, color: '#0f172a', marginBottom: '0.4rem' }}>Email Verification</h2>
+              <p style={{ color: '#64748b', marginBottom: '2rem' }}>We've sent a 6-digit verification code to your email. Check your inbox and enter it below.</p>
               <form onSubmit={handle2FA} style={{ display: 'flex', flexDirection: 'column', gap: '1.1rem' }}>
                 <input
                   type="text" inputMode="numeric" maxLength={6}
