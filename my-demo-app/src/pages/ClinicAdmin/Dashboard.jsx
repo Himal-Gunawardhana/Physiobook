@@ -14,6 +14,7 @@ const STATUS = {
 export default function ClinicDashboard() {
   const { activeClinic } = useOutletContext();
   const [bookings,   setBookings]   = useState([]);
+  const [allBookings, setAllBookings] = useState([]);
   const [stats,      setStats]      = useState(null);
   const [loading,    setLoading]    = useState(true);
   const [error,      setError]      = useState('');
@@ -27,11 +28,13 @@ export default function ClinicDashboard() {
     setLoading(true); setError('');
     try {
       const q = activeClinic?.id ? `?clinic_id=${activeClinic.id}` : '';
-      const [bData, sData] = await Promise.all([
+      const [bData, sData, allData] = await Promise.all([
         api.get(`/bookings/today${q}`),
         api.get(`/clinics/dashboard/stats${q}`),
+        api.get(`/bookings${q}`),
       ]);
       setBookings(Array.isArray(bData) ? bData : bData?.bookings ?? []);
+      setAllBookings(Array.isArray(allData) ? allData : allData?.bookings ?? allData?.rows ?? []);
       setStats(sData);
     } catch (err) {
       setError(err?.message || 'Failed to load dashboard.');
@@ -47,8 +50,9 @@ export default function ClinicDashboard() {
     try {
       await api.patch(`/bookings/${id}/confirm`);
       setBookings(bs => bs.map(b => b.id === id ? { ...b, status: 'confirmed' } : b));
-      const b = bookings.find(b => b.id === id);
-      showToast(`Booking confirmed for ${b?.patient_name || 'patient'}`);
+      setAllBookings(bs => bs.map(b => b.id === id ? { ...b, status: 'confirmed' } : b));
+      const b = bookings.find(b => b.id === id) || allBookings.find(b => b.id === id);
+      showToast(`Booking confirmed for ${b?.patient_name || b?.patient?.name || 'patient'}`);
     } catch (err) {
       showToast(`Error: ${err?.message || 'Failed to confirm.'}`);
     } finally {
@@ -154,6 +158,60 @@ export default function ClinicDashboard() {
                           <td>{b.service_name || b.service?.name || '—'}</td>
                           <td>{b.therapist_name || b.therapist?.name || '—'}</td>
                           <td style={{ fontWeight:500, color:'#2563eb' }}>{b.booked_time || '—'}</td>
+                          <td><span className={`badge ${s.cls}`}>{s.label}</span></td>
+                          <td>
+                            {b.status === 'pending' ? (
+                              <button onClick={() => confirm(b.id)} disabled={confirming===b.id} style={{ display:'flex', alignItems:'center', gap:'0.3rem', padding:'0.35rem 0.75rem', background:'#10b981', color:'#fff', border:'none', borderRadius:7, fontSize:'0.8rem', fontWeight:700, cursor:'pointer', whiteSpace:'nowrap', opacity: confirming===b.id ? 0.7 : 1 }}>
+                                {confirming===b.id ? <Loader size={12} style={{ animation:'spin 1s linear infinite' }}/> : <CheckCircle size={12}/>}
+                                {confirming===b.id ? 'Wait…' : 'Confirm'}
+                              </button>
+                            ) : b.status === 'confirmed' ? (
+                              <span style={{ color:'#10b981', fontSize:'0.82rem', fontWeight:600 }}>✓ Confirmed</span>
+                            ) : (
+                              <span style={{ color:'#94a3b8', fontSize:'0.82rem' }}>—</span>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+
+          <div className="card" style={{ marginTop: '2rem' }}>
+            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'1.25rem', flexWrap:'wrap', gap:'0.75rem' }}>
+              <h2 style={{ fontSize:'1.1rem', margin:0 }}>Recent Bookings</h2>
+            </div>
+
+            {allBookings.length === 0 ? (
+              <div style={{ textAlign:'center', padding:'3rem', color:'#94a3b8' }}>
+                <Calendar size={36} style={{ marginBottom:'0.75rem', opacity:0.4 }}/>
+                <p style={{ margin:0 }}>No recent bookings found.</p>
+              </div>
+            ) : (
+              <div className="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Patient</th><th>Service</th><th>Therapist</th><th>Date & Time</th><th>Status</th><th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {allBookings.map(b => {
+                      const s = STATUS[b.status] || STATUS.pending;
+                      return (
+                        <tr key={b.id}>
+                          <td style={{ fontWeight:600 }}>{b.patient_name || b.patient?.name || '—'}</td>
+                          <td>{b.service_name || b.service?.name || '—'}</td>
+                          <td>{b.therapist_name || b.therapist?.name || '—'}</td>
+                          <td style={{ fontWeight:500, color:'#2563eb' }}>
+                            <div style={{ display: 'flex', flexDirection: 'column' }}>
+                              <span>{b.booked_date ? new Date(b.booked_date).toLocaleDateString('en-LK', { month:'short', day:'numeric', year:'numeric' }) : '—'}</span>
+                              <span style={{ fontSize: '0.8rem', color: '#64748b' }}>{b.booked_time || ''}</span>
+                            </div>
+                          </td>
                           <td><span className={`badge ${s.cls}`}>{s.label}</span></td>
                           <td>
                             {b.status === 'pending' ? (
