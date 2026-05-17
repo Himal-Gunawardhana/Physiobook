@@ -28,10 +28,12 @@ export default function SelectTime() {
     return d.toISOString().split('T')[0];
   });
 
-  const [therapists, setTherapists] = useState(location.state?.therapists || []);
+  const [therapists] = useState(location.state?.therapists || []);
   const [slots, setSlots] = useState([]);
   const [loadingSlots, setLoadingSlots] = useState(false);
   const [error, setError] = useState('');
+  const [therapistAvailability, setTherapistAvailability] = useState(null);
+  const [loadingAvailability, setLoadingAvailability] = useState(false);
 
   const requiresEquip = service.requires_equipment && service.requires_equipment !== 'None';
   const homeBlocked   = mode === 'home' && requiresEquip && !hasEquip;
@@ -43,6 +45,28 @@ export default function SelectTime() {
   const maxDate  = new Date(); maxDate.setDate(maxDate.getDate() + 60);
   const minDateStr = tomorrow.toISOString().split('T')[0];
   const maxDateStr = maxDate.toISOString().split('T')[0];
+
+  const getSelectedDayName = () => {
+    const date = new Date(`${selectedDate}T00:00:00`);
+    return date.toLocaleDateString('en-US', { weekday: 'long' });
+  };
+
+  const formatTime = (time) => {
+    if (!time) return '';
+    const [hour, minute] = time.split(':').map(Number);
+    const period = hour >= 12 ? 'PM' : 'AM';
+    const displayHour = ((hour % 12) || 12).toString().padStart(2, '0');
+    return `${displayHour}:${minute.toString().padStart(2, '0')} ${period}`;
+  };
+
+  const formatAvailabilityLabel = (availability) => {
+    if (!availability?.available) return 'Off';
+    return `${formatTime(availability.start_time)} - ${formatTime(availability.end_time)}`;
+  };
+
+  const selectedDayName = getSelectedDayName();
+  const selectedDayAvailability = therapistAvailability?.[selectedDayName];
+  const selectedDayWindowLabel = formatAvailabilityLabel(selectedDayAvailability);
 
   // Load available slots when date or therapist changes
   useEffect(() => {
@@ -58,6 +82,29 @@ export default function SelectTime() {
       setError(err?.message || 'Failed to load slots');
     }).finally(() => setLoadingSlots(false));
   }, [clinicId, selectedDate, duration, therapistId]);
+
+  useEffect(() => {
+    if (therapistId === 'auto') {
+      setTherapistAvailability(null);
+      return;
+    }
+
+    const therapist = therapists.find((t) => t.id === therapistId);
+    if (!therapist?.id) {
+      setTherapistAvailability(null);
+      return;
+    }
+
+    setLoadingAvailability(true);
+    api.get(`/staff/${therapist.id}/public-availability`)
+      .then((data) => {
+        setTherapistAvailability(data?.availability || null);
+      })
+      .catch(() => {
+        setTherapistAvailability(null);
+      })
+      .finally(() => setLoadingAvailability(false));
+  }, [therapistId, therapists]);
 
   const handleContinue = () => {
     if (!canContinue) return;
@@ -209,6 +256,40 @@ export default function SelectTime() {
               {isFastTrack ? '⚡ Select Your Time' : 'Available Time Slots'}
             </h3>
 
+            {therapistId !== 'auto' && (
+              <div style={{ marginBottom: '1rem', padding: '1rem', borderRadius: 12, background: '#f8fafc', border: '1px solid #e2e8f0' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.75rem', marginBottom: '0.75rem' }}>
+                  <div style={{ fontWeight: 700, color: '#0f172a' }}>Therapist Availability</div>
+                  <div style={{ fontSize: '0.8rem', color: '#64748b' }}>{formatDate(selectedDate)}</div>
+                </div>
+
+                {loadingAvailability ? (
+                  <div style={{ fontSize: '0.82rem', color: '#64748b' }}>Loading therapist schedule...</div>
+                ) : therapistAvailability ? (() => {
+                  const dayAvailability = selectedDayAvailability;
+
+                  return (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', gap: '0.75rem', padding: '0.7rem 0.85rem', borderRadius: 10, background: dayAvailability?.available ? '#ecfdf5' : '#f8fafc', border: `1px solid ${dayAvailability?.available ? '#a7f3d0' : '#e2e8f0'}` }}>
+                        <span style={{ fontWeight: 600, color: '#0f172a' }}>{selectedDayName}</span>
+                        <span style={{ color: dayAvailability?.available ? '#047857' : '#64748b', fontWeight: 600 }}>
+                          {selectedDayWindowLabel}
+                        </span>
+                      </div>
+
+                      <div style={{ fontSize: '0.78rem', color: '#64748b' }}>
+                        {dayAvailability?.available
+                          ? 'Only time slots inside this window are shown below.'
+                          : 'The selected therapist is not available on this date.'}
+                      </div>
+                    </div>
+                  );
+                })() : (
+                  <div style={{ fontSize: '0.82rem', color: '#64748b' }}>No public availability found for this therapist.</div>
+                )}
+              </div>
+            )}
+
             {loadingSlots ? (
               <div style={{ textAlign: 'center', padding: '2.5rem 1rem', color: '#94a3b8' }}>
                 <Loader size={22} style={{ animation: 'spin 1s linear infinite' }} />
@@ -226,13 +307,19 @@ export default function SelectTime() {
                 <p style={{ fontSize: '0.78rem', margin: 0 }}>Try a different date or therapist.</p>
               </div>
             ) : (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))', gap: '0.5rem' }}>
-                {slots.map(s => (
-                  <button key={s} onClick={() => setSlot(s)}
-                    style={{ padding: '0.65rem 0.4rem', borderRadius: 8, border: slot === s ? `2px solid ${primaryColor}` : '1.5px solid #e2e8f0', background: slot === s ? primaryColor : '#fff', color: slot === s ? '#fff' : '#0f172a', fontWeight: 600, fontSize: '0.85rem', textAlign: 'center', cursor: 'pointer', transition: 'all 0.15s' }}>
-                    {formatSlot(s)}
-                  </button>
-                ))}
+              <div style={{ padding: '0.85rem', borderRadius: 12, border: `1px solid ${selectedDayAvailability?.available ? '#a7f3d0' : '#e2e8f0'}`, background: selectedDayAvailability?.available ? '#f0fdf4' : '#fff' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.75rem', marginBottom: '0.7rem' }}>
+                  <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#0f172a' }}>Time slots inside {selectedDayWindowLabel}</div>
+                  <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{slots.length} slot{slots.length === 1 ? '' : 's'}</div>
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))', gap: '0.5rem' }}>
+                  {slots.map(s => (
+                    <button key={s} onClick={() => setSlot(s)}
+                      style={{ padding: '0.65rem 0.4rem', borderRadius: 8, border: slot === s ? `2px solid ${primaryColor}` : '1.5px solid #bbf7d0', background: slot === s ? primaryColor : '#fff', color: slot === s ? '#fff' : '#0f172a', fontWeight: 600, fontSize: '0.85rem', textAlign: 'center', cursor: 'pointer', transition: 'all 0.15s' }}>
+                      {formatSlot(s)}
+                    </button>
+                  ))}
+                </div>
               </div>
             )}
 
