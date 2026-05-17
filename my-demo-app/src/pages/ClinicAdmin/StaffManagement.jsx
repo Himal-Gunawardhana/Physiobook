@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   UserPlus, X, Star, Calendar, Loader, AlertCircle,
-  RefreshCw, Search, Mail, CheckCircle, UserCheck, Clock, Send
+  RefreshCw, Search, Mail, CheckCircle, UserCheck, Clock, Send, Download
 } from 'lucide-react';
 import api from '../../lib/api';
+import AvailabilityImportModal from '../../components/AvailabilityImportModal';
 
 /* ── Small helpers ─────────────────────────────────────────────── */
 function Stars({ rating }) {
@@ -79,6 +80,8 @@ export default function StaffManagement() {
   const [availability, setAvailability] = useState({});
   const [savingAvail,  setSavingAvail]  = useState(false);
   const [toast,        setToast]        = useState(null);
+  const [importModal,  setImportModal]  = useState(null); // { staffId, clinicId, therapistUserId, therapistName, profileAvailability }
+  const [clinicId,     setClinicId]     = useState(null);
 
   // Onboarding wizard
   const [wizardOpen,   setWizardOpen]   = useState(false);
@@ -109,6 +112,12 @@ export default function StaffManagement() {
     try {
       const data = await api.get('/staff');
       setStaff(Array.isArray(data) ? data : data?.staff ?? []);
+      
+      // Also fetch clinic info to get clinicId
+      const clinicData = await api.get('/clinics/mine/status').catch(() => ({}));
+      if (clinicData.clinic?.id) {
+        setClinicId(clinicData.clinic.id);
+      }
     } catch (err) {
       setError(err?.message || 'Failed to load staff.');
     } finally {
@@ -154,9 +163,23 @@ export default function StaffManagement() {
         specialization: addSpec || undefined,
         experienceYears: addExp ? +addExp : undefined,
       });
+      
       setStaff(prev => [...prev, created]);
-      closeWizard();
-      showToast('Physiotherapist added to your clinic!');
+      
+      // Show import modal if profile availability is available
+      if (created && created.profileAvailability && clinicId) {
+        setImportModal({
+          staffId: created.id,
+          clinicId: clinicId,
+          therapistUserId: searchResult?.userId || created.user_id,
+          therapistName: `${created.firstName || created.first_name} ${created.lastName || created.last_name}`.trim(),
+          profileAvailability: created.profileAvailability,
+        });
+        closeWizard();
+      } else {
+        closeWizard();
+        showToast('Physiotherapist added to your clinic!');
+      }
     } catch (err) {
       showToast(err?.message || 'Failed to add therapist.', 'error');
     } finally {
@@ -569,9 +592,24 @@ export default function StaffManagement() {
                       <td><Stars rating={s.rating||0}/></td>
                       <td><StatusBadge status={s.status}/></td>
                       <td>
-                        <button onClick={() => openAvail(s.id)} style={{ display:'flex', alignItems:'center', gap:'0.3rem', padding:'0.35rem 0.7rem', background:'white', border:'1px solid #e2e8f0', borderRadius:7, cursor:'pointer', fontSize:'0.82rem', fontWeight:600, color:'#2563eb' }}>
-                          <Calendar size={13}/> Schedule
-                        </button>
+                        <div style={{ display:'flex', gap:'0.5rem' }}>
+                          <button onClick={() => openAvail(s.id)} style={{ display:'flex', alignItems:'center', gap:'0.3rem', padding:'0.35rem 0.7rem', background:'white', border:'1px solid #e2e8f0', borderRadius:7, cursor:'pointer', fontSize:'0.82rem', fontWeight:600, color:'#2563eb' }}>
+                            <Calendar size={13}/> Schedule
+                          </button>
+                          <button onClick={() => {
+                            if (clinicId) {
+                              setImportModal({
+                                staffId: s.id,
+                                clinicId: clinicId,
+                                therapistUserId: s.user_id,
+                                therapistName: s.name || `${s.firstName||s.first_name||''} ${s.lastName||s.last_name||''}`.trim(),
+                                profileAvailability: null, // Will be fetched
+                              });
+                            }
+                          }} style={{ display:'flex', alignItems:'center', gap:'0.3rem', padding:'0.35rem 0.7rem', background:'white', border:'1px solid #e2e8f0', borderRadius:7, cursor:'pointer', fontSize:'0.82rem', fontWeight:600, color:'#10b981' }}>
+                            <Download size={13}/> Import
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -580,6 +618,24 @@ export default function StaffManagement() {
             </div>
           )}
         </div>
+      )}
+
+      {/* Availability Import Modal */}
+      {importModal && (
+        <AvailabilityImportModal
+          isOpen={!!importModal}
+          onClose={() => setImportModal(null)}
+          onSuccess={(result) => {
+            showToast('✨ Availability imported successfully!');
+            // Update staff in list
+            setStaff(prev => prev.map(s => s.id === importModal.staffId ? { ...s, ...result } : s));
+          }}
+          staffId={importModal.staffId}
+          clinicId={importModal.clinicId}
+          therapistUserId={importModal.therapistUserId}
+          therapistName={importModal.therapistName}
+          profileAvailability={importModal.profileAvailability}
+        />
       )}
 
       {/* Onboarding Wizard */}

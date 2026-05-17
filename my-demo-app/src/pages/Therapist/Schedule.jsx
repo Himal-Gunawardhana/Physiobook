@@ -3,6 +3,7 @@ import { User, Calendar, Star, CheckCircle, Clock, Mail, X, FileText, Loader, Al
 import { useNavigate } from 'react-router-dom';
 import api from '../../lib/api';
 import { useAuth } from '../../context/AuthContext';
+import TherapistProfileAvailability from '../../components/TherapistProfileAvailability';
 
 const DAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 
@@ -265,6 +266,11 @@ export default function TherapistSchedule() {
                 {savingAvail ? <><Loader size={14} style={{ animation:'spin 1s linear infinite' }}/> Saving…</> : scheduleEdited ? 'Save Schedule ✓' : 'No Changes'}
               </button>
             </div>
+          </div>
+
+          {/* Profile Availability Section */}
+          <div style={{ marginTop: '1.5rem' }}>
+            <TherapistProfileAvailability therapistId={user?.id} />
           </div>
         </>
       )}
