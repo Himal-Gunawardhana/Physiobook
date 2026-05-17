@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Calendar, Clock, Star, MessageCircle, RefreshCw, CheckCircle, AlertCircle, ChevronRight, Loader } from 'lucide-react';
+import { Calendar, Clock, Star, MessageCircle, RefreshCw, CheckCircle, AlertCircle, ChevronRight, Loader, MapPin, Award } from 'lucide-react';
 import api from '../../lib/api';
 import { useAuth } from '../../context/AuthContext';
 
@@ -18,7 +18,10 @@ export default function MyBookings() {
   const { user } = useAuth();
 
   const [bookings,     setBookings]     = useState([]);
+  const [clinics,      setClinics]      = useState([]);
+  const [therapists,   setTherapists]   = useState([]);
   const [loading,      setLoading]      = useState(true);
+  const [loadingClinics, setLoadingClinics] = useState(true);
   const [error,        setError]        = useState('');
   const [filter,       setFilter]       = useState('all');
   const [refundModal,  setRefundModal]  = useState(null);
@@ -43,6 +46,27 @@ export default function MyBookings() {
     })();
     return () => { cancelled = true; };
   }, [user]);
+
+  // Fetch available clinics and therapists
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const [clinicsData, therapistsData] = await Promise.all([
+          api.get('/clinics?limit=6').catch(() => []),
+          api.get('/therapists?limit=8').catch(() => [])
+        ]);
+        if (cancelled) return;
+        setClinics(Array.isArray(clinicsData) ? clinicsData : clinicsData?.rows ?? []);
+        setTherapists(Array.isArray(therapistsData) ? therapistsData : therapistsData?.rows ?? []);
+      } catch (err) {
+        console.error('Failed to load clinics/therapists:', err);
+      } finally {
+        if (!cancelled) setLoadingClinics(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
 
   const filtered = filter === 'all' ? bookings : bookings.filter(b => b.status === filter);
 
@@ -157,9 +181,61 @@ export default function MyBookings() {
         )}
 
         <button onClick={() => navigate('/book')}
-          style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', margin: '1.5rem auto 0', padding: '0.9rem 2rem', background: '#2563eb', color: '#fff', border: 'none', borderRadius: 12, fontWeight: 700, cursor: 'pointer', fontSize: '0.95rem' }}>
+          style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', margin: '1.5rem auto 2.5rem', padding: '0.9rem 2rem', background: '#2563eb', color: '#fff', border: 'none', borderRadius: 12, fontWeight: 700, cursor: 'pointer', fontSize: '0.95rem' }}>
           Book Another Session
         </button>
+
+        {/* --- Therapists Section --- */}
+        {!loadingClinics && therapists.length > 0 && (
+          <div style={{ marginBottom: '2.5rem' }}>
+            <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0f172a', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <Award size={20} color="#2563eb" /> Available Therapists
+            </h2>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1rem' }}>
+              {therapists.map(t => (
+                <div key={t.id} style={{ background: '#fff', borderRadius: 16, padding: '1.25rem', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', display: 'flex', alignItems: 'center', gap: '1rem', cursor: 'pointer', transition: 'transform 0.2s' }}
+                     onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
+                     onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
+                     onClick={() => navigate('/book', { state: { preselectTherapist: t.id } })}>
+                  <div style={{ width: 50, height: 50, borderRadius: '50%', background: '#e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, overflow: 'hidden' }}>
+                    {t.profile_image_url || t.avatar ? (
+                      <img src={t.profile_image_url || t.avatar} alt={t.name || t.first_name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    ) : (
+                      <span style={{ fontSize: '1.25rem', fontWeight: 700, color: '#64748b' }}>{(t.name || t.first_name || 'T')[0]}</span>
+                    )}
+                  </div>
+                  <div>
+                    <h3 style={{ margin: '0 0 0.25rem', fontSize: '1rem', color: '#0f172a' }}>{t.name || (t.first_name ? `${t.first_name} ${t.last_name || ''}`.trim() : 'Therapist')}</h3>
+                    <p style={{ margin: 0, color: '#64748b', fontSize: '0.85rem' }}>{t.specialty || t.title || 'Physiotherapist'}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* --- Clinics Section --- */}
+        {!loadingClinics && clinics.length > 0 && (
+          <div style={{ marginBottom: '2rem' }}>
+            <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0f172a', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <MapPin size={20} color="#10b981" /> Partner Clinics
+            </h2>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1rem' }}>
+              {clinics.map(c => (
+                <div key={c.id} style={{ background: '#fff', borderRadius: 16, padding: '1.25rem', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', cursor: 'pointer', transition: 'transform 0.2s' }}
+                     onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
+                     onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
+                     onClick={() => navigate('/book', { state: { preselectClinic: c.id } })}>
+                  <h3 style={{ margin: '0 0 0.5rem', fontSize: '1.05rem', color: '#0f172a' }}>{c.name}</h3>
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.4rem', color: '#64748b', fontSize: '0.85rem' }}>
+                    <MapPin size={14} style={{ marginTop: 2, flexShrink: 0 }} />
+                    <span>{c.address || c.city || 'Location not specified'}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Refund Modal */}

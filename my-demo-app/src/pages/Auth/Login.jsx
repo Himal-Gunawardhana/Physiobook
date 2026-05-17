@@ -88,8 +88,8 @@ export default function Login() {
         localStorage.removeItem('pending_verification_backend_role');
         localStorage.removeItem('pending_verification_frontend_role');
         
-        // If logging in from booking flow (checkout page), navigate to my-bookings
-        if (location.state?.returnTo?.includes('/checkout')) {
+        // If logging in from booking flow (checkout page) or if patient, navigate to my-bookings
+        if (location.state?.returnTo?.includes('/checkout') || backendRole === 'patient') {
           navigate('/book/my-bookings');
         } else {
           navigate(dest);
@@ -138,8 +138,8 @@ export default function Login() {
         localStorage.removeItem('pending_verification_backend_role');
         localStorage.removeItem('pending_verification_frontend_role');
         
-        // If logging in from booking flow (checkout page), navigate to my-bookings
-        if (location.state?.returnTo?.includes('/checkout')) {
+        // If logging in from booking flow (checkout page) or if patient, navigate to my-bookings
+        if (location.state?.returnTo?.includes('/checkout') || backendRole === 'patient') {
           navigate('/book/my-bookings');
         } else {
           navigate(dest);
