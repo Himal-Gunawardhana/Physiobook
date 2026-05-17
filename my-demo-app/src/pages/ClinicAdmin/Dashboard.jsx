@@ -48,7 +48,7 @@ export default function ClinicDashboard() {
   const confirm = async (id) => {
     setConfirming(id);
     try {
-      await api.patch(`/bookings/${id}/confirm`);
+      await api.put(`/bookings/${id}/status`, { status: 'confirmed' });
       setBookings(bs => bs.map(b => b.id === id ? { ...b, status: 'confirmed' } : b));
       setAllBookings(bs => bs.map(b => b.id === id ? { ...b, status: 'confirmed' } : b));
       const b = bookings.find(b => b.id === id) || allBookings.find(b => b.id === id);
