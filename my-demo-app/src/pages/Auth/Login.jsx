@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useLocation, useNavigate, Link } from 'react-router-dom';
 import { Activity, Building2, Stethoscope, ShieldCheck, Eye, EyeOff, AlertCircle, Loader } from 'lucide-react';
 import { useAuth, ROLE_ROUTES } from '../../context/AuthContext';
 
@@ -12,6 +12,7 @@ const ROLE_CONFIG = {
 
 export default function Login() {
   const { role }    = useParams();
+  const location    = useLocation();
   const navigate    = useNavigate();
   const { login, logout: logoutFn }   = useAuth();
 
@@ -86,7 +87,13 @@ export default function Login() {
         // Clear pending verification data after successful login
         localStorage.removeItem('pending_verification_backend_role');
         localStorage.removeItem('pending_verification_frontend_role');
-        navigate(dest);
+        
+        // If logging in from booking flow (checkout page), navigate to my-bookings
+        if (location.state?.returnTo?.includes('/checkout')) {
+          navigate('/book/my-bookings');
+        } else {
+          navigate(dest);
+        }
       }
     } catch (err) {
       const msg = err?.error?.message || err?.message || 'Login failed. Check your credentials.';
@@ -130,7 +137,13 @@ export default function Login() {
         // Clear pending verification data after successful 2FA
         localStorage.removeItem('pending_verification_backend_role');
         localStorage.removeItem('pending_verification_frontend_role');
-        navigate(dest);
+        
+        // If logging in from booking flow (checkout page), navigate to my-bookings
+        if (location.state?.returnTo?.includes('/checkout')) {
+          navigate('/book/my-bookings');
+        } else {
+          navigate(dest);
+        }
       }
     } catch (err) {
       setError(err?.error?.message || err?.message || 'Invalid code. Try again.');

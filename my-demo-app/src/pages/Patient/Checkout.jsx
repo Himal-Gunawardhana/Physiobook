@@ -44,9 +44,9 @@ export default function Checkout() {
   const submit = async () => {
     // Must be logged in
     if (!user) {
-      // Save booking state to sessionStorage and redirect to register
+      // Save booking state and redirect to login page
       sessionStorage.setItem('pendingBooking', JSON.stringify(location.state));
-      navigate('/book/register', { state: { returnTo: '/book/checkout', bookingState: location.state } });
+      navigate('/book/login', { state: { returnTo: '/book/checkout', bookingState: location.state } });
       return;
     }
 
