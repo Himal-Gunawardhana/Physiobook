@@ -96,11 +96,15 @@ export default function SelectTime() {
     }
 
     setLoadingAvailability(true);
-    api.get(`/staff/${therapist.id}/public-availability`)
+    // Use user_id if available, fall back to id for the public-availability API
+    const userId = therapist.user_id || therapist.id;
+    api.get(`/staff/${userId}/public-availability`)
       .then((data) => {
+        console.log('Therapist availability loaded:', data);
         setTherapistAvailability(data?.availability || null);
       })
-      .catch(() => {
+      .catch((err) => {
+        console.error('Error loading therapist availability:', err);
         setTherapistAvailability(null);
       })
       .finally(() => setLoadingAvailability(false));
