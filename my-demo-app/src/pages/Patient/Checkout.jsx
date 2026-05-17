@@ -58,6 +58,7 @@ export default function Checkout() {
     setLoading(true);
     setError('');
     try {
+      console.log('[Checkout] Submitting booking with user:', user);
       const booking = await api.post('/bookings', {
         clinicId,
         serviceId:   service.id,
@@ -71,13 +72,15 @@ export default function Checkout() {
         patientConfirmedEquipment: hasEquipment || false,
       });
 
-      navigate('/book/confirmation', { state: {
-        booking,
-        serviceName: name,
+      console.log('[Checkout] Booking created:', booking);
+      
+      // Navigate to my bookings page
+      navigate('/book/my-bookings', { state: {
+        newBookingId: booking?.id,
         primaryColor,
-        clinicSlug,
       }});
     } catch (err) {
+      console.error('[Checkout] Error creating booking:', err);
       setError(err?.error?.message || err?.message || 'Failed to create booking. Please try again.');
     } finally {
       setLoading(false);
