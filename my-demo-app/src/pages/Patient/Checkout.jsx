@@ -81,7 +81,16 @@ export default function Checkout() {
       }});
     } catch (err) {
       console.error('[Checkout] Error creating booking:', err);
-      setError(err?.error?.message || err?.message || 'Failed to create booking. Please try again.');
+      const errorMsg = err?.error?.message || err?.message || 'Failed to create booking. Please try again.';
+      
+      // If patient ID is missing, redirect to login
+      if (errorMsg.toLowerCase().includes('patient') || errorMsg.toLowerCase().includes('authentication')) {
+        sessionStorage.setItem('pendingBooking', JSON.stringify(location.state));
+        navigate('/book/login', { state: { returnTo: '/book/checkout', bookingState: location.state } });
+        return;
+      }
+      
+      setError(errorMsg);
     } finally {
       setLoading(false);
     }
