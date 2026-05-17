@@ -60,6 +60,22 @@ export default function ClinicDashboard() {
     }
   };
 
+  const cancelBooking = async (id) => {
+    if (!window.confirm('Are you sure you want to cancel this booking?')) return;
+    setConfirming(id);
+    try {
+      await api.put(`/bookings/${id}/status`, { status: 'cancelled' });
+      setBookings(bs => bs.map(b => b.id === id ? { ...b, status: 'cancelled' } : b));
+      setAllBookings(bs => bs.map(b => b.id === id ? { ...b, status: 'cancelled' } : b));
+      const b = bookings.find(b => b.id === id) || allBookings.find(b => b.id === id);
+      showToast(`Booking cancelled for ${b?.patient_name || b?.patient?.name || 'patient'}`);
+    } catch (err) {
+      showToast(`Error: ${err?.message || 'Failed to cancel booking.'}`);
+    } finally {
+      setConfirming(null);
+    }
+  };
+
   const shown = filter === 'all' ? bookings : bookings.filter(b => b.status === filter);
   const pending = bookings.filter(b => b.status === 'pending').length;
 
@@ -166,7 +182,13 @@ export default function ClinicDashboard() {
                                 {confirming===b.id ? 'Wait…' : 'Confirm'}
                               </button>
                             ) : b.status === 'confirmed' ? (
-                              <span style={{ color:'#10b981', fontSize:'0.82rem', fontWeight:600 }}>✓ Confirmed</span>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                                <span style={{ color:'#10b981', fontSize:'0.82rem', fontWeight:600 }}>✓ Confirmed</span>
+                                <button onClick={() => cancelBooking(b.id)} disabled={confirming===b.id} style={{ display:'flex', alignItems:'center', gap:'0.2rem', padding:'0.25rem 0.6rem', background:'#fee2e2', color:'#ef4444', border:'none', borderRadius:6, fontSize:'0.75rem', fontWeight:700, cursor:'pointer', whiteSpace:'nowrap', opacity: confirming===b.id ? 0.7 : 1 }}>
+                                  {confirming===b.id ? <Loader size={10} style={{ animation:'spin 1s linear infinite' }}/> : <AlertCircle size={10}/>}
+                                  Cancel
+                                </button>
+                              </div>
                             ) : (
                               <span style={{ color:'#94a3b8', fontSize:'0.82rem' }}>—</span>
                             )}
@@ -220,7 +242,13 @@ export default function ClinicDashboard() {
                                 {confirming===b.id ? 'Wait…' : 'Confirm'}
                               </button>
                             ) : b.status === 'confirmed' ? (
-                              <span style={{ color:'#10b981', fontSize:'0.82rem', fontWeight:600 }}>✓ Confirmed</span>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                                <span style={{ color:'#10b981', fontSize:'0.82rem', fontWeight:600 }}>✓ Confirmed</span>
+                                <button onClick={() => cancelBooking(b.id)} disabled={confirming===b.id} style={{ display:'flex', alignItems:'center', gap:'0.2rem', padding:'0.25rem 0.6rem', background:'#fee2e2', color:'#ef4444', border:'none', borderRadius:6, fontSize:'0.75rem', fontWeight:700, cursor:'pointer', whiteSpace:'nowrap', opacity: confirming===b.id ? 0.7 : 1 }}>
+                                  {confirming===b.id ? <Loader size={10} style={{ animation:'spin 1s linear infinite' }}/> : <AlertCircle size={10}/>}
+                                  Cancel
+                                </button>
+                              </div>
                             ) : (
                               <span style={{ color:'#94a3b8', fontSize:'0.82rem' }}>—</span>
                             )}
