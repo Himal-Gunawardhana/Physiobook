@@ -46,7 +46,7 @@ export default function Checkout() {
     if (!user) {
       // Save booking state and redirect to login page
       sessionStorage.setItem('pendingBooking', JSON.stringify(location.state));
-      navigate('/book/login', { state: { returnTo: '/book/checkout', bookingState: location.state } });
+      navigate('/login/patient', { state: { returnTo: '/book/checkout', bookingState: location.state } });
       return;
     }
 
@@ -86,7 +86,7 @@ export default function Checkout() {
       // If patient ID is missing, redirect to login
       if (errorMsg.toLowerCase().includes('patient') || errorMsg.toLowerCase().includes('authentication')) {
         sessionStorage.setItem('pendingBooking', JSON.stringify(location.state));
-        navigate('/book/login', { state: { returnTo: '/book/checkout', bookingState: location.state } });
+        navigate('/login/patient', { state: { returnTo: '/book/checkout', bookingState: location.state } });
         return;
       }
       
