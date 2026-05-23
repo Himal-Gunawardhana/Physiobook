@@ -592,24 +592,19 @@ export default function StaffManagement() {
                       <td><Stars rating={s.rating||0}/></td>
                       <td><StatusBadge status={s.status}/></td>
                       <td>
-                        <div style={{ display:'flex', gap:'0.5rem' }}>
-                          <button onClick={() => openAvail(s.id)} style={{ display:'flex', alignItems:'center', gap:'0.3rem', padding:'0.35rem 0.7rem', background:'white', border:'1px solid #e2e8f0', borderRadius:7, cursor:'pointer', fontSize:'0.82rem', fontWeight:600, color:'#2563eb' }}>
-                            <Calendar size={13}/> Schedule
-                          </button>
-                          <button onClick={() => {
-                            if (clinicId) {
-                              setImportModal({
-                                staffId: s.id,
-                                clinicId: clinicId,
-                                therapistUserId: s.user_id,
-                                therapistName: s.name || `${s.firstName||s.first_name||''} ${s.lastName||s.last_name||''}`.trim(),
-                                profileAvailability: null, // Will be fetched
-                              });
-                            }
-                          }} style={{ display:'flex', alignItems:'center', gap:'0.3rem', padding:'0.35rem 0.7rem', background:'white', border:'1px solid #e2e8f0', borderRadius:7, cursor:'pointer', fontSize:'0.82rem', fontWeight:600, color:'#10b981' }}>
-                            <Download size={13}/> Import
-                          </button>
-                        </div>
+                        <button onClick={() => {
+                          if (clinicId) {
+                            setImportModal({
+                              staffId: s.id,
+                              clinicId: clinicId,
+                              therapistUserId: s.user_id,
+                              therapistName: s.name || `${s.firstName||s.first_name||''} ${s.lastName||s.last_name||''}`.trim(),
+                              profileAvailability: null, // Will be fetched
+                            });
+                          }
+                        }} style={{ display:'flex', alignItems:'center', gap:'0.3rem', padding:'0.35rem 0.7rem', background:'white', border:'1px solid #e2e8f0', borderRadius:7, cursor:'pointer', fontSize:'0.82rem', fontWeight:600, color:'#10b981' }}>
+                          <Download size={13}/> Import
+                        </button>
                       </td>
                     </tr>
                   ))}
