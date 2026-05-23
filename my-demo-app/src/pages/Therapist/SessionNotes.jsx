@@ -115,21 +115,38 @@ export default function SessionNotes() {
     }
   };
 
-  const handleSessionStateChange = async (newState) => {
+  // Map booking status to display label and colors
+  const getStatusDisplay = (status) => {
+    const statusMap = {
+      pending: { label: 'Pending', bg: '#fef3c7', text: '#92400e', icon: '⏳' },
+      confirmed: { label: 'Confirmed', bg: '#dbeafe', text: '#1e40af', icon: '✓' },
+      in_progress: { label: 'In Progress', bg: '#dcfce7', text: '#166534', icon: '🟢' },
+      completed: { label: 'Completed', bg: '#f3e8ff', text: '#6b21a8', icon: '✓' },
+      cancelled: { label: 'Cancelled', bg: '#fee2e2', text: '#991b1b', icon: '✕' },
+      no_show: { label: 'No Show', bg: '#fee2e2', text: '#991b1b', icon: '✕' },
+      refund_requested: { label: 'Refund Requested', bg: '#fef3c7', text: '#92400e', icon: '💰' },
+    };
+    return statusMap[status] || { label: status, bg: '#f3f4f6', text: '#374151', icon: 'ℹ' };
+  };
+
+  const handleSessionStateChange = async (newStatus) => {
     if (!booking) return;
 
     try {
       setSaving(true);
-      let newStatus = 'confirmed';
-
-      if (newState === 'active') {
-        newStatus = 'in_progress';
-      } else if (newState === 'complete') {
-        newStatus = 'completed';
+      const response = await api.patch(`/bookings/${selectedBookingId}/status`, { status: newStatus });
+      
+      // Update local booking with new status
+      setBooking(prev => ({ ...prev, status: newStatus }));
+      
+      // Update sessionState based on new status
+      if (newStatus === 'in_progress') {
+        setSessionState('active');
+      } else if (newStatus === 'completed') {
+        setSessionState('complete');
+      } else {
+        setSessionState('idle');
       }
-
-      await api.patch(`/bookings/${selectedBookingId}/status`, { status: newStatus });
-      setSessionState(newState);
     } catch (err) {
       setError(`Failed to update session state: ${err?.message}`);
     } finally {
@@ -223,33 +240,61 @@ export default function SessionNotes() {
                   </div>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                  {sessionState === 'idle' && (
+                  {/* CANCELLED / NO_SHOW - Show as badge only */}
+                  {(booking.status === 'cancelled' || booking.status === 'no_show') && (() => {
+                    const statusDisplay = getStatusDisplay(booking.status);
+                    return (
+                      <div style={{ background: statusDisplay.bg, color: statusDisplay.text, borderRadius: 10, padding: '0.7rem 1.25rem', fontWeight: 700, fontSize: '0.88rem', display: 'flex', alignItems: 'center', gap: '0.4rem', textAlign: 'center', justifyContent: 'center' }}>
+                        {statusDisplay.icon} {statusDisplay.label}
+                      </div>
+                    );
+                  })()}
+                  
+                  {/* PENDING - Show status badge */}
+                  {booking.status === 'pending' && (() => {
+                    const statusDisplay = getStatusDisplay('pending');
+                    return (
+                      <div style={{ background: statusDisplay.bg, color: statusDisplay.text, borderRadius: 10, padding: '0.7rem 1.25rem', fontWeight: 700, fontSize: '0.88rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                        {statusDisplay.icon} {statusDisplay.label}
+                      </div>
+                    );
+                  })()}
+                  
+                  {/* CONFIRMED - Show "Begin Session" button */}
+                  {booking.status === 'confirmed' && (
                     <button
-                      onClick={() => handleSessionStateChange('active')}
+                      onClick={() => handleSessionStateChange('in_progress')}
                       disabled={saving}
                       style={{ padding: '0.7rem 1.25rem', background: '#fff', color: '#7c3aed', borderRadius: 10, border: 'none', fontWeight: 700, cursor: saving ? 'default' : 'pointer', fontSize: '0.88rem', whiteSpace: 'nowrap', opacity: saving ? 0.7 : 1 }}
                     >
                       ▶ Begin Session
                     </button>
                   )}
-                  {sessionState === 'active' && (
+                  
+                  {/* IN_PROGRESS - Show "Session Completed" button */}
+                  {booking.status === 'in_progress' && (
                     <button
-                      onClick={() => handleSessionStateChange('complete')}
+                      onClick={() => handleSessionStateChange('completed')}
                       disabled={saving}
                       style={{ padding: '0.7rem 1.25rem', background: '#10b981', color: '#fff', borderRadius: 10, border: 'none', fontWeight: 700, cursor: saving ? 'default' : 'pointer', fontSize: '0.88rem', whiteSpace: 'nowrap', opacity: saving ? 0.7 : 1 }}
                     >
                       <CheckCircle size={14} style={{ display: 'inline', marginRight: 4 }} />
-                      Session Completed
+                      Complete Session
                     </button>
                   )}
-                  {sessionState === 'complete' && (
-                    <div style={{ background: '#dcfce7', color: '#166534', borderRadius: 10, padding: '0.7rem 1.25rem', fontWeight: 700, fontSize: '0.88rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                      <CheckCircle size={14} /> Session Done
-                    </div>
-                  )}
+                  
+                  {/* COMPLETED / REFUND_REQUESTED - Show status badge with note about patient actions */}
+                  {(booking.status === 'completed' || booking.status === 'refund_requested') && (() => {
+                    const statusDisplay = getStatusDisplay(booking.status);
+                    return (
+                      <div style={{ background: statusDisplay.bg, color: statusDisplay.text, borderRadius: 10, padding: '0.7rem 1.25rem', fontWeight: 700, fontSize: '0.88rem', display: 'flex', alignItems: 'center', gap: '0.4rem', textAlign: 'center', justifyContent: 'center' }}>
+                        {statusDisplay.icon} {statusDisplay.label}
+                      </div>
+                    );
+                  })()}
                 </div>
               </div>
-              {sessionState === 'active' && (
+              {booking.status === 'in_progress' && (
                 <div style={{ marginTop: '0.75rem', background: 'rgba(255,255,255,0.15)', borderRadius: 8, padding: '0.5rem 0.75rem', fontSize: '0.82rem' }}>
                   🟢 Session is in progress — document your clinical notes below.
                 </div>
@@ -323,6 +368,14 @@ export default function SessionNotes() {
                       <p style={{ margin: 0, color: '#374151', fontSize: '0.88rem', lineHeight: 1.6 }}>{note.content}</p>
                     </div>
                   ))}
+                </div>
+              )}
+              
+              {/* Session Completed Info */}
+              {booking.status === 'completed' && (
+                <div style={{ background: '#f0f9ff', border: '1px solid #bfdbfe', borderRadius: 12, padding: '1rem', marginTop: '1.5rem', fontSize: '0.88rem', color: '#1e40af' }}>
+                  <div style={{ fontWeight: 700, marginBottom: '0.5rem' }}>Session Completed ✓</div>
+                  <p style={{ margin: 0, lineHeight: 1.5 }}>The patient can now confirm this booking and then choose to request a refund or write a review on your therapist profile.</p>
                 </div>
               )}
             </div>
