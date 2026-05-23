@@ -116,6 +116,23 @@ const TherapistProfileAvailability = ({ therapistId }) => {
     );
   };
 
+  const handleSetTypicalHours = () => {
+    setAvailability((prev) =>
+      prev.map((item) => {
+        // Skip Sunday (index 6)
+        if (item.dayOfWeek === 6) {
+          return item;
+        }
+        return {
+          ...item,
+          isActive: true,
+          startTime: '09:00:00',
+          endTime: '17:00:00',
+        };
+      })
+    );
+  };
+
   const handleSave = async () => {
     setSaving(true);
     setError(null);
@@ -123,11 +140,10 @@ const TherapistProfileAvailability = ({ therapistId }) => {
 
     try {
       const availabilityArray = ensureAvailabilityShape(availability);
-      const response = await api.put('/staff/me/profile-availability', {
+      await api.put('/staff/me/profile-availability', {
         availability: availabilityArray,
       });
 
-      setAvailability(normalizeAvailability(response));
       setSuccess('Availability updated successfully! 🎉');
 
       // Clear success message after 3 seconds
@@ -223,6 +239,13 @@ const TherapistProfileAvailability = ({ therapistId }) => {
         </button>
         <button
           className="btn btn-secondary"
+          onClick={handleSetTypicalHours}
+          disabled={saving}
+        >
+          Set Typical Hours (9AM-5PM)
+        </button>
+        <button
+          className="btn btn-tertiary"
           onClick={fetchAvailability}
           disabled={saving}
         >
