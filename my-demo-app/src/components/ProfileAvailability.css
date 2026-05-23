@@ -1,11 +1,13 @@
 /* Therapist Profile Availability Component Styles */
 
 .availability-container {
-  max-width: 900px;
+  max-width: 1000px;
   margin: 0 auto;
-  padding: 20px;
-  background: #f8f9fa;
-  border-radius: 8px;
+  padding: 28px;
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .availability-container.loading,
@@ -19,30 +21,35 @@
 }
 
 .availability-header {
-  margin-bottom: 30px;
+  margin-bottom: 32px;
   text-align: center;
+  padding-bottom: 20px;
+  border-bottom: 2px solid #f0f0f0;
 }
 
 .availability-header h2 {
-  font-size: 24px;
-  font-weight: 600;
-  color: #2c3e50;
+  font-size: 26px;
+  font-weight: 700;
+  color: #1f2937;
   margin: 0 0 8px 0;
 }
 
 .availability-header p {
   font-size: 14px;
-  color: #7f8c8d;
+  color: #6b7280;
   margin: 0;
+  font-weight: 500;
 }
 
 /* Alerts */
 .alert {
-  padding: 12px 16px;
-  border-radius: 6px;
-  margin-bottom: 20px;
+  padding: 14px 16px;
+  border-radius: 8px;
+  margin-bottom: 22px;
   font-size: 14px;
+  font-weight: 500;
   animation: slideIn 0.3s ease-out;
+  border-left: 4px solid;
 }
 
 @keyframes slideIn {
@@ -57,51 +64,57 @@
 }
 
 .alert-error {
-  background-color: #fee;
-  color: #c33;
-  border: 1px solid #fcc;
+  background-color: #fef2f2;
+  color: #991b1b;
+  border-left-color: #ef4444;
+  border: 1px solid #fecaca;
 }
 
 .alert-success {
-  background-color: #efe;
-  color: #3c3;
-  border: 1px solid #cfc;
+  background-color: #f0fdf4;
+  color: #166534;
+  border-left-color: #22c55e;
+  border: 1px solid #bbf7d0;
 }
 
 /* Availability Grid */
 .availability-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 16px;
-  margin-bottom: 30px;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 18px;
+  margin-bottom: 32px;
 }
 
 .availability-day {
-  background: white;
-  border: 2px solid #e0e0e0;
-  border-radius: 8px;
-  padding: 16px;
-  transition: all 0.3s ease;
+  background: #ffffff;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 20px;
+  transition: all 0.25s ease;
 }
 
 .availability-day:hover {
   border-color: #2563eb;
-  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.1);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.12);
+  transform: translateY(-2px);
 }
 
 .availability-day.inactive {
-  background-color: #f5f5f5;
-  opacity: 0.7;
+  background-color: #f9fafb;
+  opacity: 0.65;
+  border-color: #d1d5db;
 }
 
 .day-header {
-  margin-bottom: 12px;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #f3f4f6;
 }
 
 .day-toggle {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   cursor: pointer;
   user-select: none;
 }
@@ -111,41 +124,51 @@
   height: 20px;
   cursor: pointer;
   accent-color: #2563eb;
+  border-radius: 4px;
 }
 
 .day-name {
-  font-weight: 600;
+  font-weight: 700;
   font-size: 16px;
-  color: #2c3e50;
+  color: #1f2937;
+  letter-spacing: 0.3px;
 }
 
 /* Time Inputs */
 .time-inputs {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  gap: 14px;
+  padding: 12px 0;
 }
 
 .time-group {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 
 .time-group label {
   font-size: 12px;
-  font-weight: 600;
-  color: #7f8c8d;
+  font-weight: 700;
+  color: #6b7280;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.6px;
 }
 
 .time-input {
-  padding: 8px 12px;
-  border: 1px solid #d0d0d0;
-  border-radius: 4px;
+  padding: 10px 12px;
+  border: 1.5px solid #d1d5db;
+  border-radius: 6px;
   font-size: 14px;
+  font-weight: 500;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: #ffffff;
+  transition: all 0.2s ease;
+}
+
+.time-input:hover {
+  border-color: #9ca3af;
 }
 
 .time-input:focus {
@@ -157,21 +180,24 @@
 /* Actions */
 .availability-actions {
   display: flex;
-  gap: 12px;
+  gap: 14px;
   flex-wrap: wrap;
   justify-content: center;
-  margin-bottom: 30px;
+  margin-bottom: 32px;
+  padding-top: 20px;
+  border-top: 1px solid #f0f0f0;
 }
 
 .btn {
-  padding: 10px 18px;
+  padding: 11px 20px;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
-  min-width: 140px;
+  transition: all 0.25s ease;
+  min-width: 145px;
+  white-space: nowrap;
 }
 
 .btn:disabled {
@@ -182,42 +208,49 @@
 .btn-primary {
   background-color: #2563eb;
   color: white;
+  box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
 }
 
 .btn-primary:hover:not(:disabled) {
   background-color: #1d4ed8;
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.35);
+  transform: translateY(-1px);
 }
 
 .btn-secondary {
   background-color: #10b981;
   color: white;
+  box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
 }
 
 .btn-secondary:hover:not(:disabled) {
   background-color: #059669;
-  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.35);
+  transform: translateY(-1px);
 }
 
 .btn-tertiary {
-  background-color: #6b7280;
+  background-color: #9ca3af;
   color: white;
+  box-shadow: 0 2px 4px rgba(156, 163, 175, 0.2);
 }
 
 .btn-tertiary:hover:not(:disabled) {
-  background-color: #4b5563;
-  box-shadow: 0 4px 12px rgba(107, 114, 128, 0.3);
+  background-color: #6b7280;
+  box-shadow: 0 6px 16px rgba(107, 114, 128, 0.35);
+  transform: translateY(-1px);
 }
 
 /* Info Section */
 .availability-info {
-  background-color: #fffbeb;
+  background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
   border-left: 4px solid #f59e0b;
-  padding: 16px;
-  border-radius: 6px;
+  padding: 16px 18px;
+  border-radius: 8px;
   font-size: 13px;
-  line-height: 1.6;
+  line-height: 1.7;
   color: #92400e;
+  border: 1px solid #fde68a;
 }
 
 .availability-info p {
@@ -226,88 +259,18 @@
 
 .availability-info strong {
   color: #b45309;
-}
-
-.time-input:focus {
-  outline: none;
-  border-color: #2563eb;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  font-weight: 700;
 }
 
 .day-off {
+  color: #9ca3af;
+  font-size: 14px;
+  font-weight: 500;
   text-align: center;
   padding: 20px 12px;
-  color: #999;
-  font-style: italic;
-  font-size: 14px;
-}
-
-/* Action Buttons */
-.availability-actions {
-  display: flex;
-  gap: 12px;
-  justify-content: center;
-  margin-bottom: 30px;
-}
-
-.btn {
-  padding: 12px 24px;
-  border: none;
+  background-color: #f9fafb;
   border-radius: 6px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.btn-primary {
-  background: linear-gradient(135deg, #2563eb, #1e40af);
-  color: white;
-}
-
-.btn-primary:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
-}
-
-.btn-primary:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.btn-secondary {
-  background: #e0e0e0;
-  color: #666;
-}
-
-.btn-secondary:hover:not(:disabled) {
-  background: #d0d0d0;
-}
-
-.btn-secondary:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-/* Info Box */
-.availability-info {
-  background: #e3f2fd;
-  border-left: 4px solid #2563eb;
-  padding: 16px;
-  border-radius: 4px;
-  font-size: 13px;
-  color: #1565c0;
-  line-height: 1.6;
-}
-
-.availability-info p {
-  margin: 0;
-}
-
-.availability-info strong {
-  color: #0d47a1;
+  border: 1px dashed #d1d5db;
 }
 
 /* Responsive Design */

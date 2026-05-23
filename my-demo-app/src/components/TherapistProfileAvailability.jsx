@@ -119,8 +119,8 @@ const TherapistProfileAvailability = ({ therapistId }) => {
   const handleSetTypicalHours = () => {
     setAvailability((prev) =>
       prev.map((item) => {
-        // Skip Sunday (index 6)
-        if (item.dayOfWeek === 6) {
+        // Skip Sunday (index 0)
+        if (item.dayOfWeek === 0) {
           return item;
         }
         return {
