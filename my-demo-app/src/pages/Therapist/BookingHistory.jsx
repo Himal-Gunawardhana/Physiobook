@@ -16,8 +16,25 @@ export default function BookingHistory() {
     setError('');
 
     try {
-      const data = await api.get('/bookings/my');
-      const allBookings = Array.isArray(data) ? data : data?.bookings ?? [];
+      // Fetch all bookings including past ones
+      const data = await api.get('/bookings/my?include_past=true');
+      let allBookings = Array.isArray(data) ? data : data?.bookings ?? [];
+      
+      // Process bookings to mark past confirmed bookings as "missed"
+      allBookings = allBookings.map(booking => {
+        if (booking.status === 'confirmed') {
+          const bookingDate = new Date(booking.booked_date);
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          
+          // If booking is in the past and still marked as confirmed, mark as missed
+          if (bookingDate < today) {
+            return { ...booking, status: 'missed' };
+          }
+        }
+        return booking;
+      });
+      
       setBookings(allBookings);
     } catch (err) {
       setError(err?.message || 'Failed to load booking history.');
@@ -50,6 +67,7 @@ export default function BookingHistory() {
     cancelled: { bg: '#fee2e2', text: '#991b1b', label: 'Cancelled' },
     in_progress: { bg: '#fef3c7', text: '#b45309', label: 'In Progress' },
     no_show: { bg: '#f3e8ff', text: '#6b21a8', label: 'No Show' },
+    missed: { bg: '#fee2e2', text: '#991b1b', label: 'Missed' },
   };
 
   return (
@@ -105,6 +123,7 @@ export default function BookingHistory() {
               <option value="completed">Completed</option>
               <option value="in_progress">In Progress</option>
               <option value="cancelled">Cancelled</option>
+              <option value="missed">Missed</option>
               <option value="no_show">No Show</option>
             </select>
           </div>
