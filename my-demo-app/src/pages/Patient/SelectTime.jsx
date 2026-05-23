@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Star, ArrowLeft, ArrowRight, Zap, Calendar, Loader, AlertCircle, User } from 'lucide-react';
 import api from '../../lib/api';
+import TimeSlotDragSelector from '../../components/TimeSlotDragSelector';
 
 const MODES = [
   { id: 'clinic', label: '🏥 Clinic',  desc: 'Visit us in-person' },
@@ -311,19 +312,22 @@ export default function SelectTime() {
                 <p style={{ fontSize: '0.78rem', margin: 0 }}>Try a different date or therapist.</p>
               </div>
             ) : (
-              <div style={{ padding: '0.85rem', borderRadius: 12, border: `1px solid ${selectedDayAvailability?.available ? '#a7f3d0' : '#e2e8f0'}`, background: selectedDayAvailability?.available ? '#f0fdf4' : '#fff' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.75rem', marginBottom: '0.7rem' }}>
-                  <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#0f172a' }}>Time slots inside {selectedDayWindowLabel}</div>
-                  <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{slots.length} slot{slots.length === 1 ? '' : 's'}</div>
+              <div style={{ padding: '0.85rem', borderRadius: 12, border: `1px solid ${primaryColor}40`, background: '#f0fdf4' }}>
+                <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#0f172a', marginBottom: '1rem' }}>
+                  Available time slots
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))', gap: '0.5rem' }}>
-                  {slots.map(s => (
-                    <button key={s} onClick={() => setSlot(s)}
-                      style={{ padding: '0.65rem 0.4rem', borderRadius: 8, border: slot === s ? `2px solid ${primaryColor}` : '1.5px solid #bbf7d0', background: slot === s ? primaryColor : '#fff', color: slot === s ? '#fff' : '#0f172a', fontWeight: 600, fontSize: '0.85rem', textAlign: 'center', cursor: 'pointer', transition: 'all 0.15s' }}>
-                      {formatSlot(s)}
-                    </button>
-                  ))}
-                </div>
+
+                <TimeSlotDragSelector
+                  slots={slots}
+                  duration={duration}
+                  selectedDate={selectedDate}
+                  onSelectSlot={(slotTime) => {
+                    setSlot(slotTime);
+                  }}
+                  primaryColor={primaryColor}
+                  startHour={6}
+                  endHour={22}
+                />
               </div>
             )}
 
