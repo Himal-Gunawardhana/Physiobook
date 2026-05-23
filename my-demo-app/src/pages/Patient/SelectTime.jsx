@@ -72,6 +72,19 @@ export default function SelectTime() {
   // Load available slots when date or therapist changes
   useEffect(() => {
     if (!clinicId || !selectedDate) return;
+    
+    // Check if therapist is available on this day (if specific therapist selected)
+    if (therapistId !== 'auto' && therapistAvailability) {
+      const dayName = getSelectedDayName();
+      const dayAvailability = therapistAvailability[dayName];
+      if (!dayAvailability?.available) {
+        // Therapist not available on this day
+        setSlots([]);
+        setSlot(null);
+        return;
+      }
+    }
+    
     setLoadingSlots(true); setSlot(null); setError('');
     const params = new URLSearchParams({ clinicId, date: selectedDate, serviceDuration: duration });
     if (therapistId !== 'auto') params.set('therapistId', therapistId);
@@ -82,7 +95,7 @@ export default function SelectTime() {
       setSlots([]);
       setError(err?.message || 'Failed to load slots');
     }).finally(() => setLoadingSlots(false));
-  }, [clinicId, selectedDate, duration, therapistId]);
+  }, [clinicId, selectedDate, duration, therapistId, therapistAvailability]);
 
   useEffect(() => {
     if (therapistId === 'auto') {
@@ -304,6 +317,12 @@ export default function SelectTime() {
               <div style={{ textAlign: 'center', padding: '2rem', color: '#ef4444' }}>
                 <AlertCircle size={22} style={{ marginBottom: '0.5rem' }} />
                 <p style={{ fontSize: '0.82rem' }}>{error}</p>
+              </div>
+            ) : (therapistId !== 'auto' && therapistAvailability && !therapistAvailability[selectedDayName]?.available) ? (
+              <div style={{ textAlign: 'center', padding: '2.5rem 1rem', color: '#94a3b8', background: '#f8fafc', borderRadius: 12, border: '1px dashed #e2e8f0' }}>
+                <Calendar size={28} style={{ marginBottom: '0.5rem', opacity: 0.5 }} />
+                <p style={{ fontSize: '0.88rem', margin: '0 0 0.25rem', fontWeight: 600 }}>Therapist not available</p>
+                <p style={{ fontSize: '0.78rem', margin: 0 }}>Choose a different date.</p>
               </div>
             ) : slots.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '2.5rem 1rem', color: '#94a3b8', background: '#f8fafc', borderRadius: 12, border: '1px dashed #e2e8f0' }}>
