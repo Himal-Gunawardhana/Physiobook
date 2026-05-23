@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 
 /**
  * TimeSlotDragSelector Component
@@ -18,6 +18,7 @@ export default function TimeSlotDragSelector({
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState(null);
   const [hoverTime, setHoverTime] = useState(null);
+  const [selectedSlot, setSelectedSlot] = useState(null);
   const timelineRef = useRef(null);
 
   // Convert time string "HH:MM" to minutes since start of day
@@ -43,36 +44,61 @@ export default function TimeSlotDragSelector({
     return `${displayHour}:${minute.toString().padStart(2, '0')} ${period}`;
   };
 
-  // Check if a slot is booked
-  const isSlotBooked = (timeSlot) => !slots.includes(timeSlot);
-
-  // Check if time range conflicts with booked slots
-  const hasConflict = (startMin, endMin) => {
-    const startTime = minutesToTime(startMin);
-    const endTime = minutesToTime(endMin);
-
-    for (let m = startMin; m < endMin; m += 5) {
-      const checkTime = minutesToTime(m);
-      if (isSlotBooked(checkTime)) {
-        return true;
+  // Create a set of available minutes for fast lookup
+  const availableMinutesSet = useMemo(() => {
+    const set = new Set();
+    slots.forEach((slot) => {
+      const mins = timeToMinutes(slot);
+      if (mins !== null) {
+        set.add(mins);
       }
-    }
-    return false;
+    });
+    return set;
+  }, [slots]);
+
+  // Check if a specific time slot is available
+  const isTimeAvailable = (mins) => {
+    return availableMinutesSet.has(mins);
   };
 
-  // Get mouse position on timeline and calculate slot time
+  // Check if entire duration range can be booked starting from mins
+  const canBookRange = (startMins) => {
+    if (!isTimeAvailable(startMins)) return false;
+    // Check if this exact slot exists in the slots array
+    const timeStr = minutesToTime(startMins);
+    return slots.includes(timeStr);
+  };
+
+  // Get mouse position on timeline and snap to nearest available slot
   const getTimeFromMouse = (e) => {
-    if (!timelineRef.current) return null;
+    if (!timelineRef.current || slots.length === 0) return null;
     const rect = timelineRef.current.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const percentage = x / rect.width;
 
     const totalMinutes = (endHour - startHour) * 60;
-    const clickedMinutes = Math.round(percentage * totalMinutes / 5) * 5; // Round to 5-min increments
-    const minutes = startHour * 60 + clickedMinutes;
+    const clickedMinutes = percentage * totalMinutes;
+    const baseMins = startHour * 60 + clickedMinutes;
 
-    if (minutes < startHour * 60 || minutes >= endHour * 60) return null;
-    return minutes;
+    // Find the closest available slot
+    let closestSlot = null;
+    let closestDistance = Infinity;
+
+    slots.forEach((slot) => {
+      const slotMins = timeToMinutes(slot);
+      const distance = Math.abs(slotMins - baseMins);
+      if (distance < closestDistance) {
+        closestDistance = distance;
+        closestSlot = slotMins;
+      }
+    });
+
+    if (closestSlot !== null && closestDistance <= 30) {
+      // Only snap if within 30 min of clicked position
+      return closestSlot;
+    }
+
+    return null;
   };
 
   const handleMouseDown = (e) => {
@@ -91,29 +117,19 @@ export default function TimeSlotDragSelector({
   };
 
   const handleMouseUp = (e) => {
-    if (!isDragging || dragStart === null || hoverTime === null) {
+    if (!isDragging || dragStart === null) {
       setIsDragging(false);
       setDragStart(null);
       setHoverTime(null);
       return;
     }
 
-    const startMin = Math.min(dragStart, hoverTime);
-    const endMin = startMin + duration;
+    // Use the first selected position
+    const bookedSlotTime = minutesToTime(dragStart);
 
-    // Check if selected range is valid
-    if (endMin > endHour * 60) {
-      setIsDragging(false);
-      setDragStart(null);
-      setHoverTime(null);
-      return;
-    }
-
-    const selectedSlot = minutesToTime(startMin);
-
-    // Check if slot is available
-    if (slots.includes(selectedSlot)) {
-      onSelectSlot(selectedSlot);
+    if (canBookRange(dragStart)) {
+      setSelectedSlot(bookedSlotTime);
+      onSelectSlot(bookedSlotTime);
     }
 
     setIsDragging(false);
@@ -130,73 +146,84 @@ export default function TimeSlotDragSelector({
         document.removeEventListener('mouseup', handleMouseUp);
       };
     }
-  }, [isDragging, dragStart, hoverTime]);
+  }, [isDragging, dragStart]);
 
-  // Generate timeline cells (5-minute increments)
+  // Generate timeline cells based on actual available slots
+  const timelineBlocks = useMemo(() => {
+    if (slots.length === 0) return [];
+
+    // Sort slots by time
+    const sortedSlots = [...slots]
+      .map((slot) => ({ slot, mins: timeToMinutes(slot) }))
+      .filter((s) => s.mins !== null)
+      .sort((a, b) => a.mins - b.mins);
+
+    if (sortedSlots.length === 0) return [];
+
+    const blocks = [];
+    const dayStart = startHour * 60;
+    const dayEnd = endHour * 60;
+
+    // Add initial gap if first slot is not at start
+    if (sortedSlots[0].mins > dayStart) {
+      blocks.push({
+        type: 'gap',
+        startMins: dayStart,
+        endMins: sortedSlots[0].mins,
+        startTime: minutesToTime(dayStart),
+        endTime: minutesToTime(sortedSlots[0].mins),
+      });
+    }
+
+    // Add slots and gaps between them
+    for (let i = 0; i < sortedSlots.length; i++) {
+      const current = sortedSlots[i];
+      blocks.push({
+        type: 'slot',
+        startMins: current.mins,
+        endMins: current.mins + 1, // Minimal width, just for visualization
+        slot: current.slot,
+        startTime: current.slot,
+      });
+
+      // Add gap to next slot if exists
+      if (i < sortedSlots.length - 1) {
+        const next = sortedSlots[i + 1];
+        if (next.mins > current.mins + 1) {
+          blocks.push({
+            type: 'gap',
+            startMins: current.mins + 1,
+            endMins: next.mins,
+            startTime: minutesToTime(current.mins + 1),
+            endTime: minutesToTime(next.mins),
+          });
+        }
+      } else {
+        // Add gap at end if last slot is not at end
+        if (current.mins + 1 < dayEnd) {
+          blocks.push({
+            type: 'gap',
+            startMins: current.mins + 1,
+            endMins: dayEnd,
+            startTime: minutesToTime(current.mins + 1),
+            endTime: minutesToTime(dayEnd),
+          });
+        }
+      }
+    }
+
+    return blocks;
+  }, [slots, startHour, endHour]);
+
+  // Calculate selection preview
+  const selectionInfo = useMemo(() => {
+    if (dragStart === null) return null;
+    const startTime = minutesToTime(dragStart);
+    const endTime = minutesToTime(dragStart + duration);
+    return { startTime, endTime, startMins: dragStart };
+  }, [dragStart, duration]);
+
   const totalMinutes = (endHour - startHour) * 60;
-  const cellCount = totalMinutes / 5;
-  const cells = [];
-
-  for (let i = 0; i < cellCount; i++) {
-    const cellMinutes = i * 5;
-    const timeMin = startHour * 60 + cellMinutes;
-    const timeStr = minutesToTime(timeMin);
-
-    // Check if this 5-min cell is part of any available slot
-    let isAvailable = false;
-    for (let slotTime of slots) {
-      const slotMin = timeToMinutes(slotTime);
-      if (slotMin === timeMin) {
-        isAvailable = true;
-        break;
-      }
-    }
-
-    // Determine cell color
-    let bgColor = '#f0fdf4'; // Light green for available
-    let borderColor = '#86efac'; // Green border
-
-    if (!isAvailable) {
-      bgColor = '#fef2f2'; // Light red for booked
-      borderColor = '#fca5a5'; // Red border
-    }
-
-    // Highlight selection range
-    let isInSelection = false;
-    if (dragStart !== null && hoverTime !== null) {
-      const selStart = Math.min(dragStart, hoverTime);
-      const selEnd = selStart + duration;
-      if (timeMin >= selStart && timeMin < selEnd) {
-        isInSelection = true;
-        bgColor = primaryColor;
-        borderColor = primaryColor;
-      }
-    }
-
-    cells.push({
-      id: timeStr,
-      timeStr,
-      timeMin,
-      isAvailable,
-      bgColor,
-      borderColor,
-      isInSelection,
-    });
-  }
-
-  // Calculate selection preview dimensions
-  let selectionStyle = null;
-  if (dragStart !== null && hoverTime !== null) {
-    const selStart = Math.min(dragStart, hoverTime);
-    const selEnd = Math.min(Math.max(dragStart, hoverTime), selStart + duration);
-    const startPercent = ((selStart - startHour * 60) / totalMinutes) * 100;
-    const widthPercent = ((selEnd - selStart) / totalMinutes) * 100;
-
-    selectionStyle = {
-      left: `${startPercent}%`,
-      width: `${widthPercent}%`,
-    };
-  }
 
   return (
     <div style={{ marginTop: '1.5rem' }}>
@@ -215,60 +242,74 @@ export default function TimeSlotDragSelector({
           userSelect: 'none',
         }}
       >
-        {/* Timeline cells */}
-        {cells.map((cell) => (
-          <div
-            key={cell.timeStr}
-            style={{
-              flex: 1,
-              background: cell.bgColor,
-              borderRight: `1px solid ${cell.borderColor}`,
-              display: 'flex',
-              alignItems: 'flex-end',
-              justifyContent: 'center',
-              paddingBottom: '0.3rem',
-              fontSize: '0.65rem',
-              color: cell.isAvailable ? '#047857' : '#991b1b',
-              fontWeight: 600,
-              transition: 'all 0.1s',
-              opacity: cell.isInSelection ? 1 : 0.8,
-            }}
-            title={`${cell.timeStr} - ${cell.isAvailable ? 'Available' : 'Booked'}`}
-          >
-            {/* Show hour labels every hour */}
-            {cell.timeMin % 60 === 0 && (
-              <div style={{ fontSize: '0.7rem', fontWeight: 700 }}>
-                {formatTime(cell.timeStr).split(' ')[0]}
-              </div>
-            )}
-          </div>
-        ))}
+        {/* Timeline blocks for each available slot and gaps */}
+        {timelineBlocks.map((block, idx) => {
+          const blockWidth = ((block.endMins - block.startMins) / totalMinutes) * 100;
+          const isSelected = dragStart === block.startMins && block.type === 'slot';
 
-        {/* Selection overlay */}
-        {selectionStyle && (
-          <div
-            style={{
-              position: 'absolute',
-              top: 0,
-              left: selectionStyle.left,
-              width: selectionStyle.width,
-              height: '100%',
-              background: `${primaryColor}30`,
-              borderLeft: `3px solid ${primaryColor}`,
-              borderRight: `3px solid ${primaryColor}`,
-              pointerEvents: 'none',
-            }}
-          />
-        )}
+          return (
+            <div
+              key={`${block.type}-${idx}`}
+              onClick={() => {
+                if (block.type === 'slot') {
+                  setSelectedSlot(block.slot);
+                  onSelectSlot(block.slot);
+                }
+              }}
+              style={{
+                flex: `0 0 ${blockWidth}%`,
+                background:
+                  block.type === 'slot'
+                    ? isSelected
+                      ? primaryColor
+                      : '#f0fdf4'
+                    : '#fef2f2',
+                border:
+                  block.type === 'slot'
+                    ? isSelected
+                      ? `2px solid ${primaryColor}`
+                      : '1px solid #86efac'
+                    : '1px solid #fca5a5',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                paddingTop: '0.5rem',
+                paddingBottom: '0.5rem',
+                fontSize: block.type === 'slot' ? '0.7rem' : '0.6rem',
+                fontWeight: block.type === 'slot' ? 700 : 500,
+                color:
+                  block.type === 'slot'
+                    ? isSelected
+                      ? '#fff'
+                      : '#047857'
+                    : '#991b1b',
+                textAlign: 'center',
+                cursor: block.type === 'slot' ? 'pointer' : 'not-allowed',
+                transition: 'all 0.15s',
+                userSelect: 'none',
+                minWidth: '40px',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+              }}
+              title={
+                block.type === 'slot'
+                  ? `Available at ${formatTime(block.slot)}`
+                  : `Booked: ${formatTime(block.startTime)} - ${formatTime(block.endTime)}`
+              }
+            >
+              {block.type === 'slot' ? formatTime(block.slot) : '✕'}
+            </div>
+          );
+        })}
       </div>
 
-      {/* Drag instruction and time display */}
+      {/* Selection display */}
       <div style={{ marginTop: '0.75rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ fontSize: '0.82rem', color: '#64748b' }}>
-          Drag to select a {duration}-minute slot
+          Click to select a {duration}-minute slot
         </div>
 
-        {dragStart !== null && hoverTime !== null && (
+        {selectedSlot && (
           <div
             style={{
               fontSize: '0.85rem',
@@ -280,8 +321,7 @@ export default function TimeSlotDragSelector({
               border: `1px solid ${primaryColor}30`,
             }}
           >
-            {formatTime(minutesToTime(Math.min(dragStart, hoverTime)))} -{' '}
-            {formatTime(minutesToTime(Math.min(dragStart, hoverTime) + duration))}
+            Selected: {formatTime(selectedSlot)} - {formatTime(minutesToTime(timeToMinutes(selectedSlot) + duration))}
           </div>
         )}
       </div>
@@ -298,7 +338,7 @@ export default function TimeSlotDragSelector({
               borderRadius: '4px',
             }}
           />
-          <span style={{ color: '#047857', fontWeight: 600 }}>Available</span>
+          <span style={{ color: '#047857', fontWeight: 600 }}>Available Slots</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <div
