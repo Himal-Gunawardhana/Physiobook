@@ -14,7 +14,7 @@ const TherapistProfileAvailability = ({ therapistId }) => {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
 
-  const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
   const createDefaultAvailability = () =>
     days.map((_, index) => ({
@@ -119,8 +119,8 @@ const TherapistProfileAvailability = ({ therapistId }) => {
   const handleSetTypicalHours = () => {
     setAvailability((prev) =>
       prev.map((item) => {
-        // Skip Sunday (index 0)
-        if (item.dayOfWeek === 0) {
+        // Skip Sunday (index 6)
+        if (item.dayOfWeek === 6) {
           return item;
         }
         return {
