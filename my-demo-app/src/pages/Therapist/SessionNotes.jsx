@@ -134,7 +134,7 @@ export default function SessionNotes() {
 
     try {
       setSaving(true);
-      const response = await api.patch(`/bookings/${selectedBookingId}/status`, { status: newStatus });
+      const response = await api.put(`/bookings/${selectedBookingId}/status`, { status: newStatus });
       
       // Update local booking with new status
       setBooking(prev => ({ ...prev, status: newStatus }));
