@@ -27,25 +27,34 @@ export default function TherapistSchedule() {
     setError('');
 
     try {
-      const [me, todayData] = await Promise.all([
+      const [me, upcomingData] = await Promise.all([
         api.get('/users/me'),
-        api.get('/bookings/my?date=today'),
+        api.get('/bookings/my'),
       ]);
 
       setProfile(me);
 
-      const appts = Array.isArray(todayData) ? todayData : todayData?.bookings ?? [];
-      setAppointments(appts);
+      const allAppts = Array.isArray(upcomingData) ? upcomingData : upcomingData?.bookings ?? [];
+      
+      // Filter to show only upcoming and current bookings (not completed or cancelled)
+      const futureAppts = allAppts.filter(appt => {
+        const apptDate = new Date(appt.booked_date);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        return apptDate >= today && (appt.status === 'confirmed' || appt.status === 'in_progress');
+      }).sort((a, b) => new Date(a.booked_date) - new Date(b.booked_date));
+
+      setAppointments(futureAppts);
 
       try {
         const weekData = await api.get('/bookings/my/stats');
-        setWeekStats({ today: weekData.today ?? appts.length, week: weekData.week ?? 0 });
+        setWeekStats({ today: weekData.today ?? 0, week: weekData.week ?? 0 });
       } catch {
-        setWeekStats({ today: appts.length, week: 0 });
+        setWeekStats({ today: 0, week: 0 });
       }
 
-      if (appts.length > 0) {
-        const latest = [...appts].sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0))[0];
+      if (futureAppts.length > 0) {
+        const latest = [...futureAppts].sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0))[0];
         if (latest && !sessionStorage.getItem(`seen_booking_${latest.id}`)) {
           setNewBooking(latest);
         }
@@ -212,11 +221,32 @@ export default function TherapistSchedule() {
           <div className="schedule-grid">
             <div className="card">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', paddingBottom: '0.75rem', borderBottom: '1px solid #e2e8f0' }}>
-                <h2 style={{ fontSize: '1rem', margin: 0 }}>Today's Appointments</h2>
-                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                  <span style={{ fontSize: '0.82rem', color: '#64748b' }}>
-                    {new Date().toLocaleDateString('en-LK', { weekday: 'long', month: 'short', day: 'numeric' })}
-                  </span>
+                <h2 style={{ fontSize: '1rem', margin: 0 }}>Upcoming Appointments</h2>
+                <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+                  <button 
+                    onClick={() => navigate('/therapist/booking-history')}
+                    style={{
+                      padding: '0.4rem 0.85rem',
+                      fontSize: '0.82rem',
+                      background: '#f3f4f6',
+                      color: '#374151',
+                      border: '1px solid #d1d5db',
+                      borderRadius: 8,
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                      transition: 'all 0.2s',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.target.style.background = '#e5e7eb';
+                      e.target.style.borderColor = '#9ca3af';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.target.style.background = '#f3f4f6';
+                      e.target.style.borderColor = '#d1d5db';
+                    }}
+                  >
+                    📋 View History
+                  </button>
                   <button onClick={load} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748b' }}>
                     <RefreshCw size={14} />
                   </button>
@@ -226,19 +256,22 @@ export default function TherapistSchedule() {
               {appointments.length === 0 ? (
                 <div style={{ textAlign: 'center', padding: '2rem', color: '#94a3b8' }}>
                   <Calendar size={32} style={{ marginBottom: '0.5rem', opacity: 0.4 }} />
-                  <p style={{ margin: 0 }}>No appointments scheduled for today.</p>
+                  <p style={{ margin: 0 }}>No upcoming appointments scheduled.</p>
                 </div>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.875rem' }}>
                   {appointments.map((appt, index) => {
                     const colors = ['#2563eb', '#10b981', '#8b5cf6', '#f59e0b', '#ef4444'];
                     const borderColor = colors[index % colors.length];
+                    const apptDate = new Date(appt.booked_date);
+                    const dateStr = apptDate.toLocaleDateString('en-LK', { month: 'short', day: 'numeric' });
 
                     return (
                       <div key={appt.id} style={{ display: 'flex', gap: '1rem', padding: '1rem', borderLeft: `4px solid ${borderColor}`, background: '#f8fafc', borderRadius: '0 10px 10px 0' }}>
                         <div style={{ paddingRight: '0.875rem', borderRight: '1px solid #e2e8f0', minWidth: 80, flexShrink: 0 }}>
                           <div style={{ fontWeight: 700, fontSize: '0.9rem' }}>{appt.booked_time || '—'}</div>
-                          <div style={{ fontSize: '0.78rem', color: '#64748b', marginTop: '0.15rem' }}>{appt.duration_minutes ? `${appt.duration_minutes} min` : '—'}</div>
+                          <div style={{ fontSize: '0.78rem', color: '#64748b', marginTop: '0.15rem' }}>{dateStr}</div>
+                          <div style={{ fontSize: '0.78rem', color: '#64748b' }}>{appt.duration_minutes ? `${appt.duration_minutes} min` : '—'}</div>
                         </div>
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <div style={{ fontWeight: 700, marginBottom: '0.2rem' }}>{appt.patient_name || appt.patient?.name || '—'}</div>
