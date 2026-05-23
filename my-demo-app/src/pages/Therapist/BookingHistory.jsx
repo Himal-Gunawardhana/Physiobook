@@ -16,9 +16,14 @@ export default function BookingHistory() {
     setError('');
 
     try {
-      // Fetch all bookings including past ones
-      const data = await api.get('/bookings/my?include_past=true');
-      let allBookings = Array.isArray(data) ? data : data?.bookings ?? [];
+      // Fetch all bookings (both upcoming and past)
+      const data = await api.get('/bookings/my?page=1&limit=100');
+      let allBookings = Array.isArray(data) ? data : data?.rows ?? [];
+      
+      // If pagination info was returned, use the rows array
+      if (data?.rows) {
+        allBookings = data.rows;
+      }
       
       // Process bookings to mark past confirmed bookings as "missed"
       allBookings = allBookings.map(booking => {
