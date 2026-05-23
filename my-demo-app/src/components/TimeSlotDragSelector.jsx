@@ -1,10 +1,10 @@
-import React, { useState, useRef, useEffect, useMemo } from 'react';
+import React, { useState, useRef, useMemo } from 'react';
 
 /**
  * TimeSlotDragSelector Component
- * Interactive draggable timeline for selecting appointment slots
- * Shows available slots in green, booked slots in red
- * User drags to select a time slot based on service duration
+ * Interactive time slot selector for selecting appointment slots
+ * Shows all available slots from database as clickable buttons
+ * User clicks to select a time slot based on service duration
  */
 export default function TimeSlotDragSelector({
   slots = [],
@@ -15,9 +15,6 @@ export default function TimeSlotDragSelector({
   startHour = 6,
   endHour = 22,
 }) {
-  const [isDragging, setIsDragging] = useState(false);
-  const [dragStart, setDragStart] = useState(null);
-  const [hoverTime, setHoverTime] = useState(null);
   const [selectedSlot, setSelectedSlot] = useState(null);
   const timelineRef = useRef(null);
 
@@ -44,115 +41,11 @@ export default function TimeSlotDragSelector({
     return `${displayHour}:${minute.toString().padStart(2, '0')} ${period}`;
   };
 
-  // Create a set of available minutes for fast lookup
-  const availableMinutesSet = useMemo(() => {
-    const set = new Set();
-    slots.forEach((slot) => {
-      const mins = timeToMinutes(slot);
-      if (mins !== null) {
-        set.add(mins);
-      }
-    });
-    return set;
-  }, [slots]);
-
-  // Check if a specific time slot is available
-  const isTimeAvailable = (mins) => {
-    return availableMinutesSet.has(mins);
-  };
-
-  // Check if entire duration range can be booked starting from mins
-  const canBookRange = (startMins) => {
-    if (!isTimeAvailable(startMins)) return false;
-    // Check if this exact slot exists in the slots array
-    const timeStr = minutesToTime(startMins);
-    return slots.includes(timeStr);
-  };
-
-  // Get mouse position on timeline and snap to nearest available slot
-  const getTimeFromMouse = (e) => {
-    if (!timelineRef.current || slots.length === 0) return null;
-    const rect = timelineRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const percentage = x / rect.width;
-
-    const totalMinutes = (endHour - startHour) * 60;
-    const clickedMinutes = percentage * totalMinutes;
-    const baseMins = startHour * 60 + clickedMinutes;
-
-    // Find the closest available slot
-    let closestSlot = null;
-    let closestDistance = Infinity;
-
-    slots.forEach((slot) => {
-      const slotMins = timeToMinutes(slot);
-      const distance = Math.abs(slotMins - baseMins);
-      if (distance < closestDistance) {
-        closestDistance = distance;
-        closestSlot = slotMins;
-      }
-    });
-
-    if (closestSlot !== null && closestDistance <= 30) {
-      // Only snap if within 30 min of clicked position
-      return closestSlot;
-    }
-
-    return null;
-  };
-
-  const handleMouseDown = (e) => {
-    const timeMin = getTimeFromMouse(e);
-    if (timeMin === null) return;
-    setIsDragging(true);
-    setDragStart(timeMin);
-  };
-
-  const handleMouseMove = (e) => {
-    if (!isDragging) return;
-    const timeMin = getTimeFromMouse(e);
-    if (timeMin !== null) {
-      setHoverTime(timeMin);
-    }
-  };
-
-  const handleMouseUp = (e) => {
-    if (!isDragging || dragStart === null) {
-      setIsDragging(false);
-      setDragStart(null);
-      setHoverTime(null);
-      return;
-    }
-
-    // Use the first selected position
-    const bookedSlotTime = minutesToTime(dragStart);
-
-    if (canBookRange(dragStart)) {
-      setSelectedSlot(bookedSlotTime);
-      onSelectSlot(bookedSlotTime);
-    }
-
-    setIsDragging(false);
-    setDragStart(null);
-    setHoverTime(null);
-  };
-
-  useEffect(() => {
-    if (isDragging) {
-      document.addEventListener('mousemove', handleMouseMove);
-      document.addEventListener('mouseup', handleMouseUp);
-      return () => {
-        document.removeEventListener('mousemove', handleMouseMove);
-        document.removeEventListener('mouseup', handleMouseUp);
-      };
-    }
-  }, [isDragging, dragStart]);
-
   // Generate timeline cells based on actual available slots
   const timelineBlocks = useMemo(() => {
     if (slots.length === 0) return [];
 
-    // Sort slots by time
+    // Sort slots by time and return only actual available slots
     const sortedSlots = [...slots]
       .map((slot) => ({ slot, mins: timeToMinutes(slot) }))
       .filter((s) => s.mins !== null)
@@ -160,76 +53,20 @@ export default function TimeSlotDragSelector({
 
     if (sortedSlots.length === 0) return [];
 
-    const blocks = [];
-    const dayStart = startHour * 60;
-    const dayEnd = endHour * 60;
-
-    // Add initial gap if first slot is not at start
-    if (sortedSlots[0].mins > dayStart) {
-      blocks.push({
-        type: 'gap',
-        startMins: dayStart,
-        endMins: sortedSlots[0].mins,
-        startTime: minutesToTime(dayStart),
-        endTime: minutesToTime(sortedSlots[0].mins),
-      });
-    }
-
-    // Add slots and gaps between them
-    for (let i = 0; i < sortedSlots.length; i++) {
-      const current = sortedSlots[i];
-      blocks.push({
-        type: 'slot',
-        startMins: current.mins,
-        endMins: current.mins + 1, // Minimal width, just for visualization
-        slot: current.slot,
-        startTime: current.slot,
-      });
-
-      // Add gap to next slot if exists
-      if (i < sortedSlots.length - 1) {
-        const next = sortedSlots[i + 1];
-        if (next.mins > current.mins + 1) {
-          blocks.push({
-            type: 'gap',
-            startMins: current.mins + 1,
-            endMins: next.mins,
-            startTime: minutesToTime(current.mins + 1),
-            endTime: minutesToTime(next.mins),
-          });
-        }
-      } else {
-        // Add gap at end if last slot is not at end
-        if (current.mins + 1 < dayEnd) {
-          blocks.push({
-            type: 'gap',
-            startMins: current.mins + 1,
-            endMins: dayEnd,
-            startTime: minutesToTime(current.mins + 1),
-            endTime: minutesToTime(dayEnd),
-          });
-        }
-      }
-    }
-
-    return blocks;
-  }, [slots, startHour, endHour]);
-
-  // Calculate selection preview
-  const selectionInfo = useMemo(() => {
-    if (dragStart === null) return null;
-    const startTime = minutesToTime(dragStart);
-    const endTime = minutesToTime(dragStart + duration);
-    return { startTime, endTime, startMins: dragStart };
-  }, [dragStart, duration]);
-
-  const totalMinutes = (endHour - startHour) * 60;
+    // Return only the available slots - no dummy gaps or booked blocks
+    return sortedSlots.map((s) => ({
+      type: 'slot',
+      startMins: s.mins,
+      slot: s.slot,
+      startTime: s.slot,
+    }));
+  }, [slots]);
 
   return (
     <div style={{ marginTop: '1.5rem' }}>
+      {/* Scrollable container for slots */}
       <div
         ref={timelineRef}
-        onMouseDown={handleMouseDown}
         style={{
           position: 'relative',
           display: 'flex',
@@ -237,76 +74,87 @@ export default function TimeSlotDragSelector({
           borderRadius: '12px',
           border: `2px solid ${primaryColor}40`,
           background: '#fff',
-          overflow: 'hidden',
-          cursor: 'grab',
+          overflowX: 'auto',
+          overflowY: 'hidden',
+          cursor: 'default',
           userSelect: 'none',
+          gap: '0.5rem',
+          padding: '0.5rem',
+          scrollBehavior: 'smooth',
+          alignItems: 'center',
+          '::-webkit-scrollbar': {
+            height: '6px',
+          },
+          '::-webkit-scrollbar-track': {
+            background: '#f1f5f9',
+            borderRadius: '10px',
+          },
+          '::-webkit-scrollbar-thumb': {
+            background: primaryColor,
+            borderRadius: '10px',
+          },
         }}
       >
-        {/* Timeline blocks for each available slot and gaps */}
-        {timelineBlocks.map((block, idx) => {
-          const blockWidth = ((block.endMins - block.startMins) / totalMinutes) * 100;
-          const isSelected = dragStart === block.startMins && block.type === 'slot';
+        {/* Available time slot buttons - only real slots from database */}
+        {timelineBlocks.length === 0 ? (
+          <div
+            style={{
+              flex: 1,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#94a3b8',
+              fontSize: '0.85rem',
+              fontWeight: 500,
+            }}
+          >
+            No available slots
+          </div>
+        ) : (
+          timelineBlocks.map((block) => {
+            const isSelected = selectedSlot === block.slot;
 
-          return (
-            <div
-              key={`${block.type}-${idx}`}
-              onClick={() => {
-                if (block.type === 'slot') {
+            return (
+              <button
+                key={`slot-${block.slot}`}
+                onClick={() => {
                   setSelectedSlot(block.slot);
                   onSelectSlot(block.slot);
-                }
-              }}
-              style={{
-                flex: `0 0 ${blockWidth}%`,
-                background:
-                  block.type === 'slot'
-                    ? isSelected
-                      ? primaryColor
-                      : '#f0fdf4'
-                    : '#fef2f2',
-                border:
-                  block.type === 'slot'
-                    ? isSelected
-                      ? `2px solid ${primaryColor}`
-                      : '1px solid #86efac'
-                    : '1px solid #fca5a5',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                paddingTop: '0.5rem',
-                paddingBottom: '0.5rem',
-                fontSize: block.type === 'slot' ? '0.7rem' : '0.6rem',
-                fontWeight: block.type === 'slot' ? 700 : 500,
-                color:
-                  block.type === 'slot'
-                    ? isSelected
-                      ? '#fff'
-                      : '#047857'
-                    : '#991b1b',
-                textAlign: 'center',
-                cursor: block.type === 'slot' ? 'pointer' : 'not-allowed',
-                transition: 'all 0.15s',
-                userSelect: 'none',
-                minWidth: '40px',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-              }}
-              title={
-                block.type === 'slot'
-                  ? `Available at ${formatTime(block.slot)}`
-                  : `Booked: ${formatTime(block.startTime)} - ${formatTime(block.endTime)}`
-              }
-            >
-              {block.type === 'slot' ? formatTime(block.slot) : '✕'}
-            </div>
-          );
-        })}
+                }}
+                style={{
+                  flex: '0 0 auto',
+                  minWidth: '80px',
+                  padding: '0.75rem 1rem',
+                  background: isSelected ? primaryColor : '#f0fdf4',
+                  border: isSelected ? `2px solid ${primaryColor}` : '2px solid #86efac',
+                  borderRadius: '8px',
+                  color: isSelected ? '#fff' : '#047857',
+                  fontWeight: 700,
+                  fontSize: '0.85rem',
+                  cursor: 'pointer',
+                  transition: 'all 0.15s ease',
+                  whiteSpace: 'nowrap',
+                  textAlign: 'center',
+                  boxShadow: isSelected ? `0 4px 12px ${primaryColor}40` : 'none',
+                  ':hover': {
+                    transform: 'scale(1.05)',
+                  },
+                }}
+                title={`Book at ${formatTime(block.slot)}`}
+              >
+                {formatTime(block.slot)}
+              </button>
+            );
+          })
+        )}
       </div>
 
       {/* Selection display */}
-      <div style={{ marginTop: '0.75rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={{ marginTop: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ fontSize: '0.82rem', color: '#64748b' }}>
-          Click to select a {duration}-minute slot
+          {timelineBlocks.length === 0
+            ? 'No available slots for this date'
+            : `${timelineBlocks.length} available slot${timelineBlocks.length === 1 ? '' : 's'}`}
         </div>
 
         {selectedSlot && (
@@ -326,32 +174,9 @@ export default function TimeSlotDragSelector({
         )}
       </div>
 
-      {/* Legend */}
-      <div style={{ marginTop: '1rem', display: 'flex', gap: '1.5rem', fontSize: '0.8rem' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <div
-            style={{
-              width: '20px',
-              height: '20px',
-              background: '#f0fdf4',
-              border: '2px solid #86efac',
-              borderRadius: '4px',
-            }}
-          />
-          <span style={{ color: '#047857', fontWeight: 600 }}>Available Slots</span>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <div
-            style={{
-              width: '20px',
-              height: '20px',
-              background: '#fef2f2',
-              border: '2px solid #fca5a5',
-              borderRadius: '4px',
-            }}
-          />
-          <span style={{ color: '#991b1b', fontWeight: 600 }}>Booked</span>
-        </div>
+      {/* Info text */}
+      <div style={{ marginTop: '0.75rem', fontSize: '0.78rem', color: '#94a3b8' }}>
+        💡 {timelineBlocks.length > 0 ? 'Click any time slot to book' : 'Try a different date or therapist'}
       </div>
     </div>
   );
