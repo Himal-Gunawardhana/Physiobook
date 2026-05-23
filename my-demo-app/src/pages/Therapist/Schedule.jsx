@@ -77,7 +77,7 @@ export default function TherapistSchedule() {
 
   const startSession = async (bookingId) => {
     try {
-      await api.patch(`/bookings/${bookingId}/start`);
+      await api.put(`/bookings/${bookingId}/status`, { status: 'in_progress' });
       setAppointments((prev) => prev.map((a) => (a.id === bookingId ? { ...a, status: 'in_progress' } : a)));
       showToast('Session started.');
     } catch (err) {
