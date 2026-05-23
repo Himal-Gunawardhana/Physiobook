@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import axios from 'axios';
+import React, { useState, useEffect } from 'react';
+import api from '../lib/api';
 import './AvailabilityImportModal.css';
 
 /**
@@ -15,34 +15,52 @@ const AvailabilityImportModal = ({
   clinicId,
   therapistUserId,
   therapistName,
-  profileAvailability,
+  profileAvailability: initialAvailability,
 }) => {
   const [importing, setImporting] = useState(false);
   const [error, setError] = useState(null);
   const [confirmStep, setConfirmStep] = useState(false);
+  const [profileAvailability, setProfileAvailability] = useState(initialAvailability || null);
+  const [loading, setLoading] = useState(!initialAvailability);
+
+  // Fetch availability if not provided as prop
+  useEffect(() => {
+    if (!isOpen || initialAvailability) return;
+
+    const fetchAvailability = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const response = await api.get(`/staff/${therapistUserId}/public-availability`);
+        // Extract availability from response, handling different response structures
+        const availData = response?.data?.availability || response?.availability || response;
+        setProfileAvailability(availData);
+      } catch (err) {
+        console.error('Error fetching availability:', err);
+        setError('Unable to load therapist availability. Please try again.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAvailability();
+  }, [isOpen, therapistUserId, initialAvailability]);
 
   if (!isOpen) return null;
-
-  const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
   const handleImport = async () => {
     setImporting(true);
     setError(null);
 
     try {
-      const response = await axios.post(
-        `/api/v1/clinic/${clinicId}/staff/${staffId}/import-profile-availability`,
-        { therapistUserId },
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
-          },
-        }
+      const response = await api.post(
+        `/clinics/${clinicId}/staff/${staffId}/import-profile-availability`,
+        { therapistUserId }
       );
 
       // Success!
       if (onSuccess) {
-        onSuccess(response.data.data || response.data);
+        onSuccess(response);
       }
 
       // Close modal after 1 second
@@ -51,7 +69,7 @@ const AvailabilityImportModal = ({
         onClose();
       }, 1000);
     } catch (err) {
-      setError(err.response?.data?.error || 'Failed to import availability');
+      setError(err?.message || 'Failed to import availability');
       console.error('Error importing availability:', err);
     } finally {
       setImporting(false);
@@ -76,14 +94,21 @@ const AvailabilityImportModal = ({
 
         {!confirmStep ? (
           <>
-            {profileAvailability ? (
+            {loading ? (
+              <div className="modal-body">
+                <div className="loading-message">
+                  <p>Loading {therapistName}'s availability...</p>
+                  <div className="spinner"></div>
+                </div>
+              </div>
+            ) : profileAvailability ? (
               <div className="modal-body">
                 <p className="preview-intro">
                   <strong>{therapistName}</strong> has set the following personal availability:
                 </p>
 
                 <div className="availability-preview">
-                  {days.map((day, index) => {
+                  {Object.keys(profileAvailability).map((day) => {
                     const avail = profileAvailability[day];
                     return (
                       <div key={day} className="preview-day">
@@ -108,16 +133,18 @@ const AvailabilityImportModal = ({
                     availability to your clinic. You can edit it afterwards if needed.
                   </p>
                   <p>
-                    <strong>📝 Note:</strong> Changes to their personal availability later will NOT
-                    affect your clinic's copy.
+                    <strong>� Auto-sync:</strong> Any changes {therapistName} makes to their personal
+                    availability will automatically update your clinic's copy in real-time.
                   </p>
                 </div>
               </div>
             ) : (
               <div className="modal-body">
-                <div className="loading-message">
-                  <p>Loading {therapistName}'s availability...</p>
-                  <div className="spinner"></div>
+                <div className="loading-message" style={{ color: '#ef4444' }}>
+                  <p>⚠️ No availability data found</p>
+                  <p style={{ fontSize: '0.9rem', marginTop: '0.5rem' }}>
+                    Please ensure the therapist has set their personal availability first.
+                  </p>
                 </div>
               </div>
             )}
@@ -126,14 +153,14 @@ const AvailabilityImportModal = ({
               <button
                 className="btn btn-secondary"
                 onClick={onClose}
-                disabled={importing}
+                disabled={importing || loading}
               >
                 Skip
               </button>
               <button
                 className="btn btn-primary"
                 onClick={() => setConfirmStep(true)}
-                disabled={importing || !profileAvailability}
+                disabled={importing || loading || !profileAvailability}
               >
                 Continue
               </button>
