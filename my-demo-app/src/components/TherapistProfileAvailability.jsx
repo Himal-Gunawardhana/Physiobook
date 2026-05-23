@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../lib/api';
 import './ProfileAvailability.css';
 
 /**
@@ -8,14 +8,65 @@ import './ProfileAvailability.css';
  * Used in therapist dashboard to manage global availability schedule
  */
 const TherapistProfileAvailability = ({ therapistId }) => {
-  const [availability, setAvailability] = useState(null);
+  const [availability, setAvailability] = useState([]);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
-  const [editingDay, setEditingDay] = useState(null);
 
-  const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+  const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+  const createDefaultAvailability = () =>
+    days.map((_, index) => ({
+      dayOfWeek: index,
+      startTime: index === 6 ? null : '09:00:00',
+      endTime: index === 6 ? null : '17:00:00',
+      isActive: index !== 6,
+    }));
+
+  const normalizeAvailability = (payload) => {
+    const source = payload?.availability ?? payload?.data?.availability ?? payload?.data ?? payload;
+
+    if (Array.isArray(source)) {
+      return days.map((_, index) => {
+        const match = source.find((item) => Number(item?.dayOfWeek) === index);
+        return match || {
+          dayOfWeek: index,
+          startTime: index === 6 ? null : '09:00:00',
+          endTime: index === 6 ? null : '17:00:00',
+          isActive: index !== 6,
+        };
+      });
+    }
+
+    if (source && typeof source === 'object') {
+      return days.map((day, index) => {
+        const key = day.toLowerCase();
+        const legacy = source[key] || source[day] || {};
+
+        return {
+          dayOfWeek: index,
+          startTime: legacy.startTime || legacy.start_time || (index === 6 ? null : '09:00:00'),
+          endTime: legacy.endTime || legacy.end_time || (index === 6 ? null : '17:00:00'),
+          isActive: legacy.isActive ?? legacy.available ?? legacy.enabled ?? (index !== 6),
+        };
+      });
+    }
+
+    return createDefaultAvailability();
+  };
+
+  const ensureAvailabilityShape = (items) =>
+    days.map((_, index) => {
+      const existing = items.find((item) => Number(item.dayOfWeek) === index) || {};
+
+      return {
+        dayOfWeek: index,
+        startTime: existing.isActive === false ? null : (existing.startTime || '09:00:00'),
+        endTime: existing.isActive === false ? null : (existing.endTime || '17:00:00'),
+        isActive: Boolean(existing.isActive),
+      };
+    });
 
   useEffect(() => {
     fetchAvailability();
@@ -25,12 +76,8 @@ const TherapistProfileAvailability = ({ therapistId }) => {
     setLoading(true);
     setError(null);
     try {
-      const response = await axios.get('/api/v1/staff/me/profile-availability', {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
-        },
-      });
-      setAvailability(response.data.data || response.data);
+      const response = await api.get('/staff/me/profile-availability');
+      setAvailability(normalizeAvailability(response));
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to load availability');
       console.error('Error fetching availability:', err);
@@ -39,27 +86,34 @@ const TherapistProfileAvailability = ({ therapistId }) => {
     }
   };
 
-  const handleDayChange = (dayName, dayIndex, field, value) => {
-    const updatedAvail = { ...availability };
-    updatedAvail[dayName] = {
-      ...updatedAvail[dayName],
-      [field]: value,
-    };
-    setAvailability(updatedAvail);
-    setEditingDay(dayIndex);
+  const handleDayChange = (dayIndex, field, value) => {
+    setAvailability((prev) =>
+      prev.map((item) =>
+        item.dayOfWeek === dayIndex
+          ? {
+              ...item,
+              [field]: value,
+            }
+          : item
+      )
+    );
   };
 
-  const handleToggleDay = (dayName) => {
-    const updatedAvail = { ...availability };
-    updatedAvail[dayName].available = !updatedAvail[dayName].available;
-    if (!updatedAvail[dayName].available) {
-      updatedAvail[dayName].start_time = null;
-      updatedAvail[dayName].end_time = null;
-    } else {
-      updatedAvail[dayName].start_time = '09:00:00';
-      updatedAvail[dayName].end_time = '17:00:00';
-    }
-    setAvailability(updatedAvail);
+  const handleToggleDay = (dayIndex, checked) => {
+    setAvailability((prev) =>
+      prev.map((item) => {
+        if (item.dayOfWeek !== dayIndex) {
+          return item;
+        }
+
+        return {
+          ...item,
+          isActive: checked,
+          startTime: checked ? (item.startTime || '09:00:00') : null,
+          endTime: checked ? (item.endTime || '17:00:00') : null,
+        };
+      })
+    );
   };
 
   const handleSave = async () => {
@@ -68,27 +122,13 @@ const TherapistProfileAvailability = ({ therapistId }) => {
     setSuccess(null);
 
     try {
-      // Transform availability format for API
-      const availabilityArray = days.map((day, index) => ({
-        dayOfWeek: index,
-        startTime: availability[day].available ? availability[day].start_time : null,
-        endTime: availability[day].available ? availability[day].end_time : null,
-        isActive: availability[day].available,
-      }));
+      const availabilityArray = ensureAvailabilityShape(availability);
+      const response = await api.put('/staff/me/profile-availability', {
+        availability: availabilityArray,
+      });
 
-      const response = await axios.put(
-        '/api/v1/staff/me/profile-availability',
-        { availability: availabilityArray },
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
-          },
-        }
-      );
-
-      setAvailability(response.data.data || response.data);
+      setAvailability(normalizeAvailability(response));
       setSuccess('Availability updated successfully! 🎉');
-      setEditingDay(null);
 
       // Clear success message after 3 seconds
       setTimeout(() => setSuccess(null), 3000);
@@ -119,30 +159,36 @@ const TherapistProfileAvailability = ({ therapistId }) => {
       {success && <div className="alert alert-success">{success}</div>}
 
       <div className="availability-grid">
-        {days.map((day, dayIndex) => (
-          <div key={day} className={`availability-day ${!availability[day].available ? 'inactive' : ''}`}>
+        {days.map((day, dayIndex) => {
+          const dayAvailability = availability[dayIndex] || {
+            dayOfWeek: dayIndex,
+            startTime: dayIndex === 6 ? null : '09:00:00',
+            endTime: dayIndex === 6 ? null : '17:00:00',
+            isActive: dayIndex !== 6,
+          };
+
+          return (
+          <div key={day} className={`availability-day ${!dayAvailability.isActive ? 'inactive' : ''}`}>
             <div className="day-header">
               <label className="day-toggle">
                 <input
                   type="checkbox"
-                  checked={availability[day].available}
-                  onChange={() => handleToggleDay(day)}
+                  checked={dayAvailability.isActive}
+                  onChange={(e) => handleToggleDay(dayIndex, e.target.checked)}
                   className="toggle-checkbox"
                 />
                 <span className="day-name">{day}</span>
               </label>
             </div>
 
-            {availability[day].available && (
+            {dayAvailability.isActive && (
               <div className="time-inputs">
                 <div className="time-group">
                   <label>Start Time</label>
                   <input
                     type="time"
-                    value={availability[day].start_time || '09:00'}
-                    onChange={(e) =>
-                      handleDayChange(day, dayIndex, 'start_time', e.target.value + ':00')
-                    }
+                    value={(dayAvailability.startTime || '09:00:00').slice(0, 5)}
+                    onChange={(e) => handleDayChange(dayIndex, 'startTime', `${e.target.value}:00`)}
                     className="time-input"
                   />
                 </div>
@@ -151,28 +197,27 @@ const TherapistProfileAvailability = ({ therapistId }) => {
                   <label>End Time</label>
                   <input
                     type="time"
-                    value={availability[day].end_time || '17:00'}
-                    onChange={(e) =>
-                      handleDayChange(day, dayIndex, 'end_time', e.target.value + ':00')
-                    }
+                    value={(dayAvailability.endTime || '17:00:00').slice(0, 5)}
+                    onChange={(e) => handleDayChange(dayIndex, 'endTime', `${e.target.value}:00`)}
                     className="time-input"
                   />
                 </div>
               </div>
             )}
 
-            {!availability[day].available && (
+            {!dayAvailability.isActive && (
               <div className="day-off">Not available</div>
             )}
           </div>
-        ))}
+          );
+        })}
       </div>
 
       <div className="availability-actions">
         <button
           className="btn btn-primary"
           onClick={handleSave}
-          disabled={saving || editingDay === null}
+          disabled={saving}
         >
           {saving ? 'Saving...' : 'Save Availability'}
         </button>
