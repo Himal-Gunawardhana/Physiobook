@@ -95,7 +95,7 @@ export default function SelectTime() {
       setSlots([]);
       setError(err?.message || 'Failed to load slots');
     }).finally(() => setLoadingSlots(false));
-  }, [clinicId, selectedDate, duration, therapistId, therapistAvailability]);
+  }, [clinicId, selectedDate, duration, therapistId]);
 
   useEffect(() => {
     if (therapistId === 'auto') {
@@ -159,7 +159,7 @@ export default function SelectTime() {
   return (
     <div className="patient-page" style={{ overflow: 'hidden' }}>
       <header className="patient-header">
-        <Link to={clinicSlug ? `/book?${clinicSlug}` : '/book'} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#64748b', fontSize: '0.9rem', textDecoration: 'none' }}>
+        <Link to={clinicSlug ? `/book?${clinicSlug}` : '/book'} className="patient-back-link" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#64748b', fontSize: '0.9rem', textDecoration: 'none' }}>
           <ArrowLeft size={16} /> Back
         </Link>
         <span className="patient-header-logo" style={{ color: primaryColor }}>Book Appointment</span>

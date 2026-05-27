@@ -66,7 +66,7 @@ export default function Feedback() {
             <Star size={28} color="#fff" />
           </div>
           <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 800, color: '#0f172a' }}>Leave Your Feedback</h1>
-          <p style={{ margin: '0.4rem 0 0', color: '#64748b', fontSize: '0.9rem' }}>Your session with Dr. Aisha Perera is complete. How was your experience?</p>
+          <p style={{ margin: '0.4rem 0 0', color: '#64748b', fontSize: '0.9rem' }}>How was your physiotherapy session? Share your experience.</p>
         </div>
 
         <div style={{ background: '#fff', borderRadius: 16, padding: '2rem', boxShadow: '0 4px 24px rgba(0,0,0,0.08)' }}>
@@ -90,7 +90,12 @@ export default function Feedback() {
               if (!bookingId) { setError('Missing booking reference.'); return; }
               setLoading(true); setError('');
               try {
-                await api.post('/feedback', { bookingId, rating: therapistRating, comment: comment.trim() || null });
+                await api.post('/feedback', {
+                    bookingId,
+                    rating: therapistRating,
+                    clinicRating,
+                    comment: comment.trim() || null
+                  });
                 setSubmitted(true);
               } catch (err) {
                 setError(err?.error?.message || err?.message || 'Failed to submit feedback.');

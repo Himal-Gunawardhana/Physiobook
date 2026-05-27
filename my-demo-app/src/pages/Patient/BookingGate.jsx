@@ -28,6 +28,7 @@ export default function BookingGate() {
         await login(form.email, form.password);
       } else {
         const [first, ...rest] = form.firstName.trim().split(' ');
+        // Register the account
         await register({
           firstName: first || form.firstName,
           lastName:  rest.join(' ') || 'Patient',
@@ -35,6 +36,8 @@ export default function BookingGate() {
           password:  form.password,
           role:      'patient',
         });
+        // After registration, automatically log in so the user is authenticated
+        await login(form.email, form.password);
       }
       setDone(true);
       // Check if there's a pending booking from checkout
