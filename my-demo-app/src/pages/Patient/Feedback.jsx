@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Star, CheckCircle, Activity, Loader, AlertCircle } from 'lucide-react';
 import api from '../../lib/api';
+import { useAuth } from '../../context/AuthContext';
 
 export default function Feedback() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { user: authUser } = useAuth();
   const bookingId = location.state?.bookingId;
   const [clinicRating, setClinicRating] = useState(0);
   const [therapistRating, setTherapistRating] = useState(0);
@@ -13,6 +15,32 @@ export default function Feedback() {
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [booking, setBooking] = useState(null);
+  const [bookingLoading, setBookingLoading] = useState(true);
+
+  // Fetch booking details on mount
+  useEffect(() => {
+    if (!bookingId) {
+      setError('No booking reference provided. Please go back to My Bookings.');
+      setBookingLoading(false);
+      return;
+    }
+
+    const fetchBooking = async () => {
+      try {
+        const data = await api.get(`/bookings/${bookingId}`);
+        setBooking(data);
+        setError('');
+      } catch (err) {
+        setError(`Failed to load booking: ${err?.message || 'Unknown error'}`);
+        console.error('[Feedback] Error fetching booking:', err);
+      } finally {
+        setBookingLoading(false);
+      }
+    };
+
+    fetchBooking();
+  }, [bookingId]);
 
   const RatingStars = ({ value, onChange, label }) => (
     <div style={{ marginBottom: '1.25rem' }}>
@@ -44,11 +72,11 @@ export default function Feedback() {
         <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center' }}>
           <div style={{ background: '#fef3c7', borderRadius: 12, padding: '0.75rem 1.25rem', textAlign: 'center' }}>
             <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#92400e' }}>{'⭐'.repeat(clinicRating)}</div>
-            <div style={{ fontSize: '0.78rem', color: '#78350f', marginTop: '0.2rem' }}>Clinic</div>
+            <div style={{ fontSize: '0.78rem', color: '#78350f', marginTop: '0.2rem' }}>{booking?.clinic_name || 'Clinic'}</div>
           </div>
           <div style={{ background: '#ede9fe', borderRadius: 12, padding: '0.75rem 1.25rem', textAlign: 'center' }}>
             <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#4c1d95' }}>{'⭐'.repeat(therapistRating)}</div>
-            <div style={{ fontSize: '0.78rem', color: '#5b21b6', marginTop: '0.2rem' }}>Therapist</div>
+            <div style={{ fontSize: '0.78rem', color: '#5b21b6', marginTop: '0.2rem' }}>{booking?.therapist_first_name || 'Therapist'}</div>
           </div>
         </div>
         <button onClick={() => navigate('/book/my-bookings')} style={{ display: 'block', width: '100%', marginTop: '1.5rem', padding: '0.9rem', background: '#2563eb', color: '#fff', border: 'none', borderRadius: 12, fontWeight: 700, cursor: 'pointer', fontSize: '0.95rem' }}>
@@ -58,6 +86,34 @@ export default function Feedback() {
     </div>
   );
 
+  // Loading state
+  if (bookingLoading) {
+    return (
+      <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #eff6ff 0%, #f0fdf4 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
+        <div style={{ textAlign: 'center' }}>
+          <Loader size={40} style={{ animation: 'spin 1s linear infinite', marginBottom: '1rem' }} />
+          <p style={{ color: '#64748b' }}>Loading booking details...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (!booking && bookingLoading === false) {
+    return (
+      <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #eff6ff 0%, #f0fdf4 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
+        <div style={{ background: '#fff', borderRadius: 20, padding: '2rem', maxWidth: 420, width: '100%', boxShadow: '0 4px 24px rgba(0,0,0,0.08)', textAlign: 'center' }}>
+          <AlertCircle size={48} color="#ef4444" style={{ marginBottom: '1rem' }} />
+          <h2 style={{ margin: 0, color: '#0f172a', fontWeight: 800 }}>Unable to Load Feedback</h2>
+          <p style={{ color: '#64748b', margin: '0.5rem 0 1.5rem' }}>{error}</p>
+          <button onClick={() => navigate('/book/my-bookings')} style={{ width: '100%', padding: '0.9rem', background: '#2563eb', color: '#fff', border: 'none', borderRadius: 12, fontWeight: 700, cursor: 'pointer', fontSize: '0.95rem' }}>
+            Back to My Bookings
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #eff6ff 0%, #f0fdf4 100%)', padding: '2rem 1rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <div style={{ width: '100%', maxWidth: 480 }}>
@@ -66,12 +122,14 @@ export default function Feedback() {
             <Star size={28} color="#fff" />
           </div>
           <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 800, color: '#0f172a' }}>Leave Your Feedback</h1>
-          <p style={{ margin: '0.4rem 0 0', color: '#64748b', fontSize: '0.9rem' }}>Your session with Dr. Aisha Perera is complete. How was your experience?</p>
+          <p style={{ margin: '0.4rem 0 0', color: '#64748b', fontSize: '0.9rem' }}>
+            Your session with {booking?.therapist_first_name || 'your therapist'} at {booking?.clinic_name || 'the clinic'} is complete. How was your experience?
+          </p>
         </div>
 
         <div style={{ background: '#fff', borderRadius: 16, padding: '2rem', boxShadow: '0 4px 24px rgba(0,0,0,0.08)' }}>
-          <RatingStars value={clinicRating} onChange={setClinicRating} label="Rate the Clinic" />
-          <RatingStars value={therapistRating} onChange={setTherapistRating} label="Rate the Therapist" />
+          <RatingStars value={clinicRating} onChange={setClinicRating} label={`Rate ${booking?.clinic_name || 'the Clinic'}`} />
+          <RatingStars value={therapistRating} onChange={setTherapistRating} label={`Rate ${booking?.therapist_first_name || 'the Therapist'}`} />
 
           <div style={{ marginBottom: '1.5rem' }}>
             <label style={{ display: 'block', fontWeight: 600, color: '#374151', marginBottom: '0.5rem', fontSize: '0.9rem' }}>Comments (optional)</label>
