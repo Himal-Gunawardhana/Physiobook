@@ -677,7 +677,7 @@ function PricingSection({ onSignupClick }) {
               marginTop: '1.5rem',
             }}
           >
-            ₹15,000<span style={{ fontSize: '1.25rem', color: '#64748b' }}>/month</span>
+            LKR 15,000<span style={{ fontSize: '1.25rem', color: '#64748b' }}>/month</span>
           </div>
 
           <p style={{ color: '#64748b', marginBottom: '2rem', fontSize: '0.95rem' }}>
