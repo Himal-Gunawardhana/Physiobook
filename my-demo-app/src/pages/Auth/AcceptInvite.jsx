@@ -21,13 +21,13 @@ export default function AcceptInvite() {
   const navigate   = useNavigate();
   const { login }  = useAuth();
 
-  // Token from link — e.g. /accept-invite?token=xxx&email=yyy
+  // Token from link — e.g. /accept-invite?token=xxx
   const token      = params.get('token');
-  const emailParam = params.get('email') || '';
 
-  const [verifying,  setVerifying]  = useState(true);   // validate token on mount
-  const [tokenValid, setTokenValid] = useState(false);
-  const [tokenError, setTokenError] = useState('');
+  const [verifying,   setVerifying]   = useState(true);   // validate token on mount
+  const [tokenValid,  setTokenValid]  = useState(false);
+  const [tokenError,  setTokenError]  = useState('');
+  const [inviteData,  setInviteData]  = useState(null);  // Store invite data from backend
 
   const [form,    setForm]    = useState({ firstName:'', lastName:'', phone:'', password:'', confirm:'' });
   const [showPwd, setShowPwd] = useState(false);
@@ -47,8 +47,16 @@ export default function AcceptInvite() {
     (async () => {
       try {
         // GET /staff/onboarding/verify-invite?token=xxx
-        await api.get(`/staff/onboarding/verify-invite?token=${encodeURIComponent(token)}`);
+        const data = await api.get(`/staff/onboarding/verify-invite?token=${encodeURIComponent(token)}`);
+        setInviteData(data);
         setTokenValid(true);
+        // Pre-fill form with invite data
+        setForm(f => ({
+          ...f,
+          firstName: data.firstName || '',
+          lastName: data.lastName || '',
+          phone: data.phone || '',
+        }));
       } catch (err) {
         setTokenError(err?.message || 'This invite link is invalid or has expired.');
       } finally {
@@ -138,7 +146,7 @@ export default function AcceptInvite() {
             then you can log in.
           </p>
           <div style={{ background:'#f5f3ff', border:'1px solid #ddd6fe', borderRadius:10, padding:'0.875rem', color:'#6d28d9', fontSize:'0.85rem', marginBottom:'1.5rem' }}>
-            📧 Verification email sent to <strong>{emailParam}</strong>
+            📧 Verification email sent to <strong>{inviteData?.email}</strong>
           </div>
           <Link
             to="/login/therapist"
@@ -179,8 +187,25 @@ export default function AcceptInvite() {
         <div style={{ width:'100%', maxWidth:440 }}>
           <h2 style={{ fontSize:'1.75rem', fontWeight:800, color:'#0f172a', marginBottom:'0.4rem' }}>Complete Your Profile</h2>
           <p style={{ color:'#64748b', marginBottom:'1.75rem' }}>
-            Setting up account for <strong style={{ color:'#8b5cf6' }}>{emailParam || 'your email'}</strong>
+            Setting up account for <strong style={{ color:'#8b5cf6' }}>{inviteData?.email || 'your email'}</strong>
           </p>
+
+          {/* Clinic Info Box */}
+          {inviteData?.clinicName && (
+            <div style={{ background:'#f5f3ff', border:'1px solid #e9d5ff', borderRadius:12, padding:'1rem', marginBottom:'1.5rem', display:'flex', alignItems:'center', gap:'1rem' }}>
+              {inviteData.clinicLogoUrl ? (
+                <img src={inviteData.clinicLogoUrl} alt="" style={{ width:48, height:48, borderRadius:8, objectFit:'cover' }}/>
+              ) : (
+                <div style={{ width:48, height:48, borderRadius:8, background:'linear-gradient(135deg,#8b5cf6,#6d28d9)', display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', fontWeight:700, fontSize:'1.2rem' }}>
+                  {inviteData.clinicName?.[0]}
+                </div>
+              )}
+              <div>
+                <div style={{ fontSize:'0.75rem', fontWeight:700, color:'#6d28d9', textTransform:'uppercase', letterSpacing:'0.5px' }}>Joining Clinic</div>
+                <div style={{ fontSize:'1rem', fontWeight:700, color:'#0f172a' }}>{inviteData.clinicName}</div>
+              </div>
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} style={{ display:'flex', flexDirection:'column', gap:'1rem' }}>
             <div style={{ display:'flex', gap:'1rem' }}>
@@ -196,7 +221,7 @@ export default function AcceptInvite() {
 
             <div>
               <label className="form-label">Email</label>
-              <input className="form-input" value={emailParam} disabled style={{ background:'#f8fafc', color:'#94a3b8' }}/>
+              <input className="form-input" value={inviteData?.email || ''} disabled style={{ background:'#f8fafc', color:'#94a3b8' }}/>
             </div>
 
             <div>
