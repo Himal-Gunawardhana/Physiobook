@@ -1,364 +1,796 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  Activity, Building2, Stethoscope, User, Search, Star, MapPin,
-  ArrowRight, CalendarCheck, Zap, CheckCircle, Clock, Globe, Phone, Briefcase,
+  Building2, Users, Calendar, TrendingUp, Shield, Zap, CheckCircle, ArrowRight,
+  Clock, BarChart3, Lock, MessageSquare, CreditCard, Menu, X, ChevronDown,
 } from 'lucide-react';
-import api from '../lib/api';
 
-/* ── Particles (subtle on light bg) ───────────────────── */
-function Particles() {
+
+/* ── Animated Background ────────────────────────────────── */
+function AnimatedBackground() {
   const ref = useRef(null);
   useEffect(() => {
-    const canvas = ref.current; if (!canvas) return;
-    const ctx = canvas.getContext('2d'); let raf;
-    const resize = () => { canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight; };
-    resize(); window.addEventListener('resize', resize);
-    const dots = Array.from({ length: 30 }, () => ({
-      x: Math.random() * canvas.width, y: Math.random() * canvas.height,
-      r: Math.random() * 1.2 + 0.4, vx: (Math.random() - 0.5) * 0.2,
-      vy: (Math.random() - 0.5) * 0.2, a: Math.random() * 0.25 + 0.05,
+    const canvas = ref.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let raf;
+
+    const resize = () => {
+      canvas.width = canvas.offsetWidth;
+      canvas.height = canvas.offsetHeight;
+    };
+    resize();
+    window.addEventListener('resize', resize);
+
+    const particles = Array.from({ length: 50 }, () => ({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      r: Math.random() * 2 + 0.5,
+      vx: (Math.random() - 0.5) * 0.3,
+      vy: (Math.random() - 0.5) * 0.3,
+      a: Math.random() * 0.3 + 0.05,
     }));
+
     const draw = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      dots.forEach(d => {
-        d.x += d.vx; d.y += d.vy;
-        if (d.x < 0) d.x = canvas.width; if (d.x > canvas.width) d.x = 0;
-        if (d.y < 0) d.y = canvas.height; if (d.y > canvas.height) d.y = 0;
-        ctx.beginPath(); ctx.arc(d.x, d.y, d.r, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(37,99,235,${d.a})`; ctx.fill();
+      ctx.fillStyle = '#f8fafc';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      particles.forEach(p => {
+        p.x += p.vx;
+        p.y += p.vy;
+        if (p.x < 0) p.x = canvas.width;
+        if (p.x > canvas.width) p.x = 0;
+        if (p.y < 0) p.y = canvas.height;
+        if (p.y > canvas.height) p.y = 0;
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(59,130,246,${p.a})`;
+        ctx.fill();
       });
-      for (let i = 0; i < dots.length; i++) for (let j = i + 1; j < dots.length; j++) {
-        const dist = Math.hypot(dots[i].x - dots[j].x, dots[i].y - dots[j].y);
-        if (dist < 100) { ctx.beginPath(); ctx.moveTo(dots[i].x, dots[i].y); ctx.lineTo(dots[j].x, dots[j].y);
-          ctx.strokeStyle = `rgba(37,99,235,${0.06 * (1 - dist / 100)})`; ctx.lineWidth = 0.5; ctx.stroke(); }
+
+      for (let i = 0; i < particles.length; i++) {
+        for (let j = i + 1; j < particles.length; j++) {
+          const dist = Math.hypot(
+            particles[i].x - particles[j].x,
+            particles[i].y - particles[j].y
+          );
+          if (dist < 150) {
+            ctx.beginPath();
+            ctx.moveTo(particles[i].x, particles[i].y);
+            ctx.lineTo(particles[j].x, particles[j].y);
+            ctx.strokeStyle = `rgba(59,130,246,${0.08 * (1 - dist / 150)})`;
+            ctx.lineWidth = 0.5;
+            ctx.stroke();
+          }
+        }
       }
+
       raf = requestAnimationFrame(draw);
     };
     draw();
-    return () => { window.removeEventListener('resize', resize); cancelAnimationFrame(raf); };
-  }, []);
-  return <canvas ref={ref} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none' }} />;
-}
 
-/* ── Star Rating ───────────────────────────────────────── */
-function Stars({ rating = 0, size = 12 }) {
+    return () => {
+      window.removeEventListener('resize', resize);
+      cancelAnimationFrame(raf);
+    };
+  }, []);
+
   return (
-    <div style={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-      {[1,2,3,4,5].map(i => (
-        <Star key={i} size={size} fill={i <= Math.round(rating) ? '#f59e0b' : 'none'}
-          color={i <= Math.round(rating) ? '#f59e0b' : '#d1d5db'} />
-      ))}
-      <span style={{ fontSize: '0.75rem', color: '#6b7280', marginLeft: 4 }}>{Number(rating).toFixed(1)}</span>
-    </div>
+    <canvas
+      ref={ref}
+      style={{
+        position: 'absolute',
+        inset: 0,
+        width: '100%',
+        height: '100%',
+        pointerEvents: 'none',
+      }}
+    />
   );
 }
 
-/* ── Specializations ───────────────────────────────────── */
-const SPECS = ['All', 'Sports Injury', 'Orthopedic', 'Neurological', 'Pediatric', 'Geriatric', 'Cardiopulmonary', 'Manual Therapy', 'Rehabilitation'];
+/* ── Navigation Header ──────────────────────────────────── */
+function Header({ onSignupClick }) {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-/* ── Role cards data (original design) ─────────────────── */
-const ROLES = [
-  { id: 'clinic', icon: Building2, label: 'Clinic Owner', tagline: 'Run your clinic smarter',
-    desc: 'Manage staff, bookings, services, payments and multi-branch operations.',
-    loginPath: '/login/clinic', registerPath: '/register/clinic',
-    gradient: 'linear-gradient(135deg,#1d4ed8,#3b82f6)', glow: 'rgba(37,99,235,0.5)',
-    features: ['Staff scheduling', 'Payment tracking', 'Service management'] },
-  { id: 'therapist', icon: Stethoscope, label: 'Physiotherapist', tagline: 'Focus on healing, not paperwork',
-    desc: 'View your schedule, write SOAP notes, and chat with patients.',
-    loginPath: '/login/therapist', registerPath: '/register/therapist',
-    gradient: 'linear-gradient(135deg,#5b21b6,#8b5cf6)', glow: 'rgba(124,58,237,0.5)',
-    features: ['Daily schedule view', 'SOAP clinical notes', 'Patient messaging'] },
-  { id: 'patient', icon: User, label: 'Patient', tagline: 'Book in minutes, not days',
-    desc: 'Browse clinics, pick a therapist, choose a slot and confirm instantly.',
-    loginPath: '/login/patient', registerPath: '/register/patient', primaryAction: '/book',
-    gradient: 'linear-gradient(135deg,#047857,#10b981)', glow: 'rgba(5,150,105,0.5)',
-    features: ['Browse clinics', 'Auto-assign therapist', 'Track appointments'] },
-];
+  return (
+    <header
+      style={{
+        position: 'sticky',
+        top: 0,
+        zIndex: 100,
+        background: 'rgba(255, 255, 255, 0.95)',
+        backdropFilter: 'blur(10px)',
+        borderBottom: '1px solid #e2e8f0',
+        padding: '1rem 2rem',
+      }}
+    >
+      <div
+        style={{
+          maxWidth: '1200px',
+          margin: '0 auto',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        }}
+      >
+        {/* Logo */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <div
+            style={{
+              width: 40,
+              height: 40,
+              borderRadius: '10px',
+              background: 'linear-gradient(135deg, #2563eb, #1e40af)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#fff',
+              fontSize: '1.25rem',
+              fontWeight: 800,
+            }}
+          >
+            P
+          </div>
+          <span style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0f172a' }}>
+            Physiobook
+          </span>
+        </div>
 
-const FEATURES = [
-  { Icon: Zap, color: '#f59e0b', title: 'Auto-Assign', desc: 'Best-rated therapist chosen instantly.' },
-  { Icon: CalendarCheck, color: '#3b82f6', title: 'Live Slots', desc: 'Real-time availability as bookings arrive.' },
-  { Icon: Star, color: '#10b981', title: 'Feedback Loop', desc: 'Patient ratings improve quality.' },
-  { Icon: Globe, color: '#8b5cf6', title: 'Multi-Branch', desc: 'One admin, multiple locations.' },
-];
+        {/* Desktop Navigation */}
+        <div
+          style={{
+            display: 'flex',
+            gap: '2rem',
+            alignItems: 'center',
+          }}
+        >
+          <a href="#features" style={{ color: '#64748b', textDecoration: 'none', fontSize: '0.95rem', fontWeight: 500 }}>
+            Features
+          </a>
+          <a href="#pricing" style={{ color: '#64748b', textDecoration: 'none', fontSize: '0.95rem', fontWeight: 500 }}>
+            Pricing
+          </a>
+          <a href="#how-it-works" style={{ color: '#64748b', textDecoration: 'none', fontSize: '0.95rem', fontWeight: 500 }}>
+            How It Works
+          </a>
+        </div>
 
-/* ── Home ──────────────────────────────────────────────── */
+        {/* Desktop Auth Buttons */}
+        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+          <button
+            onClick={onSignupClick}
+            style={{
+              padding: '0.75rem 1.5rem',
+              background: 'linear-gradient(135deg, #2563eb, #1e40af)',
+              color: '#fff',
+              border: 'none',
+              borderRadius: '8px',
+              fontWeight: 700,
+              cursor: 'pointer',
+              fontSize: '0.95rem',
+              transition: 'all 0.3s',
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.transform = 'translateY(-2px)';
+              e.target.style.boxShadow = '0 10px 25px rgba(37,99,235,0.3)';
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.transform = 'translateY(0)';
+              e.target.style.boxShadow = 'none';
+            }}
+          >
+            Start Free Trial
+          </button>
+        </div>
+      </div>
+    </header>
+  );
+}
+
+/* ── Hero Section ───────────────────────────────────────── */
+function Hero({ onSignupClick, onLoginClick }) {
+  return (
+    <section
+      style={{
+        position: 'relative',
+        minHeight: '90vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        overflow: 'hidden',
+        background: '#f8fafc',
+        padding: '2rem 1rem',
+      }}
+    >
+      <AnimatedBackground />
+
+      <div
+        style={{
+          position: 'relative',
+          zIndex: 10,
+          maxWidth: '900px',
+          textAlign: 'center',
+        }}
+      >
+        {/* Badge */}
+        <div
+          style={{
+            display: 'inline-block',
+            background: '#dbeafe',
+            border: '1px solid #bfdbfe',
+            color: '#1e40af',
+            padding: '0.5rem 1rem',
+            borderRadius: '20px',
+            fontSize: '0.875rem',
+            fontWeight: 600,
+            marginBottom: '2rem',
+          }}
+        >
+          🚀 For Physiotherapy Clinics
+        </div>
+
+        {/* Main Headline */}
+        <h1
+          style={{
+            fontSize: 'clamp(2.5rem, 5vw, 3.5rem)',
+            fontWeight: 900,
+            color: '#0f172a',
+            lineHeight: 1.2,
+            marginBottom: '1.5rem',
+          }}
+        >
+          Manage Your Clinic<br />
+          <span style={{ background: 'linear-gradient(135deg, #2563eb, #1e40af)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+            Effortlessly
+          </span>
+        </h1>
+
+        {/* Subheading */}
+        <p
+          style={{
+            fontSize: '1.25rem',
+            color: '#64748b',
+            marginBottom: '3rem',
+            maxWidth: '700px',
+            margin: '0 auto 3rem',
+            lineHeight: 1.6,
+          }}
+        >
+          Complete clinic management platform: staff scheduling, online bookings, patient messaging, SOAP notes, payments and multi-branch operations.
+        </p>
+
+        {/* CTA Buttons */}
+        <div
+          style={{
+            display: 'flex',
+            gap: '1rem',
+            justifyContent: 'center',
+            flexWrap: 'wrap',
+            marginBottom: '3rem',
+          }}
+        >
+          <button
+            onClick={onSignupClick}
+            style={{
+              padding: '1rem 2.5rem',
+              background: 'linear-gradient(135deg, #2563eb, #1e40af)',
+              color: '#fff',
+              border: 'none',
+              borderRadius: '10px',
+              fontWeight: 700,
+              fontSize: '1.05rem',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.75rem',
+              transition: 'all 0.3s',
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.transform = 'translateY(-4px)';
+              e.target.style.boxShadow = '0 20px 40px rgba(37,99,235,0.4)';
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.transform = 'translateY(0)';
+              e.target.style.boxShadow = 'none';
+            }}
+          >
+            Start Your Free Trial <ArrowRight size={20} />
+          </button>
+
+          <button
+            onClick={onLoginClick}
+            style={{
+              padding: '1rem 2.5rem',
+              background: 'transparent',
+              color: '#2563eb',
+              border: '2px solid #2563eb',
+              borderRadius: '10px',
+              fontWeight: 700,
+              fontSize: '1.05rem',
+              cursor: 'pointer',
+              transition: 'all 0.3s',
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.background = '#dbeafe';
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.background = 'transparent';
+            }}
+          >
+            Sign In
+          </button>
+        </div>
+
+        {/* Trust Indicator */}
+        <p style={{ color: '#94a3b8', fontSize: '0.9rem' }}>
+          ✅ No credit card required • 1 month free trial • Cancel anytime
+        </p>
+      </div>
+    </section>
+  );
+}
+
+/* ── Features Section ───────────────────────────────────── */
+function FeaturesSection() {
+  const features = [
+    {
+      icon: Calendar,
+      title: 'Smart Scheduling',
+      description: 'Automated staff scheduling, real-time slot management, therapist availability, and intelligent therapist auto-assignment.',
+    },
+    {
+      icon: Users,
+      title: 'Patient Management',
+      description: 'Patient profiles, appointment history, automated booking confirmations, and patient feedback/ratings system.',
+    },
+    {
+      icon: MessageSquare,
+      title: 'Built-in Messaging',
+      description: 'Direct patient-therapist communication, session reminders, and real-time notifications.',
+    },
+    {
+      icon: BarChart3,
+      title: 'Performance Analytics',
+      description: 'Track therapist ratings, revenue metrics, clinic statistics, and business insights.',
+    },
+    {
+      icon: CreditCard,
+      title: 'Payment Processing',
+      description: 'Secure online payments, payment tracking, invoice generation, and refund management.',
+    },
+    {
+      icon: Lock,
+      title: 'HIPAA Compliant',
+      description: 'Secure SOAP clinical notes, encrypted patient data, role-based access control.',
+    },
+  ];
+
+  return (
+    <section
+      id="features"
+      style={{
+        padding: '5rem 2rem',
+        maxWidth: '1200px',
+        margin: '0 auto',
+      }}
+    >
+      <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
+        <h2
+          style={{
+            fontSize: '2.5rem',
+            fontWeight: 900,
+            color: '#0f172a',
+            marginBottom: '1rem',
+          }}
+        >
+          Everything You Need to Manage Your Clinic
+        </h2>
+        <p style={{ fontSize: '1.1rem', color: '#64748b', maxWidth: '600px', margin: '0 auto' }}>
+          Comprehensive tools designed specifically for physiotherapy clinics to streamline operations and improve patient care.
+        </p>
+      </div>
+
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+          gap: '2rem',
+        }}
+      >
+        {features.map((feature, idx) => {
+          const Icon = feature.icon;
+          return (
+            <div
+              key={idx}
+              style={{
+                padding: '2rem',
+                background: '#fff',
+                borderRadius: '12px',
+                border: '1px solid #e2e8f0',
+                transition: 'all 0.3s',
+                cursor: 'pointer',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-8px)';
+                e.currentTarget.style.boxShadow = '0 20px 40px rgba(0,0,0,0.1)';
+                e.currentTarget.style.borderColor = '#2563eb';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = 'none';
+                e.currentTarget.style.borderColor = '#e2e8f0';
+              }}
+            >
+              <Icon
+                size={32}
+                color="#2563eb"
+                style={{
+                  marginBottom: '1rem',
+                }}
+              />
+              <h3
+                style={{
+                  fontSize: '1.25rem',
+                  fontWeight: 700,
+                  color: '#0f172a',
+                  marginBottom: '0.75rem',
+                }}
+              >
+                {feature.title}
+              </h3>
+              <p style={{ color: '#64748b', fontSize: '0.95rem', lineHeight: 1.6 }}>
+                {feature.description}
+              </p>
+            </div>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+/* ── How It Works Section ───────────────────────────────── */
+function HowItWorks() {
+  const steps = [
+    {
+      number: '1',
+      title: 'Sign Up Your Clinic',
+      description: 'Create your clinic account and set up basic information.',
+    },
+    {
+      number: '2',
+      title: 'Onboard Your Staff',
+      description: 'Add therapists and staff members with their availability schedules.',
+    },
+    {
+      number: '3',
+      title: 'Configure Services',
+      description: 'Set up your services, pricing, and duration options.',
+    },
+    {
+      number: '4',
+      title: 'Start Accepting Bookings',
+      description: 'Patients book appointments directly through your clinic page.',
+    },
+  ];
+
+  return (
+    <section
+      id="how-it-works"
+      style={{
+        padding: '5rem 2rem',
+        background: '#f8fafc',
+        maxWidth: '1200px',
+        margin: '0 auto',
+      }}
+    >
+      <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
+        <h2
+          style={{
+            fontSize: '2.5rem',
+            fontWeight: 900,
+            color: '#0f172a',
+            marginBottom: '1rem',
+          }}
+        >
+          How to Get Started
+        </h2>
+        <p style={{ fontSize: '1.1rem', color: '#64748b' }}>
+          Set up your clinic in minutes, not hours.
+        </p>
+      </div>
+
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+          gap: '2rem',
+        }}
+      >
+        {steps.map((step, idx) => (
+          <div key={idx} style={{ position: 'relative' }}>
+            <div
+              style={{
+                width: 60,
+                height: 60,
+                background: 'linear-gradient(135deg, #2563eb, #1e40af)',
+                color: '#fff',
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '1.75rem',
+                fontWeight: 800,
+                marginBottom: '1.5rem',
+              }}
+            >
+              {step.number}
+            </div>
+            <h3
+              style={{
+                fontSize: '1.25rem',
+                fontWeight: 700,
+                color: '#0f172a',
+                marginBottom: '0.5rem',
+              }}
+            >
+              {step.title}
+            </h3>
+            <p style={{ color: '#64748b', fontSize: '0.95rem' }}>
+              {step.description}
+            </p>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+/* ── Pricing Section ────────────────────────────────────── */
+function PricingSection({ onSignupClick }) {
+  return (
+    <section
+      id="pricing"
+      style={{
+        padding: '5rem 2rem',
+        maxWidth: '1200px',
+        margin: '0 auto',
+      }}
+    >
+      <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
+        <h2
+          style={{
+            fontSize: '2.5rem',
+            fontWeight: 900,
+            color: '#0f172a',
+            marginBottom: '1rem',
+          }}
+        >
+          Simple, Transparent Pricing
+        </h2>
+        <p style={{ fontSize: '1.1rem', color: '#64748b', maxWidth: '600px', margin: '0 auto' }}>
+          Everything you need to run your clinic. Start with a free 1-month trial—no credit card required.
+        </p>
+      </div>
+
+      <div
+        style={{
+          maxWidth: '600px',
+          margin: '0 auto',
+        }}
+      >
+        {/* Free Trial Card */}
+        <div
+          style={{
+            background: 'linear-gradient(135deg, #dbeafe, #f0f9ff)',
+            border: '2px solid #2563eb',
+            borderRadius: '16px',
+            padding: '3rem 2rem',
+            textAlign: 'center',
+            marginBottom: '2rem',
+          }}
+        >
+          <div
+            style={{
+              display: 'inline-block',
+              background: '#2563eb',
+              color: '#fff',
+              padding: '0.5rem 1rem',
+              borderRadius: '20px',
+              fontSize: '0.875rem',
+              fontWeight: 700,
+              marginBottom: '1.5rem',
+            }}
+          >
+            🎉 LIMITED TIME OFFER
+          </div>
+          <h3
+            style={{
+              fontSize: '1.75rem',
+              fontWeight: 800,
+              color: '#0f172a',
+              marginBottom: '0.5rem',
+            }}
+          >
+            1 Month Free Trial
+          </h3>
+          <p style={{ color: '#64748b', marginBottom: '2rem', fontSize: '1rem' }}>
+            Full access to all features. No commitment. Cancel anytime.
+          </p>
+
+          <button
+            onClick={onSignupClick}
+            style={{
+              width: '100%',
+              padding: '1rem',
+              background: 'linear-gradient(135deg, #2563eb, #1e40af)',
+              color: '#fff',
+              border: 'none',
+              borderRadius: '10px',
+              fontWeight: 700,
+              fontSize: '1.05rem',
+              cursor: 'pointer',
+              transition: 'all 0.3s',
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.transform = 'translateY(-4px)';
+              e.target.style.boxShadow = '0 15px 35px rgba(37,99,235,0.4)';
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.transform = 'translateY(0)';
+              e.target.style.boxShadow = 'none';
+            }}
+          >
+            Start Free Trial
+          </button>
+        </div>
+
+        {/* Pricing Card */}
+        <div
+          style={{
+            background: '#fff',
+            border: '1px solid #e2e8f0',
+            borderRadius: '16px',
+            padding: '3rem 2rem',
+            textAlign: 'center',
+          }}
+        >
+          <h3
+            style={{
+              fontSize: '1.5rem',
+              fontWeight: 800,
+              color: '#0f172a',
+              marginBottom: '0.5rem',
+            }}
+          >
+            After Free Trial
+          </h3>
+
+          <div
+            style={{
+              fontSize: '3.5rem',
+              fontWeight: 900,
+              color: '#2563eb',
+              marginBottom: '0.5rem',
+              marginTop: '1.5rem',
+            }}
+          >
+            ₹15,000<span style={{ fontSize: '1.25rem', color: '#64748b' }}>/month</span>
+          </div>
+
+          <p style={{ color: '#64748b', marginBottom: '2rem', fontSize: '0.95rem' }}>
+            Billed monthly. Cancel anytime.
+          </p>
+
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '1rem',
+              marginBottom: '2rem',
+            }}
+          >
+            {[
+              'Unlimited staff members',
+              'Unlimited patient bookings',
+              'Multi-branch management',
+              'Advanced analytics',
+              'Email & priority support',
+              'Secure HIPAA-compliant notes',
+            ].map((feature, idx) => (
+              <div
+                key={idx}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.75rem',
+                  color: '#374151',
+                  fontSize: '0.95rem',
+                }}
+              >
+                <CheckCircle size={20} color="#10b981" />
+                {feature}
+              </div>
+            ))}
+          </div>
+
+          <button
+            onClick={onSignupClick}
+            style={{
+              width: '100%',
+              padding: '1rem',
+              background: '#f1f5f9',
+              color: '#2563eb',
+              border: '2px solid #2563eb',
+              borderRadius: '10px',
+              fontWeight: 700,
+              fontSize: '1rem',
+              cursor: 'pointer',
+              transition: 'all 0.3s',
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.background = '#dbeafe';
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.background = '#f1f5f9';
+            }}
+          >
+            Sign Up Now
+          </button>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ── Footer ────────────────────────────────────────────── */
+function Footer() {
+  return (
+    <footer
+      style={{
+        background: '#0f172a',
+        color: '#94a3b8',
+        padding: '3rem 2rem',
+        textAlign: 'center',
+        fontSize: '0.9rem',
+      }}
+    >
+      <p style={{ marginBottom: '0.5rem' }}>© 2024 Physiobook. All rights reserved.</p>
+      <p>
+        <a href="#" style={{ color: '#94a3b8', textDecoration: 'none', marginRight: '2rem' }}>
+          Privacy Policy
+        </a>
+        <a href="#" style={{ color: '#94a3b8', textDecoration: 'none' }}>
+          Terms of Service
+        </a>
+      </p>
+    </footer>
+  );
+}
+
+/* ── Main Export ────────────────────────────────────────── */
 export default function Home() {
   const navigate = useNavigate();
-  const [clinics, setClinics] = useState([]);
-  const [therapists, setTherapists] = useState([]);
-  const [search, setSearch] = useState('');
-  const [specFilter, setSpecFilter] = useState('All');
-  const [tab, setTab] = useState('clinics');
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    (async () => {
-      setLoading(true);
-      try {
-        const [c, t] = await Promise.all([
-          api.get('/clinics?limit=50').catch(() => ({ rows: [] })),
-          api.get('/clinics/therapists?limit=50').catch(() => ({ rows: [] })),
-        ]);
-        setClinics(c?.rows || c || []);
-        setTherapists(t?.rows || t || []);
-      } catch (_) {}
-      setLoading(false);
-    })();
-  }, []);
+  const handleSignup = () => {
+    navigate('/register/clinic');
+  };
 
-  const fClinics = (Array.isArray(clinics) ? clinics : []).filter(c =>
-    !search || c.name?.toLowerCase().includes(search.toLowerCase()) || c.city?.toLowerCase().includes(search.toLowerCase())
-  );
-  const fTherapists = (Array.isArray(therapists) ? therapists : []).filter(t => {
-    const name = `${t.first_name} ${t.last_name}`.toLowerCase();
-    if (search && !name.includes(search.toLowerCase()) && !t.specialization?.toLowerCase().includes(search.toLowerCase())) return false;
-    if (specFilter !== 'All' && !t.specialization?.toLowerCase().includes(specFilter.toLowerCase())) return false;
-    return true;
-  });
-
-  const S = { page: { minHeight: '100vh', background: '#fff', color: '#0f172a', fontFamily: "'Inter','Segoe UI',sans-serif" } };
+  const handleLogin = () => {
+    navigate('/login/clinic');
+  };
 
   return (
-    <div style={S.page}>
-
-      {/* ─── Nav ─── */}
-      <header style={{ position: 'sticky', top: 0, zIndex: 50, background: 'rgba(255,255,255,0.92)', backdropFilter: 'blur(12px)', borderBottom: '1px solid #e5e7eb', padding: '0 clamp(1rem,3vw,2rem)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 56 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontWeight: 800, fontSize: '0.88rem', color: '#1e40af', letterSpacing: '0.04em' }}>
-          <Activity size={16} /> PHYSIOBOOK
-        </div>
-        <nav style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-          <button onClick={() => document.getElementById('browse')?.scrollIntoView({ behavior: 'smooth' })}
-            style={{ background: 'none', border: 'none', color: '#475569', fontSize: '0.85rem', cursor: 'pointer', fontWeight: 500, padding: '0.4rem 0.8rem', borderRadius: 6 }}>
-            Browse
-          </button>
-          <button onClick={() => document.getElementById('roles')?.scrollIntoView({ behavior: 'smooth' })}
-            style={{ background: '#2563eb', border: 'none', color: '#fff', fontSize: '0.82rem', padding: '0.5rem 1.1rem', borderRadius: 8, cursor: 'pointer', fontWeight: 600 }}>
-            Get Started
-          </button>
-        </nav>
-      </header>
-
-      {/* ─── Hero ─── */}
-      <section style={{ position: 'relative', overflow: 'hidden', background: 'linear-gradient(180deg,#eff6ff 0%,#ffffff 100%)', padding: 'clamp(3rem,8vw,5rem) 1rem clamp(2rem,5vw,3.5rem)', textAlign: 'center' }}>
-        <Particles />
-        <div style={{ position: 'relative', zIndex: 1, maxWidth: 700, margin: '0 auto' }}>
-          <h1 style={{ fontSize: 'clamp(1.8rem,5vw,3rem)', fontWeight: 900, lineHeight: 1.15, margin: '0 0 1rem', color: '#0f172a' }}>
-            Find Your Perfect{' '}<span style={{ background: 'linear-gradient(135deg,#2563eb,#7c3aed)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Physiotherapist</span>
-          </h1>
-          <p style={{ fontSize: 'clamp(0.95rem,2vw,1.15rem)', color: '#64748b', maxWidth: 520, margin: '0 auto 1.5rem', lineHeight: 1.6 }}>
-            Browse clinics, compare therapists, check prices and book appointments — all in one place.
-          </p>
-          <button onClick={() => document.getElementById('browse')?.scrollIntoView({ behavior: 'smooth' })}
-            style={{ background: 'linear-gradient(135deg,#2563eb,#3b82f6)', border: 'none', color: '#fff', padding: '0.85rem 2rem', borderRadius: 12, fontSize: '0.95rem', fontWeight: 700, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 8, boxShadow: '0 6px 24px rgba(37,99,235,0.3)', transition: 'transform 0.2s' }}
-            onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
-            onMouseLeave={e => e.currentTarget.style.transform = ''}>
-            <Search size={16} /> Explore Clinics & Therapists <ArrowRight size={14} />
-          </button>
-        </div>
-      </section>
-
-      {/* ─── Stats ─── */}
-      <section style={{ background: '#f8fafc', borderTop: '1px solid #e5e7eb', borderBottom: '1px solid #e5e7eb', padding: '1.25rem 1rem' }}>
-        <div style={{ maxWidth: 700, margin: '0 auto', display: 'flex', justifyContent: 'center', gap: 'clamp(2rem,6vw,5rem)', flexWrap: 'wrap' }}>
-          {[
-            { n: clinics.length || '—', l: 'Clinics', icon: Building2, c: '#2563eb' },
-            { n: therapists.length || '—', l: 'Therapists', icon: Stethoscope, c: '#7c3aed' },
-            { n: '24/7', l: 'Online Booking', icon: Clock, c: '#059669' },
-          ].map(s => (
-            <div key={s.l} style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: '1.5rem', fontWeight: 800, color: s.c }}>{s.n}</div>
-              <div style={{ fontSize: '0.78rem', color: '#6b7280', display: 'flex', alignItems: 'center', gap: 4, justifyContent: 'center' }}>
-                <s.icon size={12} /> {s.l}
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ─── Browse Section ─── */}
-      <section id="browse" style={{ maxWidth: 1080, margin: '0 auto', padding: 'clamp(2rem,5vw,3.5rem) 1rem' }}>
-        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: '#eff6ff', padding: '0.35rem 0.9rem', borderRadius: 99, fontSize: '0.78rem', fontWeight: 600, color: '#2563eb', marginBottom: '0.6rem' }}>
-            <Search size={12} /> DISCOVER
-          </span>
-          <h2 style={{ fontSize: 'clamp(1.3rem,3vw,1.75rem)', fontWeight: 800, color: '#0f172a', margin: '0.5rem 0 0' }}>Browse Clinics & Therapists</h2>
-        </div>
-
-        {/* Search + Tabs */}
-        <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1.25rem', flexWrap: 'wrap', alignItems: 'stretch' }}>
-          <div style={{ flex: 1, minWidth: 220, position: 'relative' }}>
-            <Search size={15} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#9ca3af' }} />
-            <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search clinics, therapists or specialties..."
-              style={{ width: '100%', padding: '0.7rem 0.7rem 0.7rem 2.3rem', borderRadius: 10, border: '1px solid #d1d5db', background: '#fff', color: '#0f172a', fontSize: '0.88rem', outline: 'none', transition: 'border 0.2s' }}
-              onFocus={e => e.target.style.borderColor = '#3b82f6'} onBlur={e => e.target.style.borderColor = '#d1d5db'} />
-          </div>
-          <div style={{ display: 'flex', background: '#f1f5f9', borderRadius: 10, border: '1px solid #e2e8f0', overflow: 'hidden' }}>
-            {['clinics', 'therapists'].map(t => (
-              <button key={t} onClick={() => setTab(t)}
-                style={{ padding: '0.65rem 1.2rem', background: tab === t ? '#2563eb' : 'transparent', color: tab === t ? '#fff' : '#64748b', border: 'none', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 600, transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: 5 }}>
-                {t === 'clinics' ? <><Building2 size={13} />Clinics</> : <><Stethoscope size={13} />Therapists</>}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Spec filter chips */}
-        {tab === 'therapists' && (
-          <div style={{ display: 'flex', gap: '0.4rem', marginBottom: '1.25rem', flexWrap: 'wrap' }}>
-            {SPECS.map(s => (
-              <button key={s} onClick={() => setSpecFilter(s)}
-                style={{ padding: '0.35rem 0.85rem', borderRadius: 99, border: `1px solid ${specFilter === s ? '#3b82f6' : '#e2e8f0'}`, background: specFilter === s ? '#eff6ff' : '#fff', color: specFilter === s ? '#2563eb' : '#64748b', fontSize: '0.78rem', fontWeight: 500, cursor: 'pointer', transition: 'all 0.2s' }}>
-                {s}
-              </button>
-            ))}
-          </div>
-        )}
-
-        {/* Content */}
-        {loading ? (
-          <>
-            <style>{`@keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }`}</style>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(300px,1fr))', gap: '1rem' }}>
-              {[1,2,3,4,5,6].map(i => (
-                <div key={i} style={{ background: '#fff', borderRadius: 14, border: '1px solid #e5e7eb', overflow: 'hidden' }}>
-                  <div style={{ height: 72, background: 'linear-gradient(90deg,#e2e8f0 25%,#f1f5f9 50%,#e2e8f0 75%)', backgroundSize: '200% 100%', animation: 'shimmer 1.5s infinite' }} />
-                  <div style={{ padding: '1rem 1.25rem' }}>
-                    <div style={{ height: 14, width: '70%', borderRadius: 6, background: 'linear-gradient(90deg,#e2e8f0 25%,#f1f5f9 50%,#e2e8f0 75%)', backgroundSize: '200% 100%', animation: 'shimmer 1.5s infinite', marginBottom: 8 }} />
-                    <div style={{ height: 10, width: '45%', borderRadius: 4, background: 'linear-gradient(90deg,#e2e8f0 25%,#f1f5f9 50%,#e2e8f0 75%)', backgroundSize: '200% 100%', animation: 'shimmer 1.5s infinite' }} />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </>
-        ) : tab === 'clinics' ? (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(300px,1fr))', gap: '1rem' }}>
-            {fClinics.length === 0 ? (
-              <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: '3rem', color: '#9ca3af' }}>No clinics found.</div>
-            ) : fClinics.map(c => (
-              <div key={c.id} onClick={() => navigate(`/book?${c.slug}`)}
-                style={{ background: '#fff', borderRadius: 14, border: '1px solid #e5e7eb', overflow: 'hidden', cursor: 'pointer', transition: 'all 0.25s', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}
-                onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = '0 10px 30px rgba(37,99,235,0.1)'; e.currentTarget.style.borderColor = '#bfdbfe'; }}
-                onMouseLeave={e => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.04)'; e.currentTarget.style.borderColor = '#e5e7eb'; }}>
-                <div style={{ background: 'linear-gradient(135deg,#1d4ed8,#3b82f6)', padding: '1.1rem 1.25rem', display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
-                  <div style={{ width: 46, height: 46, borderRadius: 10, background: 'rgba(255,255,255,0.18)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0 }}>
-                    {c.logo_url ? <img src={c.logo_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <Building2 size={20} color="rgba(255,255,255,0.85)" />}
-                  </div>
-                  <div>
-                    <div style={{ fontWeight: 700, fontSize: '1rem', color: '#fff' }}>{c.name}</div>
-                    {c.city && <div style={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.75)', display: 'flex', alignItems: 'center', gap: 3 }}><MapPin size={10} /> {c.city}</div>}
-                  </div>
-                </div>
-                <div style={{ padding: '0.9rem 1.25rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <div style={{ display: 'flex', gap: '0.75rem', fontSize: '0.8rem', color: '#6b7280' }}>
-                    <span style={{ display: 'flex', alignItems: 'center', gap: 3 }}><Stethoscope size={11} /> {c.team_count || 0} therapists</span>
-                    {c.phone && <span style={{ display: 'flex', alignItems: 'center', gap: 3 }}><Phone size={11} /> {c.phone}</span>}
-                  </div>
-                  <span style={{ fontSize: '0.82rem', color: '#2563eb', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 3 }}>Book <ArrowRight size={12} /></span>
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(270px,1fr))', gap: '1rem' }}>
-            {fTherapists.length === 0 ? (
-              <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: '3rem', color: '#9ca3af' }}>No therapists found.</div>
-            ) : fTherapists.map(t => (
-              <div key={t.id} onClick={() => navigate(`/book?${t.clinic_slug}`)}
-                style={{ background: '#fff', borderRadius: 14, border: '1px solid #e5e7eb', padding: '1.1rem', cursor: 'pointer', transition: 'all 0.25s', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}
-                onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = '0 10px 30px rgba(139,92,246,0.08)'; e.currentTarget.style.borderColor = '#c4b5fd'; }}
-                onMouseLeave={e => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.04)'; e.currentTarget.style.borderColor = '#e5e7eb'; }}>
-                <div style={{ display: 'flex', gap: '0.85rem', alignItems: 'center', marginBottom: '0.65rem' }}>
-                  <div style={{ width: 44, height: 44, borderRadius: '50%', background: 'linear-gradient(135deg,#7c3aed,#a78bfa)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, fontSize: '1rem', flexShrink: 0, overflow: 'hidden' }}>
-                    {t.avatar_url ? <img src={t.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <>{t.first_name?.[0]}{t.last_name?.[0]}</>}
-                  </div>
-                  <div>
-                    <div style={{ fontWeight: 700, fontSize: '0.92rem', color: '#0f172a' }}>{t.first_name} {t.last_name}</div>
-                    <Stars rating={t.rating} />
-                  </div>
-                </div>
-                {t.specialization && (
-                  <span style={{ display: 'inline-block', background: '#f5f3ff', color: '#6d28d9', padding: '0.18rem 0.6rem', borderRadius: 99, fontSize: '0.73rem', fontWeight: 600, marginBottom: '0.45rem' }}>{t.specialization}</span>
-                )}
-                <div style={{ fontSize: '0.8rem', color: '#6b7280', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ display: 'flex', alignItems: 'center', gap: 3 }}><Briefcase size={11} /> {t.experience_years || 0} yrs</span>
-                  <span style={{ display: 'flex', alignItems: 'center', gap: 3 }}><Building2 size={11} /> {t.clinic_name}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </section>
-
-      {/* ─── Features ─── */}
-      <section style={{ background: '#f8fafc', borderTop: '1px solid #e5e7eb', padding: 'clamp(2rem,5vw,3rem) 1rem' }}>
-        <div className="home-features" style={{ maxWidth: 900, margin: '0 auto' }}>
-          {FEATURES.map(({ Icon, color, title, desc }) => (
-            <div key={title} className="home-feature-item">
-              <div className="home-feature-icon" style={{ background: `${color}15` }}><Icon size={15} color={color} /></div>
-              <div><div className="home-feature-title">{title}</div><div className="home-feature-desc">{desc}</div></div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ─── Role Cards (original design) ─── */}
-      <section id="roles" className="home-cards-section" style={{ background: '#0a0e1a' }}>
-        <p className="home-cards-label">Choose your role</p>
-        <div className="home-cards-grid">
-          {ROLES.map(r => <RoleCard key={r.id} role={r} navigate={navigate} />)}
-        </div>
-      </section>
-
-      {/* ─── Footer ─── */}
-      <footer className="home-footer">
-        Physiobook — Sri Lanka's Modern Physiotherapy Booking Platform
-      </footer>
+    <div style={{ background: '#f8fafc', color: '#0f172a', fontFamily: 'Inter, sans-serif' }}>
+      <Header onSignupClick={handleSignup} />
+      <Hero onSignupClick={handleSignup} onLoginClick={handleLogin} />
+      <FeaturesSection />
+      <HowItWorks />
+      <PricingSection onSignupClick={handleSignup} />
+      <Footer />
     </div>
   );
 }
 
-/* ── Role Card (original design) ───────────────────────── */
-function RoleCard({ role, navigate }) {
-  const Icon = role.icon;
-  return (
-    <div className="role-card"
-      onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-5px)'; e.currentTarget.style.boxShadow = `0 20px 50px ${role.glow}`; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.18)'; }}
-      onMouseLeave={e => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = ''; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.09)'; }}>
-      <div className="role-card-header" style={{ background: role.gradient }}>
-        <div className="role-card-top">
-          <div className="role-card-icon"><Icon size={20} color="#fff" /></div>
-          <span className="role-card-badge">{role.id}</span>
-        </div>
-        <h2 className="role-card-title">{role.label}</h2>
-        <p className="role-card-tagline">{role.tagline}</p>
-      </div>
-      <div className="role-card-body">
-        <p className="role-card-desc">{role.desc}</p>
-        <ul className="role-card-features">
-          {role.features.map(f => (
-            <li key={f}><CheckCircle size={11} color="#34d399" style={{ flexShrink: 0 }} />{f}</li>
-          ))}
-        </ul>
-        <div className="role-card-actions">
-          <button className="role-btn-primary"
-            style={{ background: role.gradient, boxShadow: `0 4px 14px ${role.glow}` }}
-            onClick={() => navigate(role.loginPath)}
-            onMouseEnter={e => { e.currentTarget.style.filter = 'brightness(1.12)'; }}
-            onMouseLeave={e => { e.currentTarget.style.filter = ''; }}>
-            {role.id === 'patient'
-              ? <><User size={13} /> Sign In / Browse Clinics</>
-              : <><Clock size={13} /> Sign In to Dashboard <ArrowRight size={12} /></>}
-          </button>
-          <button className="role-btn-ghost"
-            onClick={() => navigate(role.primaryAction || role.registerPath)}
-            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; e.currentTarget.style.color = '#e2e8f0'; }}
-            onMouseLeave={e => { e.currentTarget.style.background = ''; e.currentTarget.style.color = ''; }}>
-            {role.id === 'patient' ? 'Create Account & Book →' : 'Create New Account →'}
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
