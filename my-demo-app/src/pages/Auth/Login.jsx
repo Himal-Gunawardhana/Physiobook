@@ -88,8 +88,12 @@ export default function Login() {
         localStorage.removeItem('pending_verification_backend_role');
         localStorage.removeItem('pending_verification_frontend_role');
         
-        // If logging in from booking flow (checkout page) or if patient, navigate to my-bookings
-        if (location.state?.returnTo?.includes('/checkout') || backendRole === 'patient') {
+        // If logging in from booking flow (checkout page), restore booking state
+        if (location.state?.returnTo === '/book/checkout' && location.state?.bookingState) {
+          navigate('/book/checkout', { state: location.state.bookingState });
+        } else if (location.state?.returnTo) {
+          navigate(location.state.returnTo, { state: location.state.bookingState || location.state });
+        } else if (backendRole === 'patient') {
           navigate('/book/my-bookings');
         } else {
           navigate(dest);
@@ -138,8 +142,12 @@ export default function Login() {
         localStorage.removeItem('pending_verification_backend_role');
         localStorage.removeItem('pending_verification_frontend_role');
         
-        // If logging in from booking flow (checkout page) or if patient, navigate to my-bookings
-        if (location.state?.returnTo?.includes('/checkout') || backendRole === 'patient') {
+        // If logging in from booking flow (checkout page), restore booking state
+        if (location.state?.returnTo === '/book/checkout' && location.state?.bookingState) {
+          navigate('/book/checkout', { state: location.state.bookingState });
+        } else if (location.state?.returnTo) {
+          navigate(location.state.returnTo, { state: location.state.bookingState || location.state });
+        } else if (backendRole === 'patient') {
           navigate('/book/my-bookings');
         } else {
           navigate(dest);

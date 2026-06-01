@@ -148,7 +148,12 @@ export default function Feedback() {
               if (!bookingId) { setError('Missing booking reference.'); return; }
               setLoading(true); setError('');
               try {
-                await api.post('/feedback', { bookingId, rating: therapistRating, comment: comment.trim() || null });
+                await api.post('/feedback', {
+                    bookingId,
+                    rating: therapistRating,
+                    clinicRating,
+                    comment: comment.trim() || null
+                  });
                 setSubmitted(true);
               } catch (err) {
                 setError(err?.error?.message || err?.message || 'Failed to submit feedback.');

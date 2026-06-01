@@ -44,9 +44,9 @@ export default function Checkout() {
   const submit = async () => {
     // Must be logged in
     if (!user) {
-      // Save booking state and redirect to login page
+      // Save booking state and redirect to BookingGate (patient auth page)
       sessionStorage.setItem('pendingBooking', JSON.stringify(location.state));
-      navigate('/login/patient', { state: { returnTo: '/book/checkout', bookingState: location.state } });
+      navigate('/book/register', { state: { returnTo: '/book/checkout', bookingState: location.state } });
       return;
     }
 
@@ -74,9 +74,9 @@ export default function Checkout() {
 
       console.log('[Checkout] Booking created:', booking);
       
-      // Navigate to my bookings page
-      navigate('/book/my-bookings', { state: {
-        newBookingId: booking?.id,
+      // Navigate to confirmation page with the booking details
+      navigate('/book/confirmation', { state: {
+        booking,
         primaryColor,
       }});
     } catch (err) {
