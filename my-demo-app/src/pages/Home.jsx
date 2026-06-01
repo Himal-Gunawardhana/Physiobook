@@ -91,7 +91,7 @@ function AnimatedBackground() {
 }
 
 /* ── Navigation Header ──────────────────────────────────── */
-function Header({ onSignupClick }) {
+function Header({ onSignupClick, onTherapistClick }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
@@ -160,6 +160,30 @@ function Header({ onSignupClick }) {
         {/* Desktop Auth Buttons */}
         <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
           <button
+            onClick={onTherapistClick}
+            style={{
+              padding: '0.75rem 1.5rem',
+              background: 'linear-gradient(135deg, #7c3aed, #6d28d9)',
+              color: '#fff',
+              border: 'none',
+              borderRadius: '8px',
+              fontWeight: 700,
+              cursor: 'pointer',
+              fontSize: '0.95rem',
+              transition: 'all 0.3s',
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.transform = 'translateY(-2px)';
+              e.target.style.boxShadow = '0 10px 25px rgba(124,58,237,0.35)';
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.transform = 'translateY(0)';
+              e.target.style.boxShadow = 'none';
+            }}
+          >
+            I'm a Therapist
+          </button>
+          <button
             onClick={onSignupClick}
             style={{
               padding: '0.75rem 1.5rem',
@@ -190,7 +214,7 @@ function Header({ onSignupClick }) {
 }
 
 /* ── Hero Section ───────────────────────────────────────── */
-function Hero({ onSignupClick, onLoginClick }) {
+function Hero({ onSignupClick, onLoginClick, onTherapistClick }) {
   return (
     <section
       style={{
@@ -268,7 +292,7 @@ function Hero({ onSignupClick, onLoginClick }) {
             gap: '1rem',
             justifyContent: 'center',
             flexWrap: 'wrap',
-            marginBottom: '3rem',
+            marginBottom: '2rem',
           }}
         >
           <button
@@ -319,8 +343,39 @@ function Hero({ onSignupClick, onLoginClick }) {
               e.target.style.background = 'transparent';
             }}
           >
-            Sign In
+            Clinic Sign In
           </button>
+        </div>
+
+        {/* Therapist CTA */}
+        <div
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '0.75rem',
+            background: 'linear-gradient(135deg, rgba(124,58,237,0.08), rgba(109,40,217,0.12))',
+            border: '1.5px solid rgba(124,58,237,0.3)',
+            borderRadius: '12px',
+            padding: '0.85rem 1.75rem',
+            marginBottom: '2rem',
+            cursor: 'pointer',
+            transition: 'all 0.3s',
+          }}
+          onClick={onTherapistClick}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = 'linear-gradient(135deg, rgba(124,58,237,0.15), rgba(109,40,217,0.2))';
+            e.currentTarget.style.transform = 'translateY(-2px)';
+            e.currentTarget.style.boxShadow = '0 8px 24px rgba(124,58,237,0.2)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = 'linear-gradient(135deg, rgba(124,58,237,0.08), rgba(109,40,217,0.12))';
+            e.currentTarget.style.transform = 'translateY(0)';
+            e.currentTarget.style.boxShadow = 'none';
+          }}
+        >
+          <span style={{ fontSize: '1.25rem' }}>🩺</span>
+          <span style={{ color: '#6d28d9', fontWeight: 700, fontSize: '0.95rem' }}>Are you a Therapist?</span>
+          <span style={{ color: '#7c3aed', fontSize: '0.9rem', fontWeight: 500 }}>Login or Register →</span>
         </div>
 
         {/* Trust Indicator */}
@@ -782,10 +837,14 @@ export default function Home() {
     navigate('/login/clinic');
   };
 
+  const handleTherapist = () => {
+    navigate('/login/therapist');
+  };
+
   return (
     <div style={{ background: '#f8fafc', color: '#0f172a', fontFamily: 'Inter, sans-serif' }}>
-      <Header onSignupClick={handleSignup} />
-      <Hero onSignupClick={handleSignup} onLoginClick={handleLogin} />
+      <Header onSignupClick={handleSignup} onTherapistClick={handleTherapist} />
+      <Hero onSignupClick={handleSignup} onLoginClick={handleLogin} onTherapistClick={handleTherapist} />
       <FeaturesSection />
       <HowItWorks />
       <PricingSection onSignupClick={handleSignup} />
