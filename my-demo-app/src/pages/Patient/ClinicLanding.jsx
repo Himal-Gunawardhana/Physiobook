@@ -178,9 +178,23 @@ export default function ClinicLanding() {
           </Link>
         </div>
         <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', fontSize: '0.82rem', opacity: 0.9 }}>
-          {clinic?.address && <span style={{ display: 'flex', alignItems: 'center', gap: 3 }}><MapPin size={12} /> {clinic.address}</span>}
-          {clinic?.city && !clinic?.address && <span style={{ display: 'flex', alignItems: 'center', gap: 3 }}><MapPin size={12} /> {clinic.city}</span>}
-          {clinic?.phone && <span style={{ display: 'flex', alignItems: 'center', gap: 3 }}><Phone size={12} /> {clinic.phone}</span>}
+          {clinic?.address && <span style={{ display: 'flex', alignItems: 'center', gap: 3 }}><MapPin size={12} /> <span className="hide-mobile">{clinic.address}</span></span>}
+          {clinic?.city && !clinic?.address && <span style={{ display: 'flex', alignItems: 'center', gap: 3 }}><MapPin size={12} /> <span className="hide-mobile">{clinic.city}</span></span>}
+          {clinic?.phone && <span style={{ display: 'flex', alignItems: 'center', gap: 3 }}><Phone size={12} /> <span className="hide-mobile">{clinic.phone}</span></span>}
+          
+          {isLoggedIn && user?.role === 'patient' && (
+            <Link to="/patient" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', padding: '0.4rem 0.8rem', background: 'rgba(255,255,255,0.2)', color: '#fff', borderRadius: 8, fontWeight: 700, textDecoration: 'none', marginLeft: '0.5rem' }}>
+              <span style={{ width: 24, height: 24, borderRadius: '50%', background: '#fff', color: primaryColor, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem' }}>
+                {(user.first_name || 'P')[0].toUpperCase()}
+              </span>
+              <span className="hide-mobile">My Profile</span>
+            </Link>
+          )}
+          {isLoggedIn && user?.role !== 'patient' && (
+            <Link to={user.role === 'clinic_admin' ? '/clinic' : (user.role === 'therapist' ? '/therapist' : '/superadmin')} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', padding: '0.4rem 0.8rem', background: 'rgba(255,255,255,0.2)', color: '#fff', borderRadius: 8, fontWeight: 700, textDecoration: 'none', marginLeft: '0.5rem' }}>
+              Dashboard
+            </Link>
+          )}
         </div>
       </header>
 

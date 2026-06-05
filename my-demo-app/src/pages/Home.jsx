@@ -2,8 +2,9 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Building2, Users, Calendar, TrendingUp, Shield, Zap, CheckCircle, ArrowRight,
-  Clock, BarChart3, Lock, MessageSquare, CreditCard, Menu, X, ChevronDown,
+  Clock, BarChart3, Lock, MessageSquare, CreditCard, Menu, X, ChevronDown, User, LogOut
 } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 
 /* ── Animated Background ────────────────────────────────── */
@@ -93,6 +94,8 @@ function AnimatedBackground() {
 /* ── Navigation Header ──────────────────────────────────── */
 function Header({ onSignupClick, onTherapistClick }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
 
   return (
     <header
@@ -159,54 +162,110 @@ function Header({ onSignupClick, onTherapistClick }) {
 
         {/* Desktop Auth Buttons */}
         <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-          <button
-            onClick={onTherapistClick}
-            style={{
-              padding: '0.75rem 1.5rem',
-              background: 'linear-gradient(135deg, #7c3aed, #6d28d9)',
-              color: '#fff',
-              border: 'none',
-              borderRadius: '8px',
-              fontWeight: 700,
-              cursor: 'pointer',
-              fontSize: '0.95rem',
-              transition: 'all 0.3s',
-            }}
-            onMouseEnter={(e) => {
-              e.target.style.transform = 'translateY(-2px)';
-              e.target.style.boxShadow = '0 10px 25px rgba(124,58,237,0.35)';
-            }}
-            onMouseLeave={(e) => {
-              e.target.style.transform = 'translateY(0)';
-              e.target.style.boxShadow = 'none';
-            }}
-          >
-            I'm a Therapist
-          </button>
-          <button
-            onClick={onSignupClick}
-            style={{
-              padding: '0.75rem 1.5rem',
-              background: 'linear-gradient(135deg, #2563eb, #1e40af)',
-              color: '#fff',
-              border: 'none',
-              borderRadius: '8px',
-              fontWeight: 700,
-              cursor: 'pointer',
-              fontSize: '0.95rem',
-              transition: 'all 0.3s',
-            }}
-            onMouseEnter={(e) => {
-              e.target.style.transform = 'translateY(-2px)';
-              e.target.style.boxShadow = '0 10px 25px rgba(37,99,235,0.3)';
-            }}
-            onMouseLeave={(e) => {
-              e.target.style.transform = 'translateY(0)';
-              e.target.style.boxShadow = 'none';
-            }}
-          >
-            Start Free Trial
-          </button>
+          {user ? (
+            <>
+              <button
+                onClick={() => navigate(user.role === 'patient' ? '/patient' : (user.role === 'clinic_admin' ? '/clinic' : (user.role === 'therapist' ? '/therapist' : '/superadmin')))}
+                style={{
+                  padding: '0.65rem 1.25rem',
+                  background: 'linear-gradient(135deg, #2563eb, #1e40af)',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  fontSize: '0.95rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  transition: 'all 0.3s',
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.transform = 'translateY(-2px)';
+                  e.target.style.boxShadow = '0 10px 25px rgba(37,99,235,0.3)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.transform = 'translateY(0)';
+                  e.target.style.boxShadow = 'none';
+                }}
+              >
+                <User size={16} />
+                {user.role === 'patient' ? 'My Profile' : 'Dashboard'}
+              </button>
+              <button
+                onClick={() => { logout(); navigate('/'); }}
+                style={{
+                  padding: '0.65rem 1rem',
+                  background: 'transparent',
+                  color: '#64748b',
+                  border: '1px solid #e2e8f0',
+                  borderRadius: '8px',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  fontSize: '0.9rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  transition: 'all 0.2s',
+                }}
+                onMouseEnter={(e) => e.target.style.background = '#f1f5f9'}
+                onMouseLeave={(e) => e.target.style.background = 'transparent'}
+              >
+                <LogOut size={14} />
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                onClick={onTherapistClick}
+                style={{
+                  padding: '0.75rem 1.5rem',
+                  background: 'linear-gradient(135deg, #7c3aed, #6d28d9)',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  fontSize: '0.95rem',
+                  transition: 'all 0.3s',
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.transform = 'translateY(-2px)';
+                  e.target.style.boxShadow = '0 10px 25px rgba(124,58,237,0.35)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.transform = 'translateY(0)';
+                  e.target.style.boxShadow = 'none';
+                }}
+              >
+                I'm a Therapist
+              </button>
+              <button
+                onClick={onSignupClick}
+                style={{
+                  padding: '0.75rem 1.5rem',
+                  background: 'linear-gradient(135deg, #2563eb, #1e40af)',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  fontSize: '0.95rem',
+                  transition: 'all 0.3s',
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.transform = 'translateY(-2px)';
+                  e.target.style.boxShadow = '0 10px 25px rgba(37,99,235,0.3)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.transform = 'translateY(0)';
+                  e.target.style.boxShadow = 'none';
+                }}
+              >
+                Start Free Trial
+              </button>
+            </>
+          )}
         </div>
       </div>
     </header>
