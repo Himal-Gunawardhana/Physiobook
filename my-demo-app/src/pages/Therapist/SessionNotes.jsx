@@ -24,11 +24,22 @@ export default function SessionNotes() {
     try {
       const bookingsData = await api.get('/bookings/my?limit=100');
       const bookingsList = Array.isArray(bookingsData) ? bookingsData : bookingsData?.rows ?? [];
-      setBookings(bookingsList);
+      
+      // Group by patient ID to show only one entry per patient
+      const patientMap = {};
+      bookingsList.forEach(booking => {
+        const pId = booking.patient_id;
+        if (pId && !patientMap[pId]) {
+          patientMap[pId] = booking;
+        }
+      });
+      const uniqueBookingsList = Object.values(patientMap);
+      
+      setBookings(uniqueBookingsList);
 
       // Auto-select first booking if available
-      if (bookingsList.length > 0 && !selectedBookingId) {
-        setSelectedBookingId(bookingsList[0].id);
+      if (uniqueBookingsList.length > 0 && !selectedBookingId) {
+        setSelectedBookingId(uniqueBookingsList[0].id);
       }
     } catch (err) {
       setError(err?.message || 'Failed to load bookings.');
