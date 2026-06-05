@@ -9,7 +9,6 @@ export default function PatientChat() {
   const { user } = useAuth();
   const [patients, setPatients] = useState([]);
   const [activeId, setActiveId] = useState(null);
-  const [activeConversationId, setActiveConversationId] = useState(null);
   const [input, setInput] = useState('');
   const [chats, setChats] = useState({});
   const [unreadMap, setUnreadMap] = useState({});
@@ -32,6 +31,7 @@ export default function PatientChat() {
         if (!patientMap[booking.patient_id]) {
           patientMap[booking.patient_id] = {
             id: booking.patient_id,
+            bookingId: booking.id,
             name: booking.patient_name || 'Unknown Patient',
             condition: booking.service_name || 'Service',
             lastMsg: booking.updated_at ? new Date(booking.updated_at).toLocaleDateString('en-LK') : 'No messages',
@@ -77,24 +77,20 @@ export default function PatientChat() {
     setUnreadMap(u => ({ ...u, [id]: 0 }));
   };
 
+  const active = patients.find(p => p.id === activeId);
+
   useEffect(() => {
-    if (!activeId || !user) return;
+    if (!activeId || !user || !active?.bookingId) return;
     
     let cancelled = false;
     
-    api.post('/communications/conversations', {
-      patientId: activeId,
-      therapistId: user.id
-    }).then(convo => {
-      if (cancelled) return;
-      setActiveConversationId(convo.id);
-      return api.get(`/communications/conversations/${convo.id}/messages`);
-    }).then(msgs => {
+    api.get(`/conversations/${active.bookingId}/messages`)
+    .then(msgs => {
       if (cancelled || !msgs) return;
       const formattedMsgs = msgs.map(m => ({
         id: m.id,
         from: m.sender_id === user.id ? 'therapist' : 'patient',
-        text: m.body,
+        text: m.content,
         time: new Date(m.created_at).toLocaleTimeString('en-LK', { hour: '2-digit', minute: '2-digit' }),
       }));
       setChats(prev => ({ ...prev, [activeId]: formattedMsgs }));
@@ -103,26 +99,24 @@ export default function PatientChat() {
     });
 
     return () => { cancelled = true; };
-  }, [activeId, user]);
+  }, [activeId, user, active?.bookingId]);
 
-  const active = patients.find(p => p.id === activeId);
   const msgs = chats[activeId] || [];
   const totalUnread = Object.values(unreadMap).reduce((a, b) => a + b, 0);
 
   const send = async () => {
-    if (!input.trim() || !activeId || !activeConversationId) return;
+    if (!input.trim() || !active?.bookingId) return;
 
     setSending(true);
     try {
-      const msg = await api.post(`/communications/conversations/${activeConversationId}/messages`, {
-        body: input.trim(),
-        messageType: 'text'
+      const msg = await api.post(`/conversations/${active.bookingId}/messages`, {
+        content: input.trim(),
       });
 
       const newMsg = {
         id: msg.id,
         from: 'therapist',
-        text: msg.body,
+        text: msg.content,
         time: new Date(msg.created_at).toLocaleTimeString('en-LK', { hour: '2-digit', minute: '2-digit' }),
       };
 
