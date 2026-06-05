@@ -2,9 +2,11 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Send, FileText, Loader, AlertCircle } from 'lucide-react';
 import api from '../../lib/api';
 import { useAuth } from '../../context/AuthContext';
+import { useLocation } from 'react-router-dom';
 
 export default function PatientChatDashboard() {
   const { user } = useAuth();
+  const location = useLocation();
   const [therapists, setTherapists] = useState([]);
   const [activeId, setActiveId] = useState(null); // therapist_id
   const [input, setInput] = useState('');
@@ -45,7 +47,11 @@ export default function PatientChatDashboard() {
       setTherapists(list);
 
       if (list.length > 0) {
-        setActiveId(list[0].id);
+        if (location.state?.therapistId && therapistMap[location.state.therapistId]) {
+          setActiveId(location.state.therapistId);
+        } else {
+          setActiveId(list[0].id);
+        }
       }
 
       const emptyChats = {};

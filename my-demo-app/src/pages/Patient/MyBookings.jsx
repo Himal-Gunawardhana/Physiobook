@@ -164,6 +164,10 @@ export default function MyBookings() {
                         <RefreshCw size={13} /> Ask Refund
                       </button>
                     )}
+                    <button onClick={() => navigate('/patient/chat', { state: { therapistId: b.therapist_id || b.clinic_id } })}
+                      style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', padding: '0.5rem 0.9rem', background: '#dbeafe', color: '#1e40af', border: 'none', borderRadius: 8, fontWeight: 600, fontSize: '0.82rem', cursor: 'pointer' }}>
+                      <MessageCircle size={13} /> Message
+                    </button>
                     {b.status === 'completed' && (
                       <button onClick={() => navigate('/book/feedback', { state: { bookingId: b.id } })}
                         style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', padding: '0.5rem 0.9rem', background: '#fef3c7', color: '#92400e', border: 'none', borderRadius: 8, fontWeight: 600, fontSize: '0.82rem', cursor: 'pointer' }}>
