@@ -49,13 +49,31 @@ export default function SessionNotes() {
       const bookingData = await api.get(`/bookings/${selectedBookingId}`);
       setBooking(bookingData);
 
-      // Fetch session notes for this booking
+      // Fetch session notes for this patient
       try {
-        const notesData = await api.get(`/session-notes?bookingId=${selectedBookingId}`);
-        const notesList = Array.isArray(notesData) ? notesData : notesData?.notes ?? [];
-        setNotes(notesList);
+        if (bookingData.patient_id) {
+          const notesData = await api.get(`/clinical-notes/${bookingData.patient_id}`);
+          const rawNotes = Array.isArray(notesData) ? notesData : notesData?.notes ?? [];
+          
+          // Map backend format to UI format
+          const notesList = rawNotes.map(n => {
+            // Note text might contain Title\n\nContent. Let's split it nicely if possible.
+            const parts = (n.note_text || '').split('\n\n');
+            const title = parts.length > 1 ? parts[0] : 'Clinical Note';
+            const content = parts.length > 1 ? parts.slice(1).join('\n\n') : n.note_text;
+            
+            return {
+              id: n.id,
+              title: title,
+              content: content,
+              date: new Date(n.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }),
+            };
+          });
+          setNotes(notesList);
+        } else {
+          setNotes([]);
+        }
       } catch (err) {
-        // If notes endpoint doesn't exist yet, start with empty array
         setNotes([]);
       }
 
@@ -88,10 +106,10 @@ export default function SessionNotes() {
     setSaving(true);
     try {
       // Post note to API
-      await api.post('/session-notes', {
+      const noteText = `${noteTitle.trim()}\n\n${noteContent.trim()}`;
+      const saved = await api.post(`/clinical-notes/${booking.patient_id}`, {
         bookingId: selectedBookingId,
-        title: noteTitle.trim(),
-        content: noteContent.trim(),
+        noteText: noteText,
       });
 
       // Add to local state
