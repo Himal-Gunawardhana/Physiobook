@@ -431,9 +431,9 @@ export default function BookingPage() {
             <span style={{ fontSize: '0.78rem', color: '#94a3b8' }}>Updates as you type</span>
           </div>
           <BookingPagePreview config={config} services={services} packages={packages} />
-          {slug && (
+          {clinicId && (
             <div style={{ marginTop: '1rem', padding: '0.875rem', background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 10, fontSize: '0.82rem', color: '#166534' }}>
-              ✅ Live at: <strong>physiobook.itselfcare.com/book?clinic={clinicId}</strong>
+              ✅ Live at: <strong><a href={`${window.location.origin}/book?clinic=${clinicId}`} target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'underline' }}>{window.location.host}/book?clinic={clinicId}</a></strong>
             </div>
           )}
         </div>

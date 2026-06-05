@@ -59,13 +59,35 @@ export default function ClinicLanding() {
       setLoading(true);
       setError('');
       try {
-        // Extract slug from URL: /book?clinic_slug → slug is the search string without ?
-        const slug = location.search?.replace('?', '').split('&')[0];
+        const searchParams = new URLSearchParams(location.search);
+        let clinicId = searchParams.get('clinic');
+        
+        // Extract slug from URL: /book?clinic_slug or /book?slug=clinic_slug
+        let slug = searchParams.get('slug');
+        if (!slug && !clinicId && location.search) {
+          const firstKey = location.search.replace('?', '').split('&')[0];
+          if (!firstKey.includes('=')) {
+            slug = firstKey;
+          }
+        }
 
         let data;
         if (slug) {
           // Load by slug
           data = await api.get(`/clinics/slug/${slug}`);
+        } else if (clinicId) {
+          // Load by ID
+          data = await api.get(`/clinics/${clinicId}`);
+          const [svcData, pkgData, pcData, therapistData] = await Promise.all([
+            api.get(`/clinics/${clinicId}/services`).catch(() => []),
+            api.get(`/clinics/${clinicId}/packages`).catch(() => []),
+            api.get(`/clinics/${clinicId}/portal-config`).catch(() => ({})),
+            api.get(`/clinics/therapists?clinicId=${clinicId}`).catch(() => []),
+          ]);
+          data.services = Array.isArray(svcData) ? svcData : svcData?.services ?? [];
+          data.packages = Array.isArray(pkgData) ? pkgData : pkgData?.packages ?? [];
+          data.portalConfig = pcData || {};
+          data.therapists = Array.isArray(therapistData) ? therapistData : therapistData?.data ?? therapistData?.therapists ?? [];
         } else {
           // Fallback: load first clinic
           const list = await api.get('/clinics?limit=1');
@@ -73,14 +95,16 @@ export default function ClinicLanding() {
           if (!firstId) throw new Error('No clinics available');
           data = await api.get(`/clinics/${firstId}`);
           // Also load services/packages separately for ID-based lookup
-          const [svcData, pkgData, pcData] = await Promise.all([
+          const [svcData, pkgData, pcData, therapistData] = await Promise.all([
             api.get(`/clinics/${firstId}/services`).catch(() => []),
             api.get(`/clinics/${firstId}/packages`).catch(() => []),
             api.get(`/clinics/${firstId}/portal-config`).catch(() => ({})),
+            api.get(`/clinics/therapists?clinicId=${firstId}`).catch(() => []),
           ]);
           data.services = Array.isArray(svcData) ? svcData : svcData?.services ?? [];
           data.packages = Array.isArray(pkgData) ? pkgData : pkgData?.packages ?? [];
           data.portalConfig = pcData || {};
+          data.therapists = Array.isArray(therapistData) ? therapistData : therapistData?.data ?? therapistData?.therapists ?? [];
         }
 
         if (cancelled) return;
