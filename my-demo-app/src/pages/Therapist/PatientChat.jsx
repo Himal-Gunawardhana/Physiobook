@@ -7,8 +7,8 @@ import { useAuth } from '../../context/AuthContext';
 export default function PatientChat() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [patients, setPatients] = useState([]);
-  const [activeId, setActiveId] = useState(null);
+  const [bookings, setBookingsList] = useState([]);
+  const [activeId, setActiveId] = useState(null); // booking_id
   const [input, setInput] = useState('');
   const [chats, setChats] = useState({});
   const [unreadMap, setUnreadMap] = useState({});
@@ -25,44 +25,38 @@ export default function PatientChat() {
       const bookingsData = await api.get('/bookings/my?limit=100');
       const bookings = Array.isArray(bookingsData) ? bookingsData : bookingsData?.rows ?? [];
 
-      // Extract unique patients from bookings
-      const patientMap = {};
+      // Group by booking ID
+      const bookingMap = {};
       bookings.forEach(booking => {
-        if (!patientMap[booking.patient_id]) {
-          patientMap[booking.patient_id] = {
-            id: booking.patient_id,
-            bookingId: booking.id,
-            name: booking.patient_name || 'Unknown Patient',
-            condition: booking.service_name || 'Service',
-            lastMsg: booking.updated_at ? new Date(booking.updated_at).toLocaleDateString('en-LK') : 'No messages',
-            avatar: (booking.patient_name || 'U').split(' ').map(n => n[0]).join('').toUpperCase(),
-            unread: 0,
-          };
-        }
+        bookingMap[booking.id] = {
+          id: booking.id,
+          name: booking.patient_name || 'Unknown Patient',
+          condition: booking.service_name || 'Service',
+          date: booking.booked_date ? new Date(booking.booked_date).toLocaleDateString('en-LK') : '',
+          lastMsg: booking.updated_at ? new Date(booking.updated_at).toLocaleDateString('en-LK') : 'No messages',
+          avatar: (booking.patient_name || 'U').split(' ').map(n => n[0]).join('').toUpperCase(),
+          unread: 0,
+        };
       });
 
-      const patientList = Object.values(patientMap);
-      setPatients(patientList);
+      const list = Object.values(bookingMap);
+      setBookingsList(list);
 
-      if (patientList.length > 0) {
-        setActiveId(patientList[0].id);
+      if (list.length > 0) {
+        setActiveId(list[0].id);
       }
 
       // Initialize empty chats
       const emptyChats = {};
-      patientList.forEach(p => {
-        emptyChats[p.id] = [];
+      const emptyUnread = {};
+      list.forEach(b => {
+        emptyChats[b.id] = [];
+        emptyUnread[b.id] = 0;
       });
       setChats(emptyChats);
-
-      // Initialize unread map
-      const emptyUnread = {};
-      patientList.forEach(p => {
-        emptyUnread[p.id] = 0;
-      });
       setUnreadMap(emptyUnread);
     } catch (err) {
-      setError(err?.message || 'Failed to load patients.');
+      setError(err?.message || 'Failed to load booking conversations.');
     } finally {
       setLoading(false);
     }
@@ -72,19 +66,19 @@ export default function PatientChat() {
     load();
   }, [load]);
 
-  const selectPatient = (id) => {
+  const selectChat = (id) => {
     setActiveId(id);
     setUnreadMap(u => ({ ...u, [id]: 0 }));
   };
 
-  const active = patients.find(p => p.id === activeId);
+  const active = bookings.find(b => b.id === activeId);
 
   useEffect(() => {
-    if (!activeId || !user || !active?.bookingId) return;
+    if (!activeId || !user) return;
     
     let cancelled = false;
     
-    api.get(`/conversations/${active.bookingId}/messages`)
+    api.get(`/conversations/${activeId}/messages`)
     .then(msgs => {
       if (cancelled || !msgs) return;
       const formattedMsgs = msgs.map(m => ({
@@ -99,17 +93,17 @@ export default function PatientChat() {
     });
 
     return () => { cancelled = true; };
-  }, [activeId, user, active?.bookingId]);
+  }, [activeId, user]);
 
   const msgs = chats[activeId] || [];
   const totalUnread = Object.values(unreadMap).reduce((a, b) => a + b, 0);
 
   const send = async () => {
-    if (!input.trim() || !active?.bookingId) return;
+    if (!input.trim() || !activeId) return;
 
     setSending(true);
     try {
-      const msg = await api.post(`/conversations/${active.bookingId}/messages`, {
+      const msg = await api.post(`/conversations/${activeId}/messages`, {
         content: input.trim(),
       });
 
@@ -137,7 +131,7 @@ export default function PatientChat() {
     return (
       <div className="animate-in" style={{ padding: '2rem', textAlign: 'center', color: '#64748b' }}>
         <Loader size={32} style={{ animation: 'spin 1s linear infinite', margin: '0 auto 1rem' }} />
-        Loading patient conversations...
+        Loading booking conversations...
       </div>
     );
   }
@@ -147,7 +141,7 @@ export default function PatientChat() {
       <div className="page-header">
         <div>
           <h1 className="page-title" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            Patient Chats & Records
+            Session Chats & Records
             {totalUnread > 0 && <span style={{ background: '#ef4444', color: '#fff', borderRadius: '50%', width: 24, height: 24, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.72rem', fontWeight: 800 }}>{totalUnread}</span>}
           </h1>
           <p className="page-subtitle">Communicate securely with your patients. Unread messages are highlighted.</p>
@@ -162,42 +156,41 @@ export default function PatientChat() {
       )}
 
       <div className="card" style={{ padding: 0, overflow: 'hidden', height: 'calc(100vh - 220px)', minHeight: 480, display: 'flex' }}>
-        {/* Patient list */}
-        <div style={{ width: 260, borderRight: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', flexShrink: 0 }}>
+        {/* Bookings list */}
+        <div style={{ width: 280, borderRight: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', flexShrink: 0 }}>
           <div style={{ padding: '0.875rem 1rem', borderBottom: '1px solid #e2e8f0' }}>
-            <input type="text" placeholder="Search patients…" className="form-input" style={{ fontSize: '0.85rem', padding: '0.5rem 0.875rem' }} />
+            <input type="text" placeholder="Search chats…" className="form-input" style={{ fontSize: '0.85rem', padding: '0.5rem 0.875rem' }} />
           </div>
           <div style={{ flex: 1, overflowY: 'auto' }}>
-            {patients.length === 0 ? (
+            {bookings.length === 0 ? (
               <div style={{ padding: '2rem 1rem', textAlign: 'center', color: '#94a3b8', fontSize: '0.85rem' }}>
                 <FileText size={32} style={{ opacity: 0.3, margin: '0 auto 0.5rem' }} />
-                <p>No patient conversations yet.</p>
+                <p>No conversations yet.</p>
               </div>
             ) : (
-              patients.map(p => (
+              bookings.map(b => (
                 <div
-                  key={p.id}
-                  onClick={() => selectPatient(p.id)}
+                  key={b.id}
+                  onClick={() => selectChat(b.id)}
                   style={{
                     display: 'flex',
                     gap: '0.75rem',
                     padding: '0.875rem 1rem',
                     cursor: 'pointer',
-                    background: activeId === p.id ? '#eff6ff' : 'white',
+                    background: activeId === b.id ? '#eff6ff' : 'white',
                     borderBottom: '1px solid #f1f5f9',
-                    borderLeft: activeId === p.id ? '3px solid #2563eb' : '3px solid transparent',
+                    borderLeft: activeId === b.id ? '3px solid #2563eb' : '3px solid transparent',
                   }}
                 >
                   <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#bfdbfe', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '0.78rem', color: '#1e40af', flexShrink: 0 }}>
-                    {p.avatar}
+                    {b.avatar}
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span style={{ fontWeight: 600, fontSize: '0.87rem' }}>{p.name}</span>
-                      {unreadMap[p.id] > 0 && <span style={{ background: '#ef4444', color: 'white', borderRadius: '50%', width: 18, height: 18, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.65rem', fontWeight: 800 }}>{unreadMap[p.id]}</span>}
+                      <span style={{ fontWeight: 600, fontSize: '0.87rem' }}>{b.name}</span>
+                      {unreadMap[b.id] > 0 && <span style={{ background: '#ef4444', color: 'white', borderRadius: '50%', width: 18, height: 18, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.65rem', fontWeight: 800 }}>{unreadMap[b.id]}</span>}
                     </div>
-                    <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '0.1rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.condition}</div>
-                    <div style={{ fontSize: '0.7rem', color: '#94a3b8', marginTop: '0.15rem' }}>{p.lastMsg}</div>
+                    <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '0.1rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{b.condition} • {b.date}</div>
                   </div>
                 </div>
               ))
@@ -274,7 +267,7 @@ export default function PatientChat() {
           <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8' }}>
             <div style={{ textAlign: 'center' }}>
               <FileText size={48} style={{ opacity: 0.2, margin: '0 auto 1rem' }} />
-              <p>Select a patient to start chatting</p>
+              <p>Select a booking to start chatting</p>
             </div>
           </div>
         )}

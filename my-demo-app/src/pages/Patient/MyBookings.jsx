@@ -164,7 +164,7 @@ export default function MyBookings() {
                         <RefreshCw size={13} /> Ask Refund
                       </button>
                     )}
-                    <button onClick={() => navigate('/patient/chat', { state: { therapistId: b.therapist_id || b.clinic_id } })}
+                    <button onClick={() => navigate('/patient/chat', { state: { bookingId: b.id } })}
                       style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', padding: '0.5rem 0.9rem', background: '#dbeafe', color: '#1e40af', border: 'none', borderRadius: 8, fontWeight: 600, fontSize: '0.82rem', cursor: 'pointer' }}>
                       <MessageCircle size={13} /> Message
                     </button>
