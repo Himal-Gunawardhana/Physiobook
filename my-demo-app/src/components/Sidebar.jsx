@@ -67,6 +67,20 @@ export default function Sidebar({ role, activeClinic, setActiveClinic, clinics, 
         ],
       },
     ];
+  } else if (role === 'patient') {
+    Icon = Activity;
+    brandColor = '#10b981';
+    navGroups = [
+      {
+        label: 'My Account',
+        items: [
+          { name: 'My Bookings',     path: '/patient',            icon: Calendar,      end: true },
+          { name: 'My Records',      path: '/patient/records',    icon: FileText },
+          { name: 'Therapist Chat',  path: '/patient/chat',       icon: MessageSquare },
+          { name: 'Profile Settings',path: '/patient/profile',    icon: Settings },
+        ],
+      },
+    ];
   }
 
   const close = () => { if (isSidebarOpen) setIsSidebarOpen(false); };

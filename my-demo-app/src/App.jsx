@@ -20,6 +20,9 @@ import BookingGate        from './pages/Patient/BookingGate';
 import BookingConfirmation from './pages/Patient/BookingConfirmation';
 import Feedback           from './pages/Patient/Feedback';
 import MyBookings         from './pages/Patient/MyBookings';
+import PatientRecords     from './pages/Patient/PatientRecords';
+import PatientChat        from './pages/Patient/PatientChatDashboard';
+import PatientProfile     from './pages/Patient/PatientProfile';
 
 // Clinic Admin
 import ClinicAdminDashboard  from './pages/ClinicAdmin/Dashboard';
@@ -267,6 +270,14 @@ export default function App() {
         <Route path="/book/confirmation" element={<BookingConfirmation />} />
         <Route path="/book/feedback"     element={<Feedback />} />
         <Route path="/book/my-bookings"  element={<MyBookings />} />
+
+        {/* Patient Dashboard */}
+        <Route path="/patient" element={<DashboardLayout role="patient" />}>
+          <Route index element={<MyBookings />} />
+          <Route path="records" element={<PatientRecords />} />
+          <Route path="chat" element={<PatientChat />} />
+          <Route path="profile" element={<PatientProfile />} />
+        </Route>
 
         {/* Clinic Admin */}
         <Route path="/clinic" element={<DashboardLayout role="clinic" />}>
