@@ -2,11 +2,14 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Send, Plus, FileText, Loader, AlertCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../lib/api';
+import { useAuth } from '../../context/AuthContext';
 
 export default function PatientChat() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [patients, setPatients] = useState([]);
   const [activeId, setActiveId] = useState(null);
+  const [activeConversationId, setActiveConversationId] = useState(null);
   const [input, setInput] = useState('');
   const [chats, setChats] = useState({});
   const [unreadMap, setUnreadMap] = useState({});
@@ -74,21 +77,53 @@ export default function PatientChat() {
     setUnreadMap(u => ({ ...u, [id]: 0 }));
   };
 
+  useEffect(() => {
+    if (!activeId || !user) return;
+    
+    let cancelled = false;
+    
+    api.post('/communications/conversations', {
+      patientId: activeId,
+      therapistId: user.id
+    }).then(convo => {
+      if (cancelled) return;
+      setActiveConversationId(convo.id);
+      return api.get(`/communications/conversations/${convo.id}/messages`);
+    }).then(msgs => {
+      if (cancelled || !msgs) return;
+      const formattedMsgs = msgs.map(m => ({
+        id: m.id,
+        from: m.sender_id === user.id ? 'therapist' : 'patient',
+        text: m.body,
+        time: new Date(m.created_at).toLocaleTimeString('en-LK', { hour: '2-digit', minute: '2-digit' }),
+      }));
+      setChats(prev => ({ ...prev, [activeId]: formattedMsgs }));
+    }).catch(err => {
+      if (!cancelled) console.error('Failed to load messages', err);
+    });
+
+    return () => { cancelled = true; };
+  }, [activeId, user]);
+
   const active = patients.find(p => p.id === activeId);
   const msgs = chats[activeId] || [];
   const totalUnread = Object.values(unreadMap).reduce((a, b) => a + b, 0);
 
   const send = async () => {
-    if (!input.trim() || !activeId) return;
+    if (!input.trim() || !activeId || !activeConversationId) return;
 
     setSending(true);
     try {
-      // For now, add message to local state (backend message API would be called here)
+      const msg = await api.post(`/communications/conversations/${activeConversationId}/messages`, {
+        body: input.trim(),
+        messageType: 'text'
+      });
+
       const newMsg = {
-        id: Date.now(),
+        id: msg.id,
         from: 'therapist',
-        text: input.trim(),
-        time: new Date().toLocaleTimeString('en-LK', { hour: '2-digit', minute: '2-digit' }),
+        text: msg.body,
+        time: new Date(msg.created_at).toLocaleTimeString('en-LK', { hour: '2-digit', minute: '2-digit' }),
       };
 
       setChats(prev => ({
