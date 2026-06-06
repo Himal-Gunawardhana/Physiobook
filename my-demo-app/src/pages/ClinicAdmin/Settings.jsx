@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Save, Bell, AlertCircle, Loader, Wifi, WifiOff, ShieldAlert, Trash2, Power, CheckCircle2, XCircle } from 'lucide-react';
+import { Save, Bell, AlertCircle, Loader, Wifi, WifiOff, ShieldAlert, Trash2, Power, CheckCircle2, XCircle, GitBranch, Plus, MapPin, Phone, Mail, Users, Package, Layers } from 'lucide-react';
 import api, { tokenStore } from '../../lib/api';
 
 export default function Settings() {
@@ -17,6 +17,15 @@ export default function Settings() {
   // Clinic status state
   const [clinicStatus, setClinicStatus] = useState('online');
   const [isActive, setIsActive] = useState(true);
+
+  // Branches state
+  const [branches, setBranches] = useState([]);
+  const [branchLoading, setBranchLoading] = useState(false);
+  const [showBranchForm, setShowBranchForm] = useState(false);
+  const [branchForm, setBranchForm] = useState({ name: '', email: '', phone: '', address: '', city: '' });
+  const [branchSaving, setBranchSaving] = useState(false);
+  const [branchError, setBranchError] = useState('');
+  const [branchSuccess, setBranchSuccess] = useState('');
 
   // Modal state
   const [modal, setModal] = useState(null); // 'offline' | 'deactivate' | 'delete'
@@ -49,6 +58,17 @@ export default function Settings() {
       }
     };
     loadSettings();
+
+    // Load branches
+    const loadBranches = async () => {
+      setBranchLoading(true);
+      try {
+        const data = await api.get('/clinics/mine/all');
+        setBranches(Array.isArray(data) ? data : []);
+      } catch (_) {}
+      finally { setBranchLoading(false); }
+    };
+    loadBranches();
   }, []);
 
   const save = async () => {
@@ -240,6 +260,114 @@ export default function Settings() {
             Taking your clinic offline will temporarily hide it from patients. Existing bookings are not affected. You can come back online at any time.
           </p>
         )}
+      </div>
+
+      {/* ── Branches ─────────────────────────────────────────── */}
+      <div className="card" style={{ marginTop: '1.5rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '0.75rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <div style={{ background: '#eff6ff', padding: '0.5rem', borderRadius: 8 }}><GitBranch size={18} color="#2563eb" /></div>
+            <div>
+              <h2 style={{ fontSize: '1rem', margin: 0 }}>Branches</h2>
+              <p style={{ fontSize: '0.78rem', color: '#64748b', margin: '2px 0 0' }}>Manage all clinic branches under your account.</p>
+            </div>
+          </div>
+          <button
+            onClick={() => { setShowBranchForm(v => !v); setBranchError(''); setBranchSuccess(''); }}
+            style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', padding: '0.45rem 1rem', background: '#2563eb', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: '0.82rem' }}
+          >
+            <Plus size={14} /> Add Branch
+          </button>
+        </div>
+
+        {/* Add Branch Form */}
+        {showBranchForm && (
+          <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 12, padding: '1.25rem', marginBottom: '1.25rem' }}>
+            <h3 style={{ fontSize: '0.95rem', margin: '0 0 1rem', color: '#1e293b' }}>New Branch Details</h3>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.75rem' }}>
+              {[{ key: 'name', label: 'Branch Name *', placeholder: 'e.g. Colombo Branch' },
+                { key: 'email', label: 'Contact Email *', placeholder: 'branch@clinic.com', type: 'email' },
+                { key: 'phone', label: 'Phone', placeholder: '+94 77 000 0000' },
+                { key: 'address', label: 'Address', placeholder: '123 Main St' },
+                { key: 'city', label: 'City', placeholder: 'Colombo' },
+              ].map(({ key, label, placeholder, type }) => (
+                <div key={key}>
+                  <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: '#475569', marginBottom: '0.3rem' }}>{label}</label>
+                  <input
+                    type={type || 'text'}
+                    value={branchForm[key]}
+                    onChange={e => setBranchForm(f => ({ ...f, [key]: e.target.value }))}
+                    placeholder={placeholder}
+                    style={{ width: '100%', padding: '0.55rem 0.75rem', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: '0.85rem', boxSizing: 'border-box' }}
+                  />
+                </div>
+              ))}
+            </div>
+            {branchError && <p style={{ color: '#dc2626', fontSize: '0.8rem', marginTop: '0.75rem' }}>{branchError}</p>}
+            {branchSuccess && <p style={{ color: '#16a34a', fontSize: '0.8rem', marginTop: '0.75rem' }}>{branchSuccess}</p>}
+            <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1rem', justifyContent: 'flex-end' }}>
+              <button onClick={() => setShowBranchForm(false)} style={{ padding: '0.45rem 1rem', borderRadius: 8, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontSize: '0.85rem' }}>Cancel</button>
+              <button
+                disabled={branchSaving}
+                onClick={async () => {
+                  if (!branchForm.name || !branchForm.email) { setBranchError('Branch name and email are required.'); return; }
+                  setBranchSaving(true); setBranchError(''); setBranchSuccess('');
+                  try {
+                    const newBranch = await api.post('/clinics', branchForm);
+                    setBranches(b => [...b, newBranch]);
+                    setBranchForm({ name: '', email: '', phone: '', address: '', city: '' });
+                    setBranchSuccess('Branch created successfully!');
+                    setShowBranchForm(false);
+                  } catch (err) {
+                    setBranchError(err?.message || 'Failed to create branch.');
+                  } finally { setBranchSaving(false); }
+                }}
+                style={{ padding: '0.45rem 1rem', borderRadius: 8, border: 'none', background: '#2563eb', color: '#fff', fontWeight: 600, cursor: 'pointer', fontSize: '0.85rem', opacity: branchSaving ? 0.7 : 1 }}
+              >
+                {branchSaving ? 'Creating...' : 'Create Branch'}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Branch List */}
+        {branchLoading ? (
+          <div style={{ textAlign: 'center', padding: '2rem', color: '#94a3b8' }}><Loader size={22} style={{ animation: 'spin 1s linear infinite' }} /></div>
+        ) : branches.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '2.5rem', color: '#94a3b8' }}>
+            <GitBranch size={32} style={{ marginBottom: '0.5rem', opacity: 0.4 }} />
+            <p style={{ margin: 0, fontSize: '0.9rem' }}>No branches yet. Add your first branch above.</p>
+          </div>
+        ) : (
+          <div style={{ display: 'grid', gap: '0.75rem' }}>
+            {branches.map((b, i) => (
+              <div key={b.id} style={{ border: '1px solid #e2e8f0', borderRadius: 12, padding: '1rem 1.25rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '0.75rem', background: i === 0 ? '#f0f9ff' : '#fff' }}>
+                <div style={{ flex: 1, minWidth: 180 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.35rem' }}>
+                    <span style={{ fontWeight: 700, fontSize: '0.95rem', color: '#1e293b' }}>{b.name}</span>
+                    {i === 0 && <span style={{ fontSize: '0.68rem', fontWeight: 700, background: '#2563eb', color: '#fff', borderRadius: 6, padding: '0.1rem 0.45rem' }}>PRIMARY</span>}
+                    <span style={{ fontSize: '0.72rem', fontWeight: 600, background: b.is_active ? '#dcfce7' : '#fef2f2', color: b.is_active ? '#16a34a' : '#dc2626', borderRadius: 6, padding: '0.1rem 0.45rem' }}>
+                      {b.clinic_status === 'online' ? '● Online' : '○ Offline'}
+                    </span>
+                  </div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', fontSize: '0.8rem', color: '#64748b' }}>
+                    {b.city && <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}><MapPin size={12} />{b.city}</span>}
+                    {b.phone && <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}><Phone size={12} />{b.phone}</span>}
+                    {b.email && <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}><Mail size={12} />{b.email}</span>}
+                  </div>
+                </div>
+                <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                  <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.78rem', color: '#475569', background: '#f1f5f9', borderRadius: 6, padding: '0.25rem 0.6rem' }}><Users size={11} />{b.team_count ?? 0} staff</span>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.78rem', color: '#475569', background: '#f1f5f9', borderRadius: 6, padding: '0.25rem 0.6rem' }}><Layers size={11} />{b.service_count ?? 0} services</span>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.78rem', color: '#475569', background: '#f1f5f9', borderRadius: 6, padding: '0.25rem 0.6rem' }}><Package size={11} />{b.package_count ?? 0} packages</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+        {branchSuccess && !showBranchForm && <p style={{ color: '#16a34a', fontSize: '0.82rem', marginTop: '0.75rem', textAlign: 'center' }}>{branchSuccess}</p>}
       </div>
 
       {/* ── Danger Zone ───────────────────────────────────────────── */}
