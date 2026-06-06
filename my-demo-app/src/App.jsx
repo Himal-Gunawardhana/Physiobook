@@ -151,7 +151,13 @@ function DashboardLayout({ role }) {
         
         if (!cancelled) {
           setClinics(list);
-          if (list.length > 0) setActiveClinic(list[0]);
+          const savedId = localStorage.getItem('activeClinicId');
+          const savedClinic = list.find(c => c.id === savedId);
+          if (savedClinic) {
+            setActiveClinic(savedClinic);
+          } else if (list.length > 0) {
+            setActiveClinic(list[0]);
+          }
         }
       } catch (err) { 
         console.error('[App] Failed to load clinics:', err.message);

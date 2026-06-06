@@ -116,7 +116,11 @@ export default function Sidebar({ role, activeClinic, setActiveClinic, clinics, 
             value={activeClinic.id}
             onChange={(e) => {
               const c = clinics?.find(c => c.id === e.target.value);
-              if (c) setActiveClinic(c);
+              if (c) {
+                localStorage.setItem('activeClinicId', c.id);
+                setActiveClinic(c);
+                window.location.reload();
+              }
             }}
           >
             {clinics?.map(c => (
