@@ -87,7 +87,7 @@ export default function ClinicLanding() {
           data.services = Array.isArray(svcData) ? svcData : svcData?.services ?? [];
           data.packages = Array.isArray(pkgData) ? pkgData : pkgData?.packages ?? [];
           data.portalConfig = pcData || {};
-          data.therapists = Array.isArray(therapistData) ? therapistData : therapistData?.data ?? therapistData?.therapists ?? [];
+          data.therapists = Array.isArray(therapistData) ? therapistData : therapistData?.rows ?? therapistData?.data ?? therapistData?.therapists ?? [];
         } else {
           // Fallback: load first clinic
           const list = await api.get('/clinics?limit=1');
@@ -104,7 +104,7 @@ export default function ClinicLanding() {
           data.services = Array.isArray(svcData) ? svcData : svcData?.services ?? [];
           data.packages = Array.isArray(pkgData) ? pkgData : pkgData?.packages ?? [];
           data.portalConfig = pcData || {};
-          data.therapists = Array.isArray(therapistData) ? therapistData : therapistData?.data ?? therapistData?.therapists ?? [];
+          data.therapists = Array.isArray(therapistData) ? therapistData : therapistData?.rows ?? therapistData?.data ?? therapistData?.therapists ?? [];
         }
 
         if (cancelled) return;
