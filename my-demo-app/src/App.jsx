@@ -145,7 +145,7 @@ function DashboardLayout({ role }) {
 
     (async () => {
       try {
-        const data = await api.get('/clinics/mine');
+        const data = await api.get('/clinics/mine/all');
         const list = Array.isArray(data) ? data : data?.clinics ?? [];
         console.log('[App] Loaded clinics:', list.length);
         
