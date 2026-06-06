@@ -80,7 +80,8 @@ async function apiFetch(endpoint, options = {}, retry = true) {
     }
 
     if (refreshRes.ok) {
-      const json = await refreshRes.json();
+      const text = await refreshRes.text();
+      const json = text ? JSON.parse(text) : {};
       // Backend returns { success:true, data: { accessToken } }
       const newToken = json.data?.accessToken || json.accessToken;
       if (newToken) {
@@ -102,7 +103,18 @@ async function apiFetch(endpoint, options = {}, retry = true) {
     }
   }
 
-  const json = await res.json();
+  let json = {};
+  if (res.status !== 204) {
+    try {
+      const text = await res.text();
+      if (text) {
+        json = JSON.parse(text);
+      }
+    } catch (e) {
+      console.warn(`[API] Failed to parse JSON response for ${endpoint}`, e);
+    }
+  }
+
   if (!res.ok) {
     console.error(`[API] ${endpoint} returned ${res.status}:`, json);
     // Throw the backend error object so callers can inspect it

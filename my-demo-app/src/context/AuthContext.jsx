@@ -39,7 +39,8 @@ export function AuthProvider({ children }) {
           throw new Error(`refresh_failed_${refreshRes.status}`);
         }
 
-        const json = await refreshRes.json();
+        const text = await refreshRes.text();
+        const json = text ? JSON.parse(text) : {};
         const token = json.data?.accessToken || json.accessToken;
         
         if (!token) {
