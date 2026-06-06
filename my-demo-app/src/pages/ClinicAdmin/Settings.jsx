@@ -40,7 +40,8 @@ export default function Settings() {
     const loadSettings = async () => {
       setLoading(true);
       try {
-        const data = await api.get('/clinics/settings');
+        const q = activeClinic?.id ? `?clinic_id=${activeClinic.id}` : '';
+        const data = await api.get(`/clinics/settings${q}`);
         if (data.notifications) {
           setNotifications({
             bookingEmail: data.notifications.booking_email !== false,
@@ -69,12 +70,13 @@ export default function Settings() {
       finally { setBranchLoading(false); }
     };
     loadBranches();
-  }, []);
+  }, [activeClinic?.id]);
 
   const save = async () => {
     setSaving(true);
     try {
       await api.put('/clinics/settings', {
+        clinicId: activeClinic?.id,
         notifications: {
           booking_email: notifications.bookingEmail,
           sms_reminder: notifications.smsReminder,
@@ -110,7 +112,7 @@ export default function Settings() {
     // Going online - no confirmation needed
     try {
       setModalLoading(true);
-      await api.put('/clinics/settings/online-status', { status: 'online' });
+      await api.put('/clinics/settings/online-status', { status: 'online', clinicId: activeClinic?.id });
       setClinicStatus('online');
       setModalLoading(false);
     } catch (err) {
@@ -123,7 +125,7 @@ export default function Settings() {
     setModalError('');
     setModalLoading(true);
     try {
-      await api.put('/clinics/settings/online-status', { status: 'offline', reason: modalReason || 'Temporarily closed' });
+      await api.put('/clinics/settings/online-status', { status: 'offline', reason: modalReason || 'Temporarily closed', clinicId: activeClinic?.id });
       setClinicStatus('offline');
       closeModal();
     } catch (err) {
@@ -138,7 +140,7 @@ export default function Settings() {
     setModalError('');
     setModalLoading(true);
     try {
-      await api.put('/clinics/settings/deactivate', { password: modalPassword, reason: modalReason || 'Deactivated by owner' });
+      await api.put('/clinics/settings/deactivate', { password: modalPassword, reason: modalReason || 'Deactivated by owner', clinicId: activeClinic?.id });
       setIsActive(false);
       setClinicStatus('offline');
       closeModal();
@@ -162,7 +164,7 @@ export default function Settings() {
         method: 'DELETE',
         headers,
         credentials: 'include',
-        body: JSON.stringify({ password: modalPassword, reason: modalReason || 'Account permanently deleted by owner' }),
+        body: JSON.stringify({ password: modalPassword, clinicId: activeClinic?.id, reason: modalReason || 'Account permanently deleted by owner' }),
       });
       if (!res.ok) {
         const json = await res.json();

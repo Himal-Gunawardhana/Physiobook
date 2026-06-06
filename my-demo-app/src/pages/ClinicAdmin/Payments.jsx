@@ -3,6 +3,7 @@ import {
   DollarSign, RefreshCcw, CheckCircle, Clock, XCircle,
   Search, Download, ChevronDown, AlertTriangle, CreditCard, Loader, AlertCircle
 } from 'lucide-react';
+import { useOutletContext } from 'react-router-dom';
 import api from '../../lib/api';
 
 const STATUS_MAP = {
@@ -79,19 +80,22 @@ export default function Payments() {
   const [markingPaid,  setMarkingPaid]   = useState(null);
   const [toast,        setToast]         = useState(null);
 
+  const { activeClinic } = useOutletContext();
+
   const showToast = (msg) => { setToast(msg); setTimeout(() => setToast(null), 3000); };
 
   const load = useCallback(async () => {
     setLoading(true); setError('');
     try {
-      const data = await api.get('/payments?limit=100');
+      const q = activeClinic?.id ? `&clinic_id=${activeClinic.id}` : '';
+      const data = await api.get(`/payments?limit=100${q}`);
       setTxns(Array.isArray(data) ? data : data?.payments ?? data?.transactions ?? []);
     } catch (err) {
       setError(err?.message || 'Failed to load payments.');
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [activeClinic?.id]);
 
   useEffect(() => { load(); }, [load]);
 

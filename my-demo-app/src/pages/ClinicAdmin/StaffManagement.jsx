@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useOutletContext } from 'react-router-dom';
 import {
   UserPlus, X, Star, Calendar, Loader, AlertCircle,
   RefreshCw, Search, Mail, CheckCircle, UserCheck, Clock, Send, Download
@@ -82,6 +83,7 @@ export default function StaffManagement() {
   const [toast,        setToast]        = useState(null);
   const [importModal,  setImportModal]  = useState(null); // { staffId, clinicId, therapistUserId, therapistName, profileAvailability }
   const [clinicId,     setClinicId]     = useState(null);
+  const { activeClinic } = useOutletContext();
 
   // Onboarding wizard
   const [wizardOpen,   setWizardOpen]   = useState(false);
@@ -110,7 +112,8 @@ export default function StaffManagement() {
   const load = useCallback(async () => {
     setLoading(true); setError('');
     try {
-      const data = await api.get('/staff');
+      const q = activeClinic?.id ? `?clinic_id=${activeClinic.id}` : '';
+      const data = await api.get(`/staff${q}`);
       setStaff(Array.isArray(data) ? data : data?.staff ?? []);
       
       // Also fetch clinic info to get clinicId
