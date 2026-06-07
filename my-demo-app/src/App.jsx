@@ -275,8 +275,6 @@ export default function App() {
         <Route path="/book/checkout"     element={<Checkout />} />
         <Route path="/book/confirmation" element={<BookingConfirmation />} />
         <Route path="/book/feedback"     element={<Feedback />} />
-        <Route path="/book/my-bookings"  element={<MyBookings />} />
-
         {/* Patient Dashboard */}
         <Route path="/patient" element={<DashboardLayout role="patient" />}>
           <Route index element={<MyBookings />} />

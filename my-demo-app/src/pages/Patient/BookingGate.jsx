@@ -49,7 +49,7 @@ export default function BookingGate() {
       } else if (nextState?.returnTo) {
         setTimeout(() => navigate(nextState.returnTo, { state: nextState.bookingState || nextState }), 1000);
       } else {
-        setTimeout(() => navigate('/book/my-bookings', { state: nextState }), 1000);
+        setTimeout(() => navigate('/patient', { state: nextState }), 1000);
       }
     } catch (err) {
       setError(err?.error?.message || err?.message || 'Something went wrong. Please try again.');

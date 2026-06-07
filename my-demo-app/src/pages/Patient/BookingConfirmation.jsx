@@ -104,7 +104,7 @@ export default function BookingConfirmation() {
 
         {/* Actions */}
         <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-          <button onClick={() => navigate('/book/my-bookings')} className="btn-primary"
+          <button onClick={() => navigate('/patient')} className="btn-primary"
             style={{ flex: 1, justifyContent: 'center', padding: '0.85rem', background: primaryColor }}>
             <Calendar size={15} /> View My Bookings <ArrowRight size={14} />
           </button>

@@ -94,7 +94,7 @@ export default function Login() {
         } else if (location.state?.returnTo) {
           navigate(location.state.returnTo, { state: location.state.bookingState || location.state });
         } else if (backendRole === 'patient') {
-          navigate('/book/my-bookings');
+          navigate('/patient');
         } else {
           navigate(dest);
         }
@@ -148,7 +148,7 @@ export default function Login() {
         } else if (location.state?.returnTo) {
           navigate(location.state.returnTo, { state: location.state.bookingState || location.state });
         } else if (backendRole === 'patient') {
-          navigate('/book/my-bookings');
+          navigate('/patient');
         } else {
           navigate(dest);
         }

@@ -79,7 +79,7 @@ export default function Feedback() {
             <div style={{ fontSize: '0.78rem', color: '#5b21b6', marginTop: '0.2rem' }}>{booking?.therapist_first_name || 'Therapist'}</div>
           </div>
         </div>
-        <button onClick={() => navigate('/book/my-bookings')} style={{ display: 'block', width: '100%', marginTop: '1.5rem', padding: '0.9rem', background: '#2563eb', color: '#fff', border: 'none', borderRadius: 12, fontWeight: 700, cursor: 'pointer', fontSize: '0.95rem' }}>
+        <button onClick={() => navigate('/patient')} style={{ display: 'block', width: '100%', marginTop: '1.5rem', padding: '0.9rem', background: '#2563eb', color: '#fff', border: 'none', borderRadius: 12, fontWeight: 700, cursor: 'pointer', fontSize: '0.95rem' }}>
           Back to My Bookings
         </button>
       </div>
@@ -106,7 +106,7 @@ export default function Feedback() {
           <AlertCircle size={48} color="#ef4444" style={{ marginBottom: '1rem' }} />
           <h2 style={{ margin: 0, color: '#0f172a', fontWeight: 800 }}>Unable to Load Feedback</h2>
           <p style={{ color: '#64748b', margin: '0.5rem 0 1.5rem' }}>{error}</p>
-          <button onClick={() => navigate('/book/my-bookings')} style={{ width: '100%', padding: '0.9rem', background: '#2563eb', color: '#fff', border: 'none', borderRadius: 12, fontWeight: 700, cursor: 'pointer', fontSize: '0.95rem' }}>
+          <button onClick={() => navigate('/patient')} style={{ width: '100%', padding: '0.9rem', background: '#2563eb', color: '#fff', border: 'none', borderRadius: 12, fontWeight: 700, cursor: 'pointer', fontSize: '0.95rem' }}>
             Back to My Bookings
           </button>
         </div>

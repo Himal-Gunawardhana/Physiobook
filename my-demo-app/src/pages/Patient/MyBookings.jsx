@@ -100,7 +100,7 @@ export default function MyBookings() {
     return (
       <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: '1rem' }}>
         <AlertCircle size={40} color="#ef4444" />
-        <p style={{ color: '#64748b' }}>Please <button onClick={() => navigate('/book/register', { state: { returnTo: '/book/my-bookings' } })} style={{ color: '#2563eb', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 700 }}>sign in or register</button> to view your bookings.</p>
+        <p style={{ color: '#64748b' }}>Please <button onClick={() => navigate('/book/register', { state: { returnTo: '/patient' } })} style={{ color: '#2563eb', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 700 }}>sign in or register</button> to view your bookings.</p>
       </div>
     );
   }
