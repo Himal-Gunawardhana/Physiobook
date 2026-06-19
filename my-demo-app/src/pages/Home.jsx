@@ -92,7 +92,7 @@ function AnimatedBackground() {
 }
 
 /* ── Navigation Header ──────────────────────────────────── */
-function Header({ onSignupClick, onTherapistClick }) {
+function Header({ onLoginClick }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { user, logout } = useAuth();
   const navigate = useNavigate();
@@ -211,31 +211,7 @@ function Header({ onSignupClick, onTherapistClick }) {
           ) : (
             <>
               <button
-                onClick={onTherapistClick}
-                style={{
-                  padding: '0.75rem 1.5rem',
-                  background: 'linear-gradient(135deg, #7c3aed, #6d28d9)',
-                  color: '#fff',
-                  border: 'none',
-                  borderRadius: '8px',
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                  fontSize: '0.95rem',
-                  transition: 'all 0.3s',
-                }}
-                onMouseEnter={(e) => {
-                  e.target.style.transform = 'translateY(-2px)';
-                  e.target.style.boxShadow = '0 10px 25px rgba(124,58,237,0.35)';
-                }}
-                onMouseLeave={(e) => {
-                  e.target.style.transform = 'translateY(0)';
-                  e.target.style.boxShadow = 'none';
-                }}
-              >
-                I'm a Therapist
-              </button>
-              <button
-                onClick={onSignupClick}
+                onClick={onLoginClick}
                 style={{
                   padding: '0.75rem 1.5rem',
                   background: 'linear-gradient(135deg, #2563eb, #1e40af)',
@@ -256,7 +232,7 @@ function Header({ onSignupClick, onTherapistClick }) {
                   e.target.style.boxShadow = 'none';
                 }}
               >
-                Start Free Trial
+                Clinic Login
               </button>
             </>
           )}
@@ -267,7 +243,7 @@ function Header({ onSignupClick, onTherapistClick }) {
 }
 
 /* ── Hero Section ───────────────────────────────────────── */
-function Hero({ onSignupClick, onLoginClick, onTherapistClick }) {
+function Hero({ onSignupClick, onLoginClick }) {
   return (
     <section
       style={{
@@ -305,7 +281,7 @@ function Hero({ onSignupClick, onLoginClick, onTherapistClick }) {
             marginBottom: '2rem',
           }}
         >
-          🚀 For Physiotherapy Clinics
+          For Physiotherapy Clinics
         </div>
 
         {/* Main Headline */}
@@ -373,7 +349,7 @@ function Hero({ onSignupClick, onLoginClick, onTherapistClick }) {
               e.target.style.boxShadow = 'none';
             }}
           >
-            Start Your Free Trial <ArrowRight size={20} />
+            Register Clinic <ArrowRight size={20} />
           </button>
 
           <button
@@ -400,40 +376,11 @@ function Hero({ onSignupClick, onLoginClick, onTherapistClick }) {
           </button>
         </div>
 
-        {/* Therapist CTA */}
-        <div
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '0.75rem',
-            background: 'linear-gradient(135deg, rgba(124,58,237,0.08), rgba(109,40,217,0.12))',
-            border: '1.5px solid rgba(124,58,237,0.3)',
-            borderRadius: '12px',
-            padding: '0.85rem 1.75rem',
-            marginBottom: '2rem',
-            cursor: 'pointer',
-            transition: 'all 0.3s',
-          }}
-          onClick={onTherapistClick}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.background = 'linear-gradient(135deg, rgba(124,58,237,0.15), rgba(109,40,217,0.2))';
-            e.currentTarget.style.transform = 'translateY(-2px)';
-            e.currentTarget.style.boxShadow = '0 8px 24px rgba(124,58,237,0.2)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.background = 'linear-gradient(135deg, rgba(124,58,237,0.08), rgba(109,40,217,0.12))';
-            e.currentTarget.style.transform = 'translateY(0)';
-            e.currentTarget.style.boxShadow = 'none';
-          }}
-        >
-          <span style={{ fontSize: '1.25rem' }}>🩺</span>
-          <span style={{ color: '#6d28d9', fontWeight: 700, fontSize: '0.95rem' }}>Are you a Therapist?</span>
-          <span style={{ color: '#7c3aed', fontSize: '0.9rem', fontWeight: 500 }}>Login or Register →</span>
-        </div>
+
 
         {/* Trust Indicator */}
         <p style={{ color: '#94a3b8', fontSize: '0.9rem' }}>
-          ✅ No credit card required • 1 month free trial • Cancel anytime
+          No credit card required • 1 month free trial • Cancel anytime
         </p>
       </div>
     </section>
@@ -657,196 +604,142 @@ function HowItWorks() {
 }
 
 /* ── Pricing Section ────────────────────────────────────── */
-function PricingSection({ onSignupClick }) {
+function PricingSection() {
   return (
     <section
       id="pricing"
       style={{
-        padding: '5rem 2rem',
-        maxWidth: '1200px',
-        margin: '0 auto',
+        padding: '6rem 2rem',
+        background: 'linear-gradient(to bottom, #f8fafc, #eff6ff)',
       }}
     >
-      <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
-        <h2
-          style={{
-            fontSize: '2.5rem',
-            fontWeight: 900,
-            color: '#0f172a',
-            marginBottom: '1rem',
-          }}
-        >
-          Simple, Transparent Pricing
-        </h2>
-        <p style={{ fontSize: '1.1rem', color: '#64748b', maxWidth: '600px', margin: '0 auto' }}>
-          Everything you need to run your clinic. Start with a free 1-month trial—no credit card required.
-        </p>
-      </div>
-
-      <div
-        style={{
-          maxWidth: '600px',
-          margin: '0 auto',
-        }}
-      >
-        {/* Free Trial Card */}
-        <div
-          style={{
-            background: 'linear-gradient(135deg, #dbeafe, #f0f9ff)',
-            border: '2px solid #2563eb',
-            borderRadius: '16px',
-            padding: '3rem 2rem',
-            textAlign: 'center',
-            marginBottom: '2rem',
-          }}
-        >
-          <div
+      <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+        <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
+          <h2
             style={{
-              display: 'inline-block',
-              background: '#2563eb',
-              color: '#fff',
-              padding: '0.5rem 1rem',
-              borderRadius: '20px',
-              fontSize: '0.875rem',
-              fontWeight: 700,
-              marginBottom: '1.5rem',
-            }}
-          >
-            🎉 LIMITED TIME OFFER
-          </div>
-          <h3
-            style={{
-              fontSize: '1.75rem',
-              fontWeight: 800,
+              fontSize: '2.5rem',
+              fontWeight: 900,
               color: '#0f172a',
-              marginBottom: '0.5rem',
+              marginBottom: '1rem',
             }}
           >
-            1 Month Free Trial
-          </h3>
-          <p style={{ color: '#64748b', marginBottom: '2rem', fontSize: '1rem' }}>
-            Full access to all features. No commitment. Cancel anytime.
+            Pricing for Your Clinic
+          </h2>
+          <p style={{ fontSize: '1.15rem', color: '#64748b', maxWidth: '650px', margin: '0 auto', lineHeight: 1.6 }}>
+            Every clinic is unique. We provide tailored plans that fit perfectly with your size, requirements, and growth goals.
           </p>
-
-          <button
-            onClick={onSignupClick}
-            style={{
-              width: '100%',
-              padding: '1rem',
-              background: 'linear-gradient(135deg, #2563eb, #1e40af)',
-              color: '#fff',
-              border: 'none',
-              borderRadius: '10px',
-              fontWeight: 700,
-              fontSize: '1.05rem',
-              cursor: 'pointer',
-              transition: 'all 0.3s',
-            }}
-            onMouseEnter={(e) => {
-              e.target.style.transform = 'translateY(-4px)';
-              e.target.style.boxShadow = '0 15px 35px rgba(37,99,235,0.4)';
-            }}
-            onMouseLeave={(e) => {
-              e.target.style.transform = 'translateY(0)';
-              e.target.style.boxShadow = 'none';
-            }}
-          >
-            Start Free Trial
-          </button>
         </div>
 
-        {/* Pricing Card */}
         <div
           style={{
-            background: '#fff',
+            maxWidth: '750px',
+            margin: '0 auto',
+            background: 'rgba(255, 255, 255, 0.8)',
+            backdropFilter: 'blur(16px)',
             border: '1px solid #e2e8f0',
-            borderRadius: '16px',
-            padding: '3rem 2rem',
+            borderRadius: '24px',
+            padding: '4rem 3rem',
             textAlign: 'center',
+            boxShadow: '0 20px 40px -15px rgba(0,0,0,0.05)',
+            position: 'relative',
+            overflow: 'hidden',
           }}
         >
-          <h3
-            style={{
-              fontSize: '1.5rem',
-              fontWeight: 800,
-              color: '#0f172a',
-              marginBottom: '0.5rem',
-            }}
-          >
-            After Free Trial
-          </h3>
+          {/* Decorative Background Elements */}
+          <div style={{ position: 'absolute', top: '-50px', left: '-50px', width: '150px', height: '150px', background: '#dbeafe', borderRadius: '50%', filter: 'blur(50px)', zIndex: 0 }}></div>
+          <div style={{ position: 'absolute', bottom: '-50px', right: '-50px', width: '200px', height: '200px', background: '#e0e7ff', borderRadius: '50%', filter: 'blur(60px)', zIndex: 0 }}></div>
 
-          <div
-            style={{
-              fontSize: '3.5rem',
-              fontWeight: 900,
-              color: '#2563eb',
-              marginBottom: '0.5rem',
-              marginTop: '1.5rem',
-            }}
-          >
-            LKR 15,000<span style={{ fontSize: '1.25rem', color: '#64748b' }}>/month</span>
-          </div>
+          <div style={{ position: 'relative', zIndex: 10 }}>
+            <div
+              style={{
+                width: '80px',
+                height: '80px',
+                margin: '0 auto 2rem',
+                background: 'linear-gradient(135deg, #2563eb, #1e40af)',
+                borderRadius: '20px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#fff',
+                transform: 'rotate(-5deg)',
+                boxShadow: '0 10px 25px rgba(37,99,235,0.3)',
+              }}
+            >
+              <MessageSquare size={36} style={{ transform: 'rotate(5deg)' }} />
+            </div>
 
-          <p style={{ color: '#64748b', marginBottom: '2rem', fontSize: '0.95rem' }}>
-            Billed monthly. Cancel anytime.
-          </p>
+            <h3
+              style={{
+                fontSize: '2rem',
+                fontWeight: 800,
+                color: '#0f172a',
+                marginBottom: '1rem',
+              }}
+            >
+              Get Your Quote
+            </h3>
 
-          <div
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '1rem',
-              marginBottom: '2rem',
-            }}
-          >
-            {[
-              'Unlimited staff members',
-              'Unlimited patient bookings',
-              'Multi-branch management',
-              'Advanced analytics',
-              'Email & priority support',
-              'Secure HIPAA-compliant notes',
-            ].map((feature, idx) => (
-              <div
-                key={idx}
+            <p style={{ color: '#475569', fontSize: '1.1rem', marginBottom: '3rem', maxWidth: '500px', margin: '0 auto' }}>
+              Contact our sales team today. We'll analyze your needs and provide a transparent, competitive pricing structure.
+            </p>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', alignItems: 'center' }}>
+              <a
+                href="mailto:contact@physiobook.com"
                 style={{
-                  display: 'flex',
+                  display: 'inline-flex',
                   alignItems: 'center',
                   gap: '0.75rem',
-                  color: '#374151',
-                  fontSize: '0.95rem',
+                  fontSize: '1.15rem',
+                  color: '#2563eb',
+                  fontWeight: 600,
+                  textDecoration: 'none',
+                  padding: '1rem 2rem',
+                  background: '#eff6ff',
+                  borderRadius: '12px',
+                  transition: 'all 0.2s',
+                  width: '100%',
+                  maxWidth: '400px',
+                  justifyContent: 'center'
                 }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = '#dbeafe'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = '#eff6ff'; e.currentTarget.style.transform = 'translateY(0)'; }}
               >
-                <CheckCircle size={20} color="#10b981" />
-                {feature}
-              </div>
-            ))}
-          </div>
+                <div style={{ background: '#fff', padding: '0.5rem', borderRadius: '8px', display: 'flex' }}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="4" width="20" height="16" rx="2" /><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" /></svg>
+                </div>
+                contact@physiobook.com
+              </a>
 
-          <button
-            onClick={onSignupClick}
-            style={{
-              width: '100%',
-              padding: '1rem',
-              background: '#f1f5f9',
-              color: '#2563eb',
-              border: '2px solid #2563eb',
-              borderRadius: '10px',
-              fontWeight: 700,
-              fontSize: '1rem',
-              cursor: 'pointer',
-              transition: 'all 0.3s',
-            }}
-            onMouseEnter={(e) => {
-              e.target.style.background = '#dbeafe';
-            }}
-            onMouseLeave={(e) => {
-              e.target.style.background = '#f1f5f9';
-            }}
-          >
-            Sign Up Now
-          </button>
+              <a
+                href="tel:+15551234567"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.75rem',
+                  fontSize: '1.15rem',
+                  color: '#0f172a',
+                  fontWeight: 600,
+                  textDecoration: 'none',
+                  padding: '1rem 2rem',
+                  background: '#f8fafc',
+                  border: '1px solid #e2e8f0',
+                  borderRadius: '12px',
+                  transition: 'all 0.2s',
+                  width: '100%',
+                  maxWidth: '400px',
+                  justifyContent: 'center'
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = '#f1f5f9'; e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.borderColor = '#cbd5e1'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = '#f8fafc'; e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.borderColor = '#e2e8f0'; }}
+              >
+                <div style={{ background: '#fff', padding: '0.5rem', borderRadius: '8px', display: 'flex', border: '1px solid #e2e8f0' }}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" /></svg>
+                </div>
+                +1 (555) 123-4567
+              </a>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -890,17 +783,13 @@ export default function Home() {
     navigate('/login/clinic');
   };
 
-  const handleTherapist = () => {
-    navigate('/login/therapist');
-  };
-
   return (
     <div style={{ background: '#f8fafc', color: '#0f172a', fontFamily: 'Inter, sans-serif' }}>
-      <Header onSignupClick={handleSignup} onTherapistClick={handleTherapist} />
-      <Hero onSignupClick={handleSignup} onLoginClick={handleLogin} onTherapistClick={handleTherapist} />
+      <Header onLoginClick={handleLogin} />
+      <Hero onSignupClick={handleSignup} onLoginClick={handleLogin} />
       <FeaturesSection />
       <HowItWorks />
-      <PricingSection onSignupClick={handleSignup} />
+      <PricingSection />
       <Footer />
     </div>
   );
