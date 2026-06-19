@@ -97,7 +97,7 @@ export default function Sidebar({ role, activeClinic, setActiveClinic, clinics, 
       {/* Brand */}
       <div className="sidebar-brand" style={{ justifyContent: 'space-between' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-          <Icon size={22} color={brandColor} />
+          <img src="/physiobook.svg" alt="Physiobook Logo" style={{ width: 24, height: 24, borderRadius: 4, objectFit: 'cover' }} />
           <span style={{ color: '#0f172a', fontSize: '1.1rem', fontWeight: 800 }}>{brand}</span>
         </div>
         {isSidebarOpen && (

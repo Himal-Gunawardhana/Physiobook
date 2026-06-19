@@ -120,22 +120,16 @@ function Header({ onSignupClick, onTherapistClick }) {
       >
         {/* Logo */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <div
+          <img
+            src="/physiobook.svg"
+            alt="Physiobook Logo"
             style={{
               width: 40,
               height: 40,
               borderRadius: '10px',
-              background: 'linear-gradient(135deg, #2563eb, #1e40af)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: '#fff',
-              fontSize: '1.25rem',
-              fontWeight: 800,
+              objectFit: 'cover',
             }}
-          >
-            P
-          </div>
+          />
           <span style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0f172a' }}>
             Physiobook
           </span>

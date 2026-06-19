@@ -4,15 +4,15 @@ import { User, Lock, Mail, ArrowRight, Activity, CheckCircle, AlertCircle, Loade
 import { useAuth } from '../../context/AuthContext';
 
 export default function BookingGate() {
-  const navigate  = useNavigate();
-  const location  = useLocation();
+  const navigate = useNavigate();
+  const location = useLocation();
   const { login, register } = useAuth();
 
   const [mode, setMode] = useState('login');
   const [form, setForm] = useState({ firstName: '', lastName: '', email: '', password: '' });
   const [loading, setLoading] = useState(false);
-  const [error,   setError]   = useState('');
-  const [done,    setDone]    = useState(false);
+  const [error, setError] = useState('');
+  const [done, setDone] = useState(false);
 
   // Preserve booking state so patient continues after auth
   const nextState = location.state;
@@ -31,10 +31,10 @@ export default function BookingGate() {
         // Register the account
         await register({
           firstName: first || form.firstName,
-          lastName:  rest.join(' ') || 'Patient',
-          email:     form.email,
-          password:  form.password,
-          role:      'patient',
+          lastName: rest.join(' ') || 'Patient',
+          email: form.email,
+          password: form.password,
+          role: 'patient',
         });
         // After registration, automatically log in so the user is authenticated
         await login(form.email, form.password);
@@ -61,9 +61,7 @@ export default function BookingGate() {
     <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #eff6ff 0%, #f0fdf4 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem' }}>
       <div style={{ width: '100%', maxWidth: '420px' }}>
         <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 56, height: 56, background: '#2563eb', borderRadius: '50%', marginBottom: '1rem' }}>
-            <Activity size={28} color="#fff" />
-          </div>
+          <img src="/physiobook.svg" alt="Physiobook Logo" style={{ width: 56, height: 56, marginBottom: '1rem', borderRadius: 12, objectFit: 'cover' }} />
           <h1 style={{ margin: 0, fontSize: '1.6rem', fontWeight: 800, color: '#0f172a' }}>
             {mode === 'login' ? 'Welcome back' : 'Create account'}
           </h1>
