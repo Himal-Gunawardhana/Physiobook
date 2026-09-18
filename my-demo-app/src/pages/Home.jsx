@@ -98,17 +98,8 @@ function Header({ onLoginClick }) {
   const navigate = useNavigate();
 
   return (
-    <header
-      style={{
-        position: 'sticky',
-        top: 0,
-        zIndex: 100,
-        background: 'rgba(255, 255, 255, 0.95)',
-        backdropFilter: 'blur(10px)',
-        borderBottom: '1px solid #e2e8f0',
-        padding: '1rem 2rem',
-      }}
-    >
+    <header className="header-nav">
+      <div className="container header-container">
       <div
         style={{
           maxWidth: '1200px',
@@ -136,13 +127,7 @@ function Header({ onLoginClick }) {
         </div>
 
         {/* Desktop Navigation */}
-        <div
-          style={{
-            display: 'flex',
-            gap: '2rem',
-            alignItems: 'center',
-          }}
-        >
+        <div className="header-links">
           <a href="#features" style={{ color: '#64748b', textDecoration: 'none', fontSize: '0.95rem', fontWeight: 500 }}>
             Features
           </a>
@@ -154,89 +139,56 @@ function Header({ onLoginClick }) {
           </a>
         </div>
 
-        {/* Desktop Auth Buttons */}
-        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+        {/* Desktop Auth Buttons & Mobile Menu Toggle */}
+        <div className="header-actions">
           {user ? (
             <>
               <button
                 onClick={() => navigate(user.role === 'patient' ? '/patient' : (user.role === 'clinic_admin' ? '/clinic' : (user.role === 'therapist' ? '/therapist' : '/superadmin')))}
-                style={{
-                  padding: '0.65rem 1.25rem',
-                  background: 'linear-gradient(135deg, #2563eb, #1e40af)',
-                  color: '#fff',
-                  border: 'none',
-                  borderRadius: '8px',
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                  fontSize: '0.95rem',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.5rem',
-                  transition: 'all 0.3s',
-                }}
-                onMouseEnter={(e) => {
-                  e.target.style.transform = 'translateY(-2px)';
-                  e.target.style.boxShadow = '0 10px 25px rgba(37,99,235,0.3)';
-                }}
-                onMouseLeave={(e) => {
-                  e.target.style.transform = 'translateY(0)';
-                  e.target.style.boxShadow = 'none';
-                }}
+                className="btn-premium"
+                style={{ padding: '0.65rem 1.25rem', fontSize: '0.95rem' }}
               >
                 <User size={16} />
                 {user.role === 'patient' ? 'My Profile' : 'Dashboard'}
               </button>
               <button
                 onClick={() => { logout(); navigate('/'); }}
-                style={{
-                  padding: '0.65rem 1rem',
-                  background: 'transparent',
-                  color: '#64748b',
-                  border: '1px solid #e2e8f0',
-                  borderRadius: '8px',
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                  fontSize: '0.9rem',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.5rem',
-                  transition: 'all 0.2s',
-                }}
-                onMouseEnter={(e) => e.target.style.background = '#f1f5f9'}
-                onMouseLeave={(e) => e.target.style.background = 'transparent'}
+                className="btn-outline"
+                style={{ padding: '0.65rem 1rem' }}
               >
-                <LogOut size={14} />
+                <LogOut size={16} />
               </button>
             </>
           ) : (
-            <>
-              <button
-                onClick={onLoginClick}
-                style={{
-                  padding: '0.75rem 1.5rem',
-                  background: 'linear-gradient(135deg, #2563eb, #1e40af)',
-                  color: '#fff',
-                  border: 'none',
-                  borderRadius: '8px',
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                  fontSize: '0.95rem',
-                  transition: 'all 0.3s',
-                }}
-                onMouseEnter={(e) => {
-                  e.target.style.transform = 'translateY(-2px)';
-                  e.target.style.boxShadow = '0 10px 25px rgba(37,99,235,0.3)';
-                }}
-                onMouseLeave={(e) => {
-                  e.target.style.transform = 'translateY(0)';
-                  e.target.style.boxShadow = 'none';
-                }}
-              >
-                Clinic Login
-              </button>
-            </>
+            <button onClick={onLoginClick} className="btn-premium" style={{ padding: '0.75rem 1.5rem' }}>
+              Clinic Login
+            </button>
+          )}
+
+          {/* Mobile Hamburger Icon */}
+          <button 
+            className="mobile-menu-btn" 
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label="Toggle menu"
+          >
+            {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
+        </div>
+      </div>
+
+      {/* Mobile Navigation Dropdown */}
+      {mobileMenuOpen && (
+        <div className="mobile-menu">
+          <a href="#features" onClick={() => setMobileMenuOpen(false)}>Features</a>
+          <a href="#pricing" onClick={() => setMobileMenuOpen(false)}>Pricing</a>
+          <a href="#how-it-works" onClick={() => setMobileMenuOpen(false)}>How It Works</a>
+          {!user && (
+            <button onClick={() => { onLoginClick(); setMobileMenuOpen(false); }} className="btn-premium" style={{ marginTop: '1rem', justifyContent: 'center' }}>
+              Clinic Login
+            </button>
           )}
         </div>
+      )}
       </div>
     </header>
   );
@@ -245,28 +197,10 @@ function Header({ onLoginClick }) {
 /* ── Hero Section ───────────────────────────────────────── */
 function Hero({ onSignupClick, onLoginClick }) {
   return (
-    <section
-      style={{
-        position: 'relative',
-        minHeight: '90vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        overflow: 'hidden',
-        background: '#f8fafc',
-        padding: '2rem 1rem',
-      }}
-    >
+    <section className="hero-section">
       <AnimatedBackground />
 
-      <div
-        style={{
-          position: 'relative',
-          zIndex: 10,
-          maxWidth: '900px',
-          textAlign: 'center',
-        }}
-      >
+      <div className="hero-content">
         {/* Badge */}
         <div
           style={{
@@ -285,107 +219,40 @@ function Hero({ onSignupClick, onLoginClick }) {
         </div>
 
         {/* Main Headline */}
-        <h1
-          style={{
-            fontSize: 'clamp(2.5rem, 5vw, 3.5rem)',
-            fontWeight: 900,
-            color: '#0f172a',
-            lineHeight: 1.2,
-            marginBottom: '1.5rem',
-          }}
-        >
+        <h1 className="hero-title">
           Manage Your Clinic<br />
-          <span style={{ background: 'linear-gradient(135deg, #2563eb, #1e40af)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+          <span className="gradient-text">
             Effortlessly
           </span>
         </h1>
 
         {/* Subheading */}
-        <p
-          style={{
-            fontSize: '1.25rem',
-            color: '#64748b',
-            marginBottom: '3rem',
-            maxWidth: '700px',
-            margin: '0 auto 3rem',
-            lineHeight: 1.6,
-          }}
-        >
+        <p className="hero-subtitle">
           Complete clinic management platform: staff scheduling, online bookings, patient messaging, SOAP notes, payments and multi-branch operations.
         </p>
 
         {/* CTA Buttons */}
-        <div
-          style={{
-            display: 'flex',
-            gap: '1rem',
-            justifyContent: 'center',
-            flexWrap: 'wrap',
-            marginBottom: '2rem',
-          }}
-        >
-          <button
-            onClick={onSignupClick}
-            style={{
-              padding: '1rem 2.5rem',
-              background: 'linear-gradient(135deg, #2563eb, #1e40af)',
-              color: '#fff',
-              border: 'none',
-              borderRadius: '10px',
-              fontWeight: 700,
-              fontSize: '1.05rem',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.75rem',
-              transition: 'all 0.3s',
-            }}
-            onMouseEnter={(e) => {
-              e.target.style.transform = 'translateY(-4px)';
-              e.target.style.boxShadow = '0 20px 40px rgba(37,99,235,0.4)';
-            }}
-            onMouseLeave={(e) => {
-              e.target.style.transform = 'translateY(0)';
-              e.target.style.boxShadow = 'none';
-            }}
-          >
+        <div className="hero-buttons">
+          <button onClick={onSignupClick} className="btn-premium">
             Register Clinic <ArrowRight size={20} />
           </button>
 
-          <button
-            onClick={onLoginClick}
-            style={{
-              padding: '1rem 2.5rem',
-              background: 'transparent',
-              color: '#2563eb',
-              border: '2px solid #2563eb',
-              borderRadius: '10px',
-              fontWeight: 700,
-              fontSize: '1.05rem',
-              cursor: 'pointer',
-              transition: 'all 0.3s',
-            }}
-            onMouseEnter={(e) => {
-              e.target.style.background = '#dbeafe';
-            }}
-            onMouseLeave={(e) => {
-              e.target.style.background = 'transparent';
-            }}
-          >
+          <button onClick={onLoginClick} className="btn-outline">
             Clinic Sign In
           </button>
         </div>
 
-
-
         {/* Trust Indicator */}
-        <p style={{ color: '#94a3b8', fontSize: '0.9rem' }}>
+        <p style={{ color: '#94a3b8', fontSize: '0.9rem', marginTop: '2rem' }}>
           No credit card required • 1 month free trial • Cancel anytime
         </p>
       </div>
     </section>
   );
 }
+
+/* ── Hero Section ───────────────────────────────────────── */
+
 
 /* ── Features Section ───────────────────────────────────── */
 function FeaturesSection() {
@@ -423,84 +290,35 @@ function FeaturesSection() {
   ];
 
   return (
-    <section
-      id="features"
-      style={{
-        padding: '5rem 2rem',
-        maxWidth: '1200px',
-        margin: '0 auto',
-      }}
-    >
-      <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
-        <h2
-          style={{
-            fontSize: '2.5rem',
-            fontWeight: 900,
-            color: '#0f172a',
-            marginBottom: '1rem',
-          }}
-        >
-          Everything You Need to Manage Your Clinic
-        </h2>
-        <p style={{ fontSize: '1.1rem', color: '#64748b', maxWidth: '600px', margin: '0 auto' }}>
-          Comprehensive tools designed specifically for physiotherapy clinics to streamline operations and improve patient care.
-        </p>
-      </div>
+    <section id="features" className="features-section">
+      <div className="container">
+        <div className="section-header">
+          <h2 className="section-title">
+            Everything You Need to Manage Your Clinic
+          </h2>
+          <p className="section-subtitle">
+            Comprehensive tools designed specifically for physiotherapy clinics to streamline operations and improve patient care.
+          </p>
+        </div>
 
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-          gap: '2rem',
-        }}
-      >
-        {features.map((feature, idx) => {
-          const Icon = feature.icon;
-          return (
-            <div
-              key={idx}
-              style={{
-                padding: '2rem',
-                background: '#fff',
-                borderRadius: '12px',
-                border: '1px solid #e2e8f0',
-                transition: 'all 0.3s',
-                cursor: 'pointer',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-8px)';
-                e.currentTarget.style.boxShadow = '0 20px 40px rgba(0,0,0,0.1)';
-                e.currentTarget.style.borderColor = '#2563eb';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = 'none';
-                e.currentTarget.style.borderColor = '#e2e8f0';
-              }}
-            >
-              <Icon
-                size={32}
-                color="#2563eb"
-                style={{
-                  marginBottom: '1rem',
-                }}
-              />
-              <h3
-                style={{
-                  fontSize: '1.25rem',
-                  fontWeight: 700,
-                  color: '#0f172a',
-                  marginBottom: '0.75rem',
-                }}
-              >
-                {feature.title}
-              </h3>
-              <p style={{ color: '#64748b', fontSize: '0.95rem', lineHeight: 1.6 }}>
-                {feature.description}
-              </p>
-            </div>
-          );
-        })}
+        <div className="features-grid">
+          {features.map((feature, idx) => {
+            const Icon = feature.icon;
+            return (
+              <div key={idx} className="feature-card">
+                <div className="feature-icon-wrapper">
+                  <Icon size={32} />
+                </div>
+                <h3 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#0f172a', marginBottom: '0.75rem' }}>
+                  {feature.title}
+                </h3>
+                <p style={{ color: '#64748b', fontSize: '0.95rem', lineHeight: 1.6 }}>
+                  {feature.description}
+                </p>
+              </div>
+            );
+          })}
+        </div>
       </div>
     </section>
   );
@@ -532,72 +350,26 @@ function HowItWorks() {
   ];
 
   return (
-    <section
-      id="how-it-works"
-      style={{
-        padding: '5rem 2rem',
-        background: '#f8fafc',
-        maxWidth: '1200px',
-        margin: '0 auto',
-      }}
-    >
-      <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
-        <h2
-          style={{
-            fontSize: '2.5rem',
-            fontWeight: 900,
-            color: '#0f172a',
-            marginBottom: '1rem',
-          }}
-        >
-          How to Get Started
-        </h2>
-        <p style={{ fontSize: '1.1rem', color: '#64748b' }}>
-          Set up your clinic in minutes, not hours.
-        </p>
-      </div>
+    <section id="how-it-works" className="steps-section">
+      <div className="container">
+        <div className="section-header">
+          <h2 className="section-title">How to Get Started</h2>
+          <p className="section-subtitle">Set up your clinic in minutes, not hours.</p>
+        </div>
 
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-          gap: '2rem',
-        }}
-      >
-        {steps.map((step, idx) => (
-          <div key={idx} style={{ position: 'relative' }}>
-            <div
-              style={{
-                width: 60,
-                height: 60,
-                background: 'linear-gradient(135deg, #2563eb, #1e40af)',
-                color: '#fff',
-                borderRadius: '50%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '1.75rem',
-                fontWeight: 800,
-                marginBottom: '1.5rem',
-              }}
-            >
-              {step.number}
+        <div className="steps-grid">
+          {steps.map((step, idx) => (
+            <div key={idx} className="step-card">
+              <div className="step-number">{step.number}</div>
+              <h3 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#0f172a', marginBottom: '0.5rem' }}>
+                {step.title}
+              </h3>
+              <p style={{ color: '#64748b', fontSize: '0.95rem' }}>
+                {step.description}
+              </p>
             </div>
-            <h3
-              style={{
-                fontSize: '1.25rem',
-                fontWeight: 700,
-                color: '#0f172a',
-                marginBottom: '0.5rem',
-              }}
-            >
-              {step.title}
-            </h3>
-            <p style={{ color: '#64748b', fontSize: '0.95rem' }}>
-              {step.description}
-            </p>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </section>
   );
@@ -606,45 +378,16 @@ function HowItWorks() {
 /* ── Pricing Section ────────────────────────────────────── */
 function PricingSection() {
   return (
-    <section
-      id="pricing"
-      style={{
-        padding: '6rem 2rem',
-        background: 'linear-gradient(to bottom, #f8fafc, #eff6ff)',
-      }}
-    >
-      <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-        <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
-          <h2
-            style={{
-              fontSize: '2.5rem',
-              fontWeight: 900,
-              color: '#0f172a',
-              marginBottom: '1rem',
-            }}
-          >
-            Pricing for Your Clinic
-          </h2>
-          <p style={{ fontSize: '1.15rem', color: '#64748b', maxWidth: '650px', margin: '0 auto', lineHeight: 1.6 }}>
+    <section id="pricing" className="pricing-section">
+      <div className="container">
+        <div className="section-header">
+          <h2 className="section-title">Pricing for Your Clinic</h2>
+          <p className="section-subtitle">
             Every clinic is unique. We provide tailored plans that fit perfectly with your size, requirements, and growth goals.
           </p>
         </div>
 
-        <div
-          style={{
-            maxWidth: '750px',
-            margin: '0 auto',
-            background: 'rgba(255, 255, 255, 0.8)',
-            backdropFilter: 'blur(16px)',
-            border: '1px solid #e2e8f0',
-            borderRadius: '24px',
-            padding: '4rem 3rem',
-            textAlign: 'center',
-            boxShadow: '0 20px 40px -15px rgba(0,0,0,0.05)',
-            position: 'relative',
-            overflow: 'hidden',
-          }}
-        >
+        <div className="pricing-card">
           {/* Decorative Background Elements */}
           <div style={{ position: 'absolute', top: '-50px', left: '-50px', width: '150px', height: '150px', background: '#dbeafe', borderRadius: '50%', filter: 'blur(50px)', zIndex: 0 }}></div>
           <div style={{ position: 'absolute', bottom: '-50px', right: '-50px', width: '200px', height: '200px', background: '#e0e7ff', borderRadius: '50%', filter: 'blur(60px)', zIndex: 0 }}></div>
@@ -668,14 +411,7 @@ function PricingSection() {
               <MessageSquare size={36} style={{ transform: 'rotate(5deg)' }} />
             </div>
 
-            <h3
-              style={{
-                fontSize: '2rem',
-                fontWeight: 800,
-                color: '#0f172a',
-                marginBottom: '1rem',
-              }}
-            >
+            <h3 style={{ fontSize: '2rem', fontWeight: 800, color: '#0f172a', marginBottom: '1rem' }}>
               Get Your Quote
             </h3>
 
@@ -686,54 +422,21 @@ function PricingSection() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', alignItems: 'center' }}>
               <a
                 href="mailto:info@itselfcare.com"
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '0.75rem',
-                  fontSize: '1.15rem',
-                  color: '#2563eb',
-                  fontWeight: 600,
-                  textDecoration: 'none',
-                  padding: '1rem 2rem',
-                  background: '#eff6ff',
-                  borderRadius: '12px',
-                  transition: 'all 0.2s',
-                  width: '100%',
-                  maxWidth: '400px',
-                  justifyContent: 'center'
-                }}
-                onMouseEnter={(e) => { e.currentTarget.style.background = '#dbeafe'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
-                onMouseLeave={(e) => { e.currentTarget.style.background = '#eff6ff'; e.currentTarget.style.transform = 'translateY(0)'; }}
+                className="btn-outline"
+                style={{ width: '100%', maxWidth: '400px', justifyContent: 'center', background: '#eff6ff', border: 'none', color: '#2563eb' }}
               >
-                <div style={{ background: '#fff', padding: '0.5rem', borderRadius: '8px', display: 'flex' }}>
+                <div style={{ background: '#fff', padding: '0.5rem', borderRadius: '8px', display: 'flex', marginRight: '0.5rem' }}>
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="4" width="20" height="16" rx="2" /><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" /></svg>
                 </div>
                 info@itselfcare.com
               </a>
 
               <a
-                href="tel:+94702828400"
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '0.75rem',
-                  fontSize: '1.15rem',
-                  color: '#0f172a',
-                  fontWeight: 600,
-                  textDecoration: 'none',
-                  padding: '1rem 2rem',
-                  background: '#f8fafc',
-                  border: '1px solid #e2e8f0',
-                  borderRadius: '12px',
-                  transition: 'all 0.2s',
-                  width: '100%',
-                  maxWidth: '400px',
-                  justifyContent: 'center'
-                }}
-                onMouseEnter={(e) => { e.currentTarget.style.background = '#f1f5f9'; e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.borderColor = '#cbd5e1'; }}
-                onMouseLeave={(e) => { e.currentTarget.style.background = '#f8fafc'; e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.borderColor = '#e2e8f0'; }}
+                href="tel:+94 70 282 8400"
+                className="btn-outline"
+                style={{ width: '100%', maxWidth: '400px', justifyContent: 'center', background: '#f8fafc', borderColor: '#e2e8f0', color: '#0f172a' }}
               >
-                <div style={{ background: '#fff', padding: '0.5rem', borderRadius: '8px', display: 'flex', border: '1px solid #e2e8f0' }}>
+                <div style={{ background: '#fff', padding: '0.5rem', borderRadius: '8px', display: 'flex', border: '1px solid #e2e8f0', marginRight: '0.5rem' }}>
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" /></svg>
                 </div>
                 +94 70 282 8400

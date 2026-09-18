@@ -58,8 +58,8 @@ export default function BookingGate() {
   };
 
   return (
-    <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #eff6ff 0%, #f0fdf4 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem' }}>
-      <div style={{ width: '100%', maxWidth: '420px' }}>
+    <div className="booking-gate-container">
+      <div className="booking-gate-card">
         <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
           <img src="/physiobook.svg" alt="Physiobook Logo" style={{ width: 56, height: 56, marginBottom: '1rem', borderRadius: 12, objectFit: 'cover' }} />
           <h1 style={{ margin: 0, fontSize: '1.6rem', fontWeight: 800, color: '#0f172a' }}>
@@ -71,7 +71,7 @@ export default function BookingGate() {
         </div>
 
         {done ? (
-          <div style={{ background: '#fff', borderRadius: 16, padding: '2.5rem', textAlign: 'center', boxShadow: '0 4px 24px rgba(0,0,0,0.08)' }}>
+          <div style={{ background: '#fff', borderRadius: 16, padding: '2.5rem', textAlign: 'center', border: '1px solid #e2e8f0' }}>
             <CheckCircle size={48} color="#10b981" style={{ marginBottom: '1rem' }} />
             <h3 style={{ margin: '0 0 0.5rem', color: '#0f172a' }}>
               {mode === 'login' ? 'Signed In!' : 'Account Created!'}
@@ -79,12 +79,12 @@ export default function BookingGate() {
             <p style={{ color: '#64748b', margin: 0 }}>Redirecting to your booking…</p>
           </div>
         ) : (
-          <div style={{ background: '#fff', borderRadius: 16, padding: '2rem', boxShadow: '0 4px 24px rgba(0,0,0,0.08)' }}>
+          <div>
             {/* Toggle */}
-            <div style={{ display: 'flex', background: '#f1f5f9', borderRadius: 10, padding: 4, marginBottom: '1.5rem' }}>
+            <div className="bg-toggle">
               {['login', 'register'].map(m => (
                 <button key={m} onClick={() => { setMode(m); setError(''); }}
-                  style={{ flex: 1, padding: '0.55rem', borderRadius: 8, border: 'none', background: mode === m ? '#fff' : 'transparent', color: mode === m ? '#2563eb' : '#64748b', fontWeight: mode === m ? 700 : 500, cursor: 'pointer', fontSize: '0.9rem', boxShadow: mode === m ? '0 1px 4px rgba(0,0,0,0.08)' : 'none', transition: 'all 0.2s' }}>
+                  className={`bg-toggle-btn ${mode === m ? 'active' : 'inactive'}`}>
                   {m === 'login' ? 'Sign In' : 'Register'}
                 </button>
               ))}
@@ -93,27 +93,27 @@ export default function BookingGate() {
             <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               {mode === 'register' && (
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#374151', marginBottom: '0.4rem' }}>Full Name</label>
+                  <label className="form-label">Full Name</label>
                   <div style={{ position: 'relative' }}>
                     <User size={16} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
-                    <input name="name" value={form.firstName} onChange={set('firstName')} placeholder="Sarah Johnson" required style={inputStyle} />
+                    <input name="name" value={form.firstName} onChange={set('firstName')} placeholder="Sarah Johnson" required className="form-input" style={{ paddingLeft: '2.4rem' }} />
                   </div>
                 </div>
               )}
 
               <div>
-                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#374151', marginBottom: '0.4rem' }}>Email</label>
+                <label className="form-label">Email</label>
                 <div style={{ position: 'relative' }}>
                   <Mail size={16} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
-                  <input type="email" value={form.email} onChange={set('email')} placeholder="you@example.com" required style={inputStyle} />
+                  <input type="email" value={form.email} onChange={set('email')} placeholder="you@example.com" required className="form-input" style={{ paddingLeft: '2.4rem' }} />
                 </div>
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#374151', marginBottom: '0.4rem' }}>Password</label>
+                <label className="form-label">Password</label>
                 <div style={{ position: 'relative' }}>
                   <Lock size={16} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
-                  <input type="password" value={form.password} onChange={set('password')} placeholder="••••••••" required minLength={8} style={inputStyle} />
+                  <input type="password" value={form.password} onChange={set('password')} placeholder="••••••••" required minLength={8} className="form-input" style={{ paddingLeft: '2.4rem' }} />
                 </div>
               </div>
 
@@ -124,7 +124,7 @@ export default function BookingGate() {
               )}
 
               <button type="submit" disabled={loading}
-                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', padding: '0.85rem', background: loading ? '#93c5fd' : '#2563eb', color: '#fff', border: 'none', borderRadius: 10, fontSize: '1rem', fontWeight: 700, cursor: loading ? 'not-allowed' : 'pointer', transition: 'all 0.2s' }}>
+                className="btn-premium" style={{ width: '100%', justifyContent: 'center', padding: '0.85rem' }}>
                 {loading
                   ? <><Loader size={16} style={{ animation: 'spin 1s linear infinite' }} /> Please wait…</>
                   : <>{mode === 'login' ? 'Sign In & Continue' : 'Register & Continue'} <ArrowRight size={18} /></>}
@@ -136,9 +136,3 @@ export default function BookingGate() {
     </div>
   );
 }
-
-const inputStyle = {
-  width: '100%', padding: '0.7rem 0.75rem 0.7rem 2.4rem',
-  border: '1.5px solid #e2e8f0', borderRadius: 8, fontSize: '0.9rem',
-  outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box',
-};

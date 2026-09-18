@@ -4,7 +4,7 @@ import {
   Building2, Users, Settings, Activity,
   Calendar, MessageSquare, PieChart, ShieldCheck,
   Package, X, LogOut, CreditCard, Globe, UserCircle,
-  FileText, Star,
+  FileText, Star, ClipboardList,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
@@ -24,11 +24,12 @@ export default function Sidebar({ role, activeClinic, setActiveClinic, clinics, 
       {
         label: 'Management',
         items: [
-          { name: 'Overview',            path: '/clinic',              icon: PieChart,  end: true },
-          { name: 'Staff Management',    path: '/clinic/staff',        icon: Users },
-          { name: 'Services & Packages', path: '/clinic/services',     icon: Package },
-          { name: 'Payments & Refunds',  path: '/clinic/payments',     icon: CreditCard },
-          { name: 'Booking Page',        path: '/clinic/booking-page', icon: Globe },
+          { name: 'Overview',            path: '/clinic',                      icon: PieChart,      end: true },
+          { name: 'Staff Management',    path: '/clinic/staff',                icon: Users },
+          { name: 'Services & Packages', path: '/clinic/services',             icon: Package },
+          { name: 'Payments & Refunds',  path: '/clinic/payments',             icon: CreditCard },
+          { name: 'Booking Page',        path: '/clinic/booking-page',         icon: Globe },
+          { name: 'Patient Records',     path: '/clinic/patient-records',      icon: ClipboardList },
         ],
       },
       {
@@ -43,6 +44,12 @@ export default function Sidebar({ role, activeClinic, setActiveClinic, clinics, 
     Icon = Activity;
     brandColor = '#8b5cf6';
     navGroups = [
+      {
+        label: 'Clinical',
+        items: [
+          { name: 'My Patients',   path: '/therapist/patients', icon: Users },
+        ],
+      },
       {
         label: 'Navigation',
         items: [
@@ -96,7 +103,7 @@ export default function Sidebar({ role, activeClinic, setActiveClinic, clinics, 
 
       {/* Brand */}
       <div className="sidebar-brand" style={{ justifyContent: 'space-between' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+        <div className="header-actions" style={{ gap: '0.6rem' }}>
           <img src="/physiobook.svg" alt="Physiobook Logo" style={{ width: 24, height: 24, borderRadius: 4, objectFit: 'cover' }} />
           <span style={{ color: '#0f172a', fontSize: '1.1rem', fontWeight: 800 }}>{brand}</span>
         </div>

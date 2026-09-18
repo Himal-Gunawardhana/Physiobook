@@ -40,6 +40,12 @@ import TherapistSessionNotes from './pages/Therapist/SessionNotes';
 import TherapistProfile      from './pages/Therapist/Profile';
 import TherapistReviews      from './pages/Therapist/Reviews';
 import BookingHistory        from './pages/Therapist/BookingHistory';
+import MyPatients            from './pages/Therapist/MyPatients';
+import PatientWorkspace      from './pages/Therapist/PatientWorkspace';
+
+// Clinic Admin — Records
+import PatientRecordsAdmin   from './pages/ClinicAdmin/PatientRecords';
+import ClinicPatientView     from './pages/ClinicAdmin/ClinicPatientView';
 
 // Super Admin
 import SuperAdminOverview      from './pages/SuperAdmin/Overview';
@@ -292,6 +298,8 @@ export default function App() {
           <Route path="booking-page" element={<ClinicAdminBookingPage />} />
           <Route path="account"      element={<ClinicAdminAccount />} />
           <Route path="settings"     element={<ClinicAdminSettings />} />
+          <Route path="patient-records"          element={<PatientRecordsAdmin />} />
+          <Route path="patient-records/:patientId" element={<ClinicPatientView />} />
         </Route>
 
         {/* Therapist */}
@@ -303,6 +311,8 @@ export default function App() {
           <Route path="reviews"      element={<TherapistReviews />} />
           <Route path="chat"         element={<TherapistChat />} />
           <Route path="notes"        element={<TherapistSessionNotes />} />
+          <Route path="patients"              element={<MyPatients />} />
+          <Route path="patients/:patientId"   element={<PatientWorkspace />} />
         </Route>
 
         {/* Super Admin (also accessible via /admin shortcut) */}
