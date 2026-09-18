@@ -100,15 +100,6 @@ function Header({ onLoginClick }) {
   return (
     <header className="header-nav">
       <div className="container header-container">
-      <div
-        style={{
-          maxWidth: '1200px',
-          margin: '0 auto',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-        }}
-      >
         {/* Logo */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           <img
@@ -174,7 +165,6 @@ function Header({ onLoginClick }) {
             {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
         </div>
-      </div>
       </div>
       
       {/* Mobile Navigation Dropdown */}
