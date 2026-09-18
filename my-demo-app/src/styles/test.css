@@ -68,7 +68,7 @@
   }
 }
 
-.section-header {
+.test-section-header {
   padding: 20px 24px;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
@@ -80,23 +80,23 @@
   transition: opacity 0.2s;
 }
 
-.section-header:hover {
+.test-section-header:hover {
   opacity: 0.9;
 }
 
-.section-title {
+.test-section-title {
   display: flex;
   align-items: center;
   gap: 12px;
 }
 
-.section-title h2 {
+.test-section-title h2 {
   margin: 0;
   font-size: 1.3rem;
   font-weight: 600;
 }
 
-.section-content {
+.test-section-content {
   padding: 24px;
 }
 
@@ -462,7 +462,7 @@ textarea.input {
     font-size: 1.8rem;
   }
 
-  .section-content {
+  .test-section-content {
     padding: 16px;
   }
 
