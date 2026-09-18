@@ -175,7 +175,8 @@ function Header({ onLoginClick }) {
           </button>
         </div>
       </div>
-
+      </div>
+      
       {/* Mobile Navigation Dropdown */}
       {mobileMenuOpen && (
         <div className="mobile-menu">
@@ -189,7 +190,6 @@ function Header({ onLoginClick }) {
           )}
         </div>
       )}
-      </div>
     </header>
   );
 }
